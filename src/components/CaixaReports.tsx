@@ -257,7 +257,7 @@ export default function CaixaReports() {
   }, [reports]);
 
   const KPICard = ({ title, value, colorClass, icon: Icon }: any) => (
-    <div className={`p-6 rounded-3xl border border-white/50 bg-white/40 backdrop-blur-md shadow-sm relative overflow-hidden group hover:shadow-xl transition-all`}>
+    <div className={`p-6 rounded-3xl border border-white/12 bg-white/6 backdrop-blur-md shadow-sm relative overflow-hidden group hover:shadow-xl transition-all`}>
       <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-4 ${colorClass}`}>
         <Icon size={18} />
       </div>
@@ -283,7 +283,7 @@ export default function CaixaReports() {
           <select
             value={dateRange}
             onChange={e => setDateRange(e.target.value)}
-            className="px-4 py-3 rounded-2xl text-xs bg-white/60 border border-primary/10 focus:ring-2 focus:ring-primary/20 outline-none font-label-caps cursor-pointer shadow-sm"
+            className="px-4 py-3 rounded-2xl text-xs bg-white/8 border border-primary/10 focus:ring-2 focus:ring-primary/20 outline-none font-label-caps cursor-pointer shadow-sm"
           >
             <option value="ALL">All Time</option>
             <option value="TODAY">Today</option>
@@ -292,8 +292,8 @@ export default function CaixaReports() {
           </select>
           {dateRange === 'CUSTOM' && (
             <>
-              <input type="date" value={customStart} onChange={e => setCustomStart(e.target.value)} className="px-4 py-3 rounded-2xl text-xs bg-white/60 border border-primary/10 outline-none shadow-sm" />
-              <input type="date" value={customEnd} onChange={e => setCustomEnd(e.target.value)} className="px-4 py-3 rounded-2xl text-xs bg-white/60 border border-primary/10 outline-none shadow-sm" />
+              <input type="date" value={customStart} onChange={e => setCustomStart(e.target.value)} className="px-4 py-3 rounded-2xl text-xs bg-white/8 border border-primary/10 outline-none shadow-sm" />
+              <input type="date" value={customEnd} onChange={e => setCustomEnd(e.target.value)} className="px-4 py-3 rounded-2xl text-xs bg-white/8 border border-primary/10 outline-none shadow-sm" />
             </>
           )}
           <button className="px-6 py-3 bg-primary text-on-primary rounded-2xl font-label-caps text-[11px] shadow-xl hover:bg-primary/90 transition-all flex items-center gap-2">
@@ -311,13 +311,13 @@ export default function CaixaReports() {
         <KPICard title="Avg Session Value" value={formatCurrency(kpis.averageSessionValue)} icon={BarChart} colorClass="bg-primary/10 text-primary" />
       </div>
 
-      <div className="glass-panel rounded-3xl overflow-hidden border border-white/50 shadow-sm flex flex-col">
-        <div className="p-6 border-b border-primary/10 bg-white/40">
+      <div className="glass-panel rounded-3xl overflow-hidden border border-white/12 shadow-sm flex flex-col">
+        <div className="p-6 border-b border-primary/10 bg-white/6">
           <h3 className="font-headline-md text-lg text-primary">Session History</h3>
         </div>
         <div className="overflow-x-auto flex-1">
           <table className="w-full text-left border-collapse text-sm">
-            <thead className="bg-white/90 text-[10px] font-label-caps text-outline uppercase">
+            <thead className="bg-white/10 text-[10px] font-label-caps text-outline uppercase">
               <tr>
                 <th className="px-6 py-4">Date</th>
                 <th className="px-6 py-4">User</th>
@@ -379,10 +379,10 @@ export default function CaixaReports() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="relative w-full max-w-2xl h-full bg-[#fdfbf7] shadow-2xl flex flex-col border-l border-white/40 overflow-hidden"
+              className="relative w-full max-w-2xl h-full bg-surface-container shadow-2xl flex flex-col border-l border-white/10 overflow-hidden"
             >
               {/* Drawer Header */}
-              <div className="p-8 border-b border-primary/10 flex justify-between items-start bg-white/40 backdrop-blur-md">
+              <div className="p-8 border-b border-primary/10 flex justify-between items-start bg-white/6 backdrop-blur-md">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <span className={`px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider ${selectedSession.status === 'OPEN' ? 'bg-blue-100 text-blue-700' : 'bg-surface border border-primary/10 text-outline'

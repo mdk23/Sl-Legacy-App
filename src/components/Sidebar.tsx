@@ -18,6 +18,8 @@ const navItems = [
   { href: '/inventory', icon: 'inventory_2', label: 'Inventory' },
   { href: '/customers', icon: 'people', label: 'Customers' },
   { href: '/sales', icon: 'trending_up', label: 'Sales' },
+  { href: '/expenses', icon: 'receipt_long', label: 'Expenses' },
+  { href: '/expenses/reports', icon: 'summarize', label: 'Expense Reports' },
   { href: '/settings', icon: 'settings', label: 'Settings' },
 ];
 
@@ -34,7 +36,7 @@ export default function Sidebar({ collapsed, mobileOpen, onToggleCollapse }: Sid
 
   return (
     <aside
-      className={`fixed left-0 top-0 h-full bg-white/40 backdrop-blur-xl border-r border-white/50 shadow-lg z-40 transition-all duration-300 ${
+      className={`fixed left-0 top-0 h-full bg-white/6 backdrop-blur-xl border-r border-white/12 shadow-lg z-40 transition-all duration-300 ${
         mobileOpen ? 'translate-x-0' : '-translate-x-full'
       } lg:translate-x-0 ${collapsed ? 'w-16' : 'w-64'} flex flex-col`}
     >
@@ -53,7 +55,7 @@ export default function Sidebar({ collapsed, mobileOpen, onToggleCollapse }: Sid
               className={`flex items-center gap-4 px-6 py-3 transition-all ${collapsed ? 'justify-center px-3' : ''} ${
                 active
                   ? 'bg-primary/10 text-primary font-bold border-r-2 border-primary translate-x-1'
-                  : 'text-on-surface-variant hover:bg-white/30'
+                  : 'text-on-surface-variant hover:bg-white/4'
               }`}
             >
               <span className="material-symbols-outlined">{item.icon}</span>
@@ -64,7 +66,7 @@ export default function Sidebar({ collapsed, mobileOpen, onToggleCollapse }: Sid
       </nav>
 
 
-      <div className="mt-auto px-6 py-4 border-t border-white/20">
+      <div className="mt-auto px-6 py-4 border-t border-white/8">
         <button
           onClick={logout}
           className={`flex items-center gap-3 text-error hover:bg-error/10 px-3 py-2 rounded-lg w-full transition-colors ${collapsed ? 'justify-center' : ''}`}

@@ -1,7 +1,52 @@
 import { v } from "convex/values";
-import { query, mutation } from "./_generated/server";
+import { query, mutation, internalMutation } from "./_generated/server";
 import { updateDailyMovementStats } from "./utils";
 import { requireUser } from "./authHelpers";
+
+async function recomputeInventoryCountersHandler(ctx: any) {
+  const products = await ctx.db
+    .query("products")
+    .withIndex("by_archived", (q: any) => q.eq("archived", false))
+    .collect();
+
+  let totalUnitsInStock = 0;
+  let inventoryValue = 0;
+  let lowStockItems = 0;
+  let outOfStockItems = 0;
+
+  for (const p of products) {
+    totalUnitsInStock += p.stock;
+    inventoryValue += p.stock * p.costPrice;
+    if (p.stock <= 0) outOfStockItems++;
+    else if (p.stock <= p.reorderLevel) lowStockItems++;
+  }
+
+  const counter = await ctx.db
+    .query("inventoryCounters")
+    .withIndex("by_counter_id", (q: any) => q.eq("id", "main"))
+    .first();
+
+  const values = {
+    totalProducts: products.length,
+    totalUnitsInStock,
+    inventoryValue,
+    lowStockItems,
+    outOfStockItems,
+  };
+
+  if (counter) {
+    await ctx.db.patch(counter._id, values);
+  } else {
+    await ctx.db.insert("inventoryCounters", {
+      id: "main",
+      deadStockItems: 0,
+      reservedStock: 0,
+      ...values,
+    });
+  }
+
+  return values;
+}
 
 export async function updateInventoryCountersHelper(ctx: any, args: {
   diffProducts?: number,
@@ -251,6 +296,26 @@ export const adjustStock = mutation({
     await updateDailyMovementStats(ctx, args.type, args.quantity);
 
     return newStock;
+  },
+});
+
+// Recompute inventoryCounters from the products table (fixes drift from direct db writes, e.g. seeding)
+export const recomputeInventoryCounters = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const user = await requireUser(ctx.db, ctx);
+    if (user.role !== "admin" && user.role !== "manager") {
+      throw new Error("Unauthorized. Only admins and managers can recompute inventory counters.");
+    }
+    return await recomputeInventoryCountersHandler(ctx);
+  },
+});
+
+// Same as above, callable from the CLI/backend without a logged-in user (e.g. one-off data fixes)
+export const recomputeInventoryCountersInternal = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    return await recomputeInventoryCountersHandler(ctx);
   },
 });
 

@@ -146,7 +146,7 @@ export default function Customers() {
         count,
         totalSpent,
         avgSpent: count > 0 ? Math.round(totalSpent / count) : 0,
-        color: colorMap[tier]?.bar || "#8a4853",
+        color: colorMap[tier]?.bar || "#B4832B",
         group: field === "financialTier" ? "Financial" : "Loyalty",
       } as SegmentData;
     };
@@ -286,10 +286,10 @@ export default function Customers() {
               placeholder="Search clients, phones, emails…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-white/40 backdrop-blur-md border border-white/60 rounded-2xl text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
+              className="w-full pl-12 pr-4 py-3 bg-white/6 backdrop-blur-md border border-white/12 rounded-2xl text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
             />
           </div>
-          <button className="p-3 bg-white/40 backdrop-blur-md border border-white/60 rounded-2xl text-primary hover:bg-primary/5 transition-all shadow-sm relative">
+          <button className="p-3 bg-white/6 backdrop-blur-md border border-white/12 rounded-2xl text-primary hover:bg-primary/5 transition-all shadow-sm relative">
             <Bell size={20} />
             <span className="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-white" />
           </button>
@@ -302,7 +302,7 @@ export default function Customers() {
           >
             <UserPlus size={16} /> ADD CLIENT
           </button>
-          <button className="p-3 bg-white/40 backdrop-blur-md border border-white/60 rounded-2xl text-primary hover:bg-primary/5 transition-all shadow-sm">
+          <button className="p-3 bg-white/6 backdrop-blur-md border border-white/12 rounded-2xl text-primary hover:bg-primary/5 transition-all shadow-sm">
             <Download size={20} />
           </button>
         </div>
@@ -362,7 +362,7 @@ export default function Customers() {
           />
         </div>
         <div className="flex flex-col justify-between">
-          <div className="bg-white/30 backdrop-blur-xl border border-white/60 rounded-3xl p-6 shadow-xl h-full flex flex-col justify-between">
+          <div className="bg-white/4 backdrop-blur-xl border border-white/12 rounded-3xl p-6 shadow-xl h-full flex flex-col justify-between">
             <div>
               <h3 className="font-headline-md text-xl text-primary mb-2">Automated Insights</h3>
               <p className="font-body-md text-xs text-on-surface-variant leading-relaxed">

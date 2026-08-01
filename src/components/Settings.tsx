@@ -33,7 +33,7 @@ export default function Settings() {
             className={`w-full text-left px-4 py-3 rounded-lg font-label-caps text-label-caps transition-all flex items-center gap-3 ${
               activeTab === "profile" 
                 ? "bg-primary text-on-primary shadow-md" 
-                : "text-on-surface-variant hover:bg-white/30"
+                : "text-on-surface-variant hover:bg-white/4"
             }`}
           >
             <Shield className="w-4 h-4" />
@@ -46,7 +46,7 @@ export default function Settings() {
               className={`w-full text-left px-4 py-3 rounded-lg font-label-caps text-label-caps transition-all flex items-center gap-3 ${
                 activeTab === "users" 
                   ? "bg-primary text-on-primary shadow-md" 
-                  : "text-on-surface-variant hover:bg-white/30"
+                  : "text-on-surface-variant hover:bg-white/4"
               }`}
             >
               <Users className="w-4 h-4" />
@@ -143,7 +143,7 @@ function ProfileSection() {
         <KeyRound className="w-5 h-5" /> Change Password
       </h2>
 
-      <div className="mb-8 p-4 bg-white/30 rounded-lg border border-white/50">
+      <div className="mb-8 p-4 bg-white/4 rounded-lg border border-white/12">
         <p className="text-sm text-on-surface-variant mb-1">Current User</p>
         <p className="font-bold text-on-surface">{user?.username} <span className="ml-2 inline-block px-2 py-0.5 rounded text-[10px] font-label-caps bg-primary/10 text-primary">{user?.role}</span></p>
       </div>
@@ -355,10 +355,10 @@ function UserManagementSection() {
           <Loader2 className="w-6 h-6 animate-spin text-primary/50" />
         </div>
       ) : (
-        <div className="bg-white/40 rounded-xl overflow-hidden border border-white/50">
+        <div className="bg-white/6 rounded-xl overflow-hidden border border-white/12">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-white/50 bg-white/20">
+              <tr className="border-b border-white/12 bg-white/4">
                 <th className="py-3 px-4 font-label-caps text-[10px] text-outline tracking-wider">USERNAME</th>
                 <th className="py-3 px-4 font-label-caps text-[10px] text-outline tracking-wider">ROLE</th>
                 <th className="py-3 px-4 font-label-caps text-[10px] text-outline tracking-wider">STATUS</th>
@@ -373,7 +373,7 @@ function UserManagementSection() {
                   (performerRole === "admin" && !isSelf) ||
                   (performerRole === "manager" && u.role === "POS");
                 return (
-                  <tr key={u._id} className="border-b border-white/20 last:border-0 hover:bg-white/30 transition-colors">
+                  <tr key={u._id} className="border-b border-white/8 last:border-0 hover:bg-white/4 transition-colors">
                     <td className="py-3 px-4 text-sm font-medium">{u.username}</td>
                     <td className="py-3 px-4">
                       <span className="inline-block px-2 py-0.5 rounded text-[10px] font-label-caps bg-primary/10 text-primary">

@@ -20,7 +20,7 @@ export const InsightsPanel = ({ insights }: InsightsPanelProps) => {
           initial={{ opacity: 0, x: -12 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: i * 0.08 }}
-          className={`flex items-start gap-3 p-3 rounded-xl border ${ins.color} bg-white/60`}
+          className={`flex items-start gap-3 p-3 rounded-xl border ${ins.color} bg-white/8`}
         >
           <div className="mt-0.5 flex-shrink-0">{ins.icon}</div>
           <p className="text-xs font-medium text-on-surface leading-relaxed">{ins.text}</p>

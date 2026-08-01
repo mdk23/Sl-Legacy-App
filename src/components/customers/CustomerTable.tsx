@@ -56,8 +56,8 @@ export const CustomerTable = ({
   onSelectCustomer,
 }: CustomerTableProps) => {
   return (
-    <section className="glass-panel rounded-3xl overflow-hidden shadow-2xl border border-white/50 bg-white/20">
-      <div className="px-8 py-6 flex flex-col md:flex-row justify-between items-center gap-6 border-b border-primary/10 bg-white/40">
+    <section className="glass-panel rounded-3xl overflow-hidden shadow-2xl border border-white/12 bg-white/4">
+      <div className="px-8 py-6 flex flex-col md:flex-row justify-between items-center gap-6 border-b border-primary/10 bg-white/6">
         <div className="flex items-center gap-4">
           <h4 className="font-headline-md text-xl text-primary">Customer Directory</h4>
           <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-bold">
@@ -72,7 +72,7 @@ export const CustomerTable = ({
             <select
               value={financialFilter}
               onChange={(e) => setFinancialFilter(e.target.value)}
-              className="pl-8 pr-8 py-2 bg-white/50 border border-outline-variant/30 rounded-xl text-[10px] font-label-caps focus:ring-2 focus:ring-primary/10 outline-none transition-all appearance-none cursor-pointer text-primary"
+              className="pl-8 pr-8 py-2 bg-white/6 border border-outline-variant/30 rounded-xl text-[10px] font-label-caps focus:ring-2 focus:ring-primary/10 outline-none transition-all appearance-none cursor-pointer text-primary"
             >
               <option>All Tiers</option>
               <option>Regular</option>
@@ -91,7 +91,7 @@ export const CustomerTable = ({
             <select
               value={loyaltyFilter}
               onChange={(e) => setLoyaltyFilter(e.target.value)}
-              className="pl-8 pr-8 py-2 bg-white/50 border border-outline-variant/30 rounded-xl text-[10px] font-label-caps focus:ring-2 focus:ring-primary/10 outline-none transition-all appearance-none cursor-pointer text-primary"
+              className="pl-8 pr-8 py-2 bg-white/6 border border-outline-variant/30 rounded-xl text-[10px] font-label-caps focus:ring-2 focus:ring-primary/10 outline-none transition-all appearance-none cursor-pointer text-primary"
             >
               <option>All Levels</option>
               <option>Bronze</option>
@@ -110,7 +110,7 @@ export const CustomerTable = ({
             <select
               value={creditFilter}
               onChange={(e) => setCreditFilter(e.target.value)}
-              className="pl-8 pr-8 py-2 bg-white/50 border border-outline-variant/30 rounded-xl text-[10px] font-label-caps focus:ring-2 focus:ring-primary/10 outline-none transition-all appearance-none cursor-pointer text-primary"
+              className="pl-8 pr-8 py-2 bg-white/6 border border-outline-variant/30 rounded-xl text-[10px] font-label-caps focus:ring-2 focus:ring-primary/10 outline-none transition-all appearance-none cursor-pointer text-primary"
             >
               <option>All Credits</option>
               <option>Good Standing</option>
@@ -127,7 +127,7 @@ export const CustomerTable = ({
 
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
-          <thead className="sticky top-0 z-10 bg-white/80 backdrop-blur-md">
+          <thead className="sticky top-0 z-10 bg-white/10 backdrop-blur-md">
             <tr className="border-b border-primary/5 font-label-caps text-[11px] text-outline">
               <th className="px-8 py-5">CLIENT & HEALTH</th>
               <th className="px-6 py-5">CONTACTS</th>
@@ -146,7 +146,7 @@ export const CustomerTable = ({
               return (
                 <tr
                   key={customer._id}
-                  className="hover:bg-white/40 transition-colors cursor-pointer"
+                  className="hover:bg-white/6 transition-colors cursor-pointer"
                   onClick={() => onSelectCustomer(customer)}
                 >
                   <td className="px-8 py-5">
@@ -271,7 +271,7 @@ export const CustomerTable = ({
         </table>
       </div>
 
-      <div className="px-8 py-5 bg-white/40 flex justify-between items-center border-t border-primary/5">
+      <div className="px-8 py-5 bg-white/6 flex justify-between items-center border-t border-primary/5">
         <div className="flex items-center gap-4">
           <span className="font-label-caps text-[10px] text-outline">Show rows:</span>
           <select className="bg-transparent font-data-tabular text-xs focus:outline-none">

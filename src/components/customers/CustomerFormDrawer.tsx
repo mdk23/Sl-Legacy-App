@@ -41,17 +41,17 @@ export const CustomerFormDrawer = ({
         animate={{ x: 0 }}
         exit={{ x: "100%" }}
         transition={{ type: "spring", damping: 25, stiffness: 200 }}
-        className="relative w-full max-w-xl h-full bg-surface-container shadow-2xl overflow-y-auto border-l border-white/40 flex flex-col"
+        className="relative w-full max-w-xl h-full bg-surface-container shadow-2xl overflow-y-auto border-l border-white/10 flex flex-col"
       >
         <div className="p-8 pb-12 bg-atelier-gradient relative">
           <button
             onClick={onClose}
-            className="absolute top-6 right-6 p-2 bg-white/40 backdrop-blur-md rounded-full text-primary hover:bg-white transition-all shadow-sm"
+            className="absolute top-6 right-6 p-2 bg-white/6 backdrop-blur-md rounded-full text-primary hover:bg-white transition-all shadow-sm"
           >
             <X size={20} />
           </button>
           <div className="flex flex-col items-center text-center mt-4">
-            <div className="w-20 h-20 bg-white/40 backdrop-blur-md rounded-3xl border-2 border-white flex items-center justify-center text-primary shadow-xl mb-4">
+            <div className="w-20 h-20 bg-white/6 backdrop-blur-md rounded-3xl border-2 border-white flex items-center justify-center text-primary shadow-xl mb-4">
               <Camera size={32} />
             </div>
             <h2 className="font-headline-md text-3xl text-primary uppercase tracking-tight">
@@ -78,7 +78,7 @@ export const CustomerFormDrawer = ({
                   placeholder="e.g. Eleanor"
                   value={formData.firstName}
                   onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                  className="w-full px-4 py-3 bg-white/40 border border-white/60 rounded-xl text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
+                  className="w-full px-4 py-3 bg-white/6 border border-white/12 rounded-xl text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
                   required
                 />
               </div>
@@ -89,7 +89,7 @@ export const CustomerFormDrawer = ({
                   placeholder="e.g. Vance"
                   value={formData.lastName}
                   onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                  className="w-full px-4 py-3 bg-white/40 border border-white/60 rounded-xl text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
+                  className="w-full px-4 py-3 bg-white/6 border border-white/12 rounded-xl text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
                   required
                 />
               </div>
@@ -112,7 +112,7 @@ export const CustomerFormDrawer = ({
                     placeholder="+258 (Primary)"
                     value={formData.phone1}
                     onChange={(e) => setFormData({ ...formData, phone1: e.target.value })}
-                    className="w-full pl-12 pr-4 py-3 bg-white/40 border border-white/60 rounded-xl text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
+                    className="w-full pl-12 pr-4 py-3 bg-white/6 border border-white/12 rounded-xl text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
                     required
                   />
                 </div>
@@ -127,7 +127,7 @@ export const CustomerFormDrawer = ({
                       placeholder="+258"
                       value={formData.phone2}
                       onChange={(e) => setFormData({ ...formData, phone2: e.target.value })}
-                      className="w-full pl-12 pr-4 py-3 bg-white/40 border border-white/60 rounded-xl text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
+                      className="w-full pl-12 pr-4 py-3 bg-white/6 border border-white/12 rounded-xl text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
                     />
                   </div>
                 </div>
@@ -140,7 +140,7 @@ export const CustomerFormDrawer = ({
                       placeholder="+258"
                       value={formData.phone3}
                       onChange={(e) => setFormData({ ...formData, phone3: e.target.value })}
-                      className="w-full pl-12 pr-4 py-3 bg-white/40 border border-white/60 rounded-xl text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
+                      className="w-full pl-12 pr-4 py-3 bg-white/6 border border-white/12 rounded-xl text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
                     />
                   </div>
                 </div>
@@ -154,7 +154,7 @@ export const CustomerFormDrawer = ({
                     placeholder="client@luxury.com"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full pl-12 pr-4 py-3 bg-white/40 border border-white/60 rounded-xl text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
+                    className="w-full pl-12 pr-4 py-3 bg-white/6 border border-white/12 rounded-xl text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
                   />
                 </div>
               </div>
@@ -172,12 +172,12 @@ export const CustomerFormDrawer = ({
               placeholder="Style preferences, preferred metals, special dates…"
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              className="w-full px-4 py-3 bg-white/40 border border-white/60 rounded-2xl text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm resize-none italic"
+              className="w-full px-4 py-3 bg-white/6 border border-white/12 rounded-2xl text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm resize-none italic"
             />
           </section>
         </form>
 
-        <div className="p-8 border-t border-outline-variant/30 bg-white/20 sticky bottom-0">
+        <div className="p-8 border-t border-outline-variant/30 bg-white/4 sticky bottom-0">
           <div className="flex gap-4">
             <button
               type="button"

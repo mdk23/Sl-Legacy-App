@@ -10,20 +10,24 @@ import {
   Bar,
   Line,
 } from "recharts";
+import { CHART_CHROME } from "@/lib/chartColors";
 
-// Color palettes
+// Color palettes — an 8-color order validated against the #171717 chart
+// surface (dataviz skill's categorical checks) so Financial and Loyalty
+// tiers stay distinguishable from each other in "combined" view. Loyalty's
+// "Gold" tier intentionally lands on the brand gold.
 export const FINANCIAL_COLORS: Record<string, { bar: string; light: string; glow: string }> = {
-  Regular: { bar: "#c4a4a9", light: "#f9f0f1", glow: "rgba(196,164,169,0.3)" },
-  Premium: { bar: "#b87333", light: "#fdf3ea", glow: "rgba(184,115,51,0.3)" },
-  VIP: { bar: "#8a4853", light: "#fdf2f4", glow: "rgba(138,72,83,0.4)" },
-  Platinum: { bar: "#6a0f49", light: "#f9ecf5", glow: "rgba(106,15,73,0.4)" },
+  Regular: { bar: "#3987e5", light: "rgba(57,135,229,0.12)", glow: "rgba(57,135,229,0.35)" },
+  Premium: { bar: "#d95926", light: "rgba(217,89,38,0.12)", glow: "rgba(217,89,38,0.35)" },
+  VIP: { bar: "#199e70", light: "rgba(25,158,112,0.12)", glow: "rgba(25,158,112,0.35)" },
+  Platinum: { bar: "#e66767", light: "rgba(230,103,103,0.12)", glow: "rgba(230,103,103,0.35)" },
 };
 
 export const LOYALTY_COLORS: Record<string, { bar: string; light: string; glow: string }> = {
-  Bronze: { bar: "#a97142", light: "#fdf4ec", glow: "rgba(169,113,66,0.3)" },
-  Silver: { bar: "#7d8ea1", light: "#f1f4f7", glow: "rgba(125,142,161,0.3)" },
-  Gold: { bar: "#c9a227", light: "#fdf8e6", glow: "rgba(201,162,39,0.35)" },
-  Diamond: { bar: "#5b4fcf", light: "#f0eeff", glow: "rgba(91,79,207,0.35)" },
+  Bronze: { bar: "#008300", light: "rgba(0,131,0,0.12)", glow: "rgba(0,131,0,0.35)" },
+  Silver: { bar: "#9085e9", light: "rgba(144,133,233,0.12)", glow: "rgba(144,133,233,0.35)" },
+  Gold: { bar: "#B4832B", light: "rgba(180,131,43,0.14)", glow: "rgba(180,131,43,0.4)" },
+  Diamond: { bar: "#d55181", light: "rgba(213,81,129,0.12)", glow: "rgba(213,81,129,0.35)" },
 };
 
 export interface SegmentData {
@@ -47,7 +51,7 @@ const SegmentTooltip = ({ active, payload, label }: any) => {
   const d = payload[0]?.payload;
   if (!d) return null;
   return (
-    <div className="bg-white/95 backdrop-blur-xl border border-white/80 shadow-2xl rounded-2xl p-4 min-w-[200px]">
+    <div className="bg-white/10 backdrop-blur-xl border border-white/16 shadow-2xl rounded-2xl p-4 min-w-[200px]">
       <p className="font-label-caps text-[9px] text-outline mb-2 tracking-widest">{label} SEGMENT</p>
       <div className="space-y-1.5">
         <div className="flex justify-between items-center">
@@ -105,9 +109,9 @@ export const AdvancedSegmentChart = ({
   const yKey = metricMode === "customers" ? "count" : "totalSpent";
 
   const getBarColor = (entry: any) => {
-    if (!entry) return "#8a4853";
-    if (entry.group === "Financial") return FINANCIAL_COLORS[entry.label]?.bar || "#8a4853";
-    return LOYALTY_COLORS[entry.label]?.bar || "#5b4fcf";
+    if (!entry) return "#B4832B";
+    if (entry.group === "Financial") return FINANCIAL_COLORS[entry.label]?.bar || "#3987e5";
+    return LOYALTY_COLORS[entry.label]?.bar || "#9085e9";
   };
 
   const CustomBar = (props: any) => {
@@ -141,15 +145,15 @@ export const AdvancedSegmentChart = ({
     const d = displayData[index];
     const isFinancial = d?.group === "Financial";
     const color = isFinancial
-      ? FINANCIAL_COLORS[payload.value]?.bar || "#8a4853"
-      : LOYALTY_COLORS[payload.value]?.bar || "#5b4fcf";
+      ? FINANCIAL_COLORS[payload.value]?.bar || "#3987e5"
+      : LOYALTY_COLORS[payload.value]?.bar || "#9085e9";
     return (
       <g transform={`translate(${x},${y})`}>
         <text x={0} y={0} dy={14} textAnchor="middle" fill={color} fontSize={10} fontWeight="700">
           {payload.value}
         </text>
         {viewMode === "combined" && (
-          <text x={0} y={0} dy={26} textAnchor="middle" fill="#9e9e9e" fontSize={8}>
+          <text x={0} y={0} dy={26} textAnchor="middle" fill={CHART_CHROME.axisText} fontSize={8}>
             {isFinancial ? "FIN" : "LOY"}
           </text>
         )}
@@ -167,7 +171,7 @@ export const AdvancedSegmentChart = ({
   };
 
   return (
-    <div className="bg-white/30 backdrop-blur-xl border border-white/60 rounded-3xl p-6 shadow-xl">
+    <div className="bg-white/4 backdrop-blur-xl border border-white/12 rounded-3xl p-6 shadow-xl">
       {/* Chart Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
@@ -180,7 +184,7 @@ export const AdvancedSegmentChart = ({
         {/* Controls */}
         <div className="flex flex-wrap items-center gap-2">
           {/* View Mode Toggle */}
-          <div className="flex bg-white/60 border border-white/80 rounded-xl p-1 gap-0.5">
+          <div className="flex bg-white/8 border border-white/16 rounded-xl p-1 gap-0.5">
             {(["financial", "loyalty", "combined"] as ViewMode[]).map((m) => (
               <button
                 key={m}
@@ -188,7 +192,7 @@ export const AdvancedSegmentChart = ({
                 className={`px-3 py-1.5 rounded-lg font-label-caps text-[9px] tracking-widest transition-all ${
                   viewMode === m
                     ? "bg-primary text-white shadow-md"
-                    : "text-outline hover:text-primary hover:bg-white/60"
+                    : "text-outline hover:text-primary hover:bg-white/8"
                 }`}
               >
                 {m === "financial" ? "FIN" : m === "loyalty" ? "LOY" : "BOTH"}
@@ -199,14 +203,14 @@ export const AdvancedSegmentChart = ({
           {/* Metric Toggle */}
           <button
             onClick={() => setMetricMode((m) => (m === "customers" ? "revenue" : "customers"))}
-            className="flex items-center gap-1.5 px-3 py-2 bg-white/60 border border-white/80 rounded-xl text-[9px] font-label-caps text-primary hover:bg-primary/5 transition-all"
+            className="flex items-center gap-1.5 px-3 py-2 bg-white/8 border border-white/16 rounded-xl text-[9px] font-label-caps text-primary hover:bg-primary/5 transition-all"
           >
             {metricMode === "customers" ? <Users size={12} /> : <DollarSign size={12} />}
             {metricMode === "customers" ? "CLIENTS" : "REVENUE"}
           </button>
 
           {/* Date Range */}
-          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white/60 border border-white/80 rounded-xl">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white/8 border border-white/16 rounded-xl">
             <Calendar size={11} className="text-outline flex-shrink-0" />
             <input
               type="date"
@@ -251,7 +255,7 @@ export const AdvancedSegmentChart = ({
           Object.entries(LOYALTY_COLORS).map(([name, c]) => (
             <span key={name} className="flex items-center gap-1.5 text-[9px] font-bold text-on-surface-variant">
               <span
-                className="w-3 h-3 rounded-sm border border-dashed border-white/60"
+                className="w-3 h-3 rounded-sm border border-dashed border-white/12"
                 style={{ backgroundColor: c.bar }}
               ></span>
               {name}
@@ -285,19 +289,19 @@ export const AdvancedSegmentChart = ({
           <ComposedChart data={displayData} margin={{ top: 10, right: 20, left: 10, bottom: 10 }}>
             <defs>
               <linearGradient id="spendLine" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#c9a227" stopOpacity={0.8} />
-                <stop offset="100%" stopColor="#c9a227" stopOpacity={0.1} />
+                <stop offset="0%" stopColor="#B4832B" stopOpacity={0.8} />
+                <stop offset="100%" stopColor="#B4832B" stopOpacity={0.1} />
               </linearGradient>
             </defs>
 
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(138,72,83,0.07)" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke={CHART_CHROME.grid} vertical={false} />
 
             <XAxis dataKey="label" tick={<CustomXTick />} axisLine={false} tickLine={false} height={36} />
 
             <YAxis
               yAxisId="left"
               orientation="left"
-              stroke="#8a485360"
+              stroke={CHART_CHROME.axis}
               fontSize={10}
               tickFormatter={formatYAxis}
               axisLine={false}
@@ -308,7 +312,7 @@ export const AdvancedSegmentChart = ({
             <YAxis
               yAxisId="right"
               orientation="right"
-              stroke="#c9a22760"
+              stroke="rgba(180, 131, 43, 0.5)"
               fontSize={10}
               tickFormatter={(v) => {
                 if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`;
@@ -321,7 +325,7 @@ export const AdvancedSegmentChart = ({
 
             <Tooltip
               content={<SegmentTooltip />}
-              cursor={{ fill: "rgba(138,72,83,0.04)", radius: 6 }}
+              cursor={{ fill: "rgba(180, 131, 43, 0.08)", radius: 6 }}
             />
 
             {/* Custom-colored bars using shape prop */}
@@ -332,10 +336,10 @@ export const AdvancedSegmentChart = ({
               yAxisId="right"
               type="monotone"
               dataKey="totalSpent"
-              stroke="#c9a227"
+              stroke="#B4832B"
               strokeWidth={2.5}
-              dot={{ fill: "#c9a227", strokeWidth: 2, r: 4, stroke: "#fff" }}
-              activeDot={{ r: 6, fill: "#c9a227", stroke: "#fff", strokeWidth: 2 }}
+              dot={{ fill: "#B4832B", strokeWidth: 2, r: 4, stroke: CHART_CHROME.surface }}
+              activeDot={{ r: 6, fill: "#B4832B", stroke: CHART_CHROME.surface, strokeWidth: 2 }}
             />
           </ComposedChart>
         </ResponsiveContainer>
@@ -349,7 +353,7 @@ export const AdvancedSegmentChart = ({
           </p>
         )}
         {viewMode !== "financial" && (
-          <p className="text-[8px] font-bold text-purple-400/70 tracking-widest uppercase ml-auto">
+          <p className="text-[8px] font-bold text-secondary/80 tracking-widest uppercase ml-auto">
             Loyalty Levels →
           </p>
         )}
@@ -358,7 +362,7 @@ export const AdvancedSegmentChart = ({
       {/* Micro-stats row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5 pt-4 border-t border-primary/8">
         {displayData.slice(0, 4).map((d, i) => (
-          <div key={i} className="flex items-center gap-2 p-2 rounded-xl bg-white/50 border border-white/70">
+          <div key={i} className="flex items-center gap-2 p-2 rounded-xl bg-white/6 border border-white/12">
             <div className="w-2 h-8 rounded-full flex-shrink-0" style={{ backgroundColor: getBarColor(d) }}></div>
             <div>
               <p className="text-[9px] font-bold text-on-surface">{d.label}</p>

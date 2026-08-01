@@ -265,7 +265,7 @@ export default function POS() {
       {/* Left Section: Search & Products */}
       <section className="col-span-12 lg:col-span-8 flex flex-col gap-4 h-full">
         {/* Search & Filters */}
-        <div className="bg-white/40 backdrop-blur-md p-6 rounded-xl shadow-sm border border-white/50 flex flex-col gap-6 shrink-0">
+        <div className="bg-white/6 backdrop-blur-md p-6 rounded-xl shadow-sm border border-white/12 flex flex-col gap-6 shrink-0">
           <div className="flex items-center gap-4">
             <div className="relative flex-1">
               <Search
@@ -299,7 +299,7 @@ export default function POS() {
                 onClick={() => setActiveCategory(activeCategory === cat ? "" : cat)}
                 className={`px-4 py-2 rounded-full font-label-caps text-[10px] whitespace-nowrap transition-all border ${activeCategory === cat
                   ? "bg-primary text-white border-primary shadow-md"
-                  : "bg-white/40 border-white/50 text-on-surface-variant hover:bg-white/60"
+                  : "bg-white/6 border-white/12 text-on-surface-variant hover:bg-white/8"
                   }`}
               >
                 {cat}
@@ -313,7 +313,7 @@ export default function POS() {
           {filteredProducts.map((p) => (
             <div
               key={p._id}
-              className="bg-white/40 backdrop-blur-md rounded-xl overflow-hidden border border-white/50 flex flex-col group cursor-pointer transition-all hover:shadow-lg"
+              className="bg-white/6 backdrop-blur-md rounded-xl overflow-hidden border border-white/12 flex flex-col group cursor-pointer transition-all hover:shadow-lg"
             >
               <div className="relative aspect-square bg-surface-container overflow-hidden">
                 {p.imageUrl ? (
@@ -328,7 +328,7 @@ export default function POS() {
                   </div>
                 )}
                 <span
-                  className={`absolute top-2 right-2 px-2 py-0.5 bg-white/80 backdrop-blur text-[9px] font-bold rounded-md ${p.stock > 0 ? "text-primary" : "text-error"}`}
+                  className={`absolute top-2 right-2 px-2 py-0.5 bg-white/10 backdrop-blur text-[9px] font-bold rounded-md ${p.stock > 0 ? "text-primary" : "text-error"}`}
                 >
                   {p.stock > 0 ? `${p.stock} IN STOCK` : "OUT OF STOCK"}
                 </span>
@@ -368,7 +368,7 @@ export default function POS() {
       {/* Right Section: Cart & Payment */}
       <aside className="col-span-12 lg:col-span-4 flex flex-col gap-6 h-full overflow-y-auto pr-2 pb-6">
         {/* Customer Integration */}
-        <div className="bg-white/40 backdrop-blur-md p-6 rounded-xl shadow-sm border border-white/50 shrink-0">
+        <div className="bg-white/6 backdrop-blur-md p-6 rounded-xl shadow-sm border border-white/12 shrink-0">
           <h4 className="font-label-caps text-label-caps text-on-surface-variant mb-4">
             Customer Profile
           </h4>
@@ -474,7 +474,7 @@ export default function POS() {
 
         {/* Transaction Cart */}
         <div
-          className="bg-white/40 backdrop-blur-md rounded-xl shadow-sm border border-white/50 flex flex-col shrink-0"
+          className="bg-white/6 backdrop-blur-md rounded-xl shadow-sm border border-white/12 flex flex-col shrink-0"
           style={{ height: "500px" }}
         >
 
@@ -575,7 +575,7 @@ export default function POS() {
             ))}
           </div>
 
-          <div className="p-6 bg-white/50 border-t border-outline-variant/20 space-y-3 mt-auto">
+          <div className="p-6 bg-white/6 border-t border-outline-variant/20 space-y-3 mt-auto">
             <div className="flex justify-between items-center text-[12px] font-bold text-on-surface-variant/70">
               <span>Subtotal</span>
               <span className="font-data-tabular">
@@ -594,7 +594,7 @@ export default function POS() {
         </div>
 
         {/* Payment & Actions */}
-        <div className="bg-white/40 backdrop-blur-md p-6 rounded-xl shadow-sm border border-white/50 flex flex-col gap-5 shrink-0">
+        <div className="bg-white/6 backdrop-blur-md p-6 rounded-xl shadow-sm border border-white/12 flex flex-col gap-5 shrink-0">
 
           {/* Payment Methods */}
           <div className="space-y-2.5">

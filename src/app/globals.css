@@ -1,59 +1,59 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fbf9f5;
-  --foreground: #1b1c1a;
+  --background: #020202;
+  --foreground: #f5f0e6;
 }
 
 @theme inline {
-  /* Colors */
-  --color-surface: #fbf9f5;
-  --color-surface-dim: #dbdad6;
-  --color-surface-bright: #fbf9f5;
-  --color-surface-container-lowest: #ffffff;
-  --color-surface-container-low: #f5f3ef;
-  --color-surface-container: #efeeea;
-  --color-surface-container-high: #eae8e4;
-  --color-surface-container-highest: #e4e2de;
-  --color-on-surface: #1b1c1a;
-  --color-on-surface-variant: #524345;
-  --color-inverse-surface: #30312e;
-  --color-inverse-on-surface: #f2f0ed;
-  --color-outline: #857374;
-  --color-outline-variant: #d7c1c3;
-  --color-surface-tint: #8c4b55;
-  --color-primary: #8a4853;
-  --color-on-primary: #ffffff;
-  --color-primary-container: #a6606b;
-  --color-on-primary-container: #fffbff;
-  --color-inverse-primary: #ffb2bc;
-  --color-secondary: #735c00;
-  --color-on-secondary: #ffffff;
-  --color-secondary-container: #fed65b;
-  --color-on-secondary-container: #745c00;
-  --color-tertiary: #6e5371;
-  --color-on-tertiary: #ffffff;
-  --color-tertiary-container: #886b8b;
-  --color-on-tertiary-container: #fffbff;
-  --color-error: #ba1a1a;
-  --color-on-error: #ffffff;
-  --color-error-container: #ffdad6;
-  --color-on-error-container: #93000a;
-  --color-primary-fixed: #ffd9dd;
-  --color-primary-fixed-dim: #ffb2bc;
-  --color-on-primary-fixed: #3a0915;
-  --color-on-primary-fixed-variant: #70343e;
-  --color-secondary-fixed: #ffe088;
-  --color-secondary-fixed-dim: #e9c349;
-  --color-on-secondary-fixed: #241a00;
-  --color-on-secondary-fixed-variant: #574500;
-  --color-tertiary-fixed: #fbd7fc;
-  --color-tertiary-fixed-dim: #debcdf;
-  --color-on-tertiary-fixed: #29132d;
-  --color-on-tertiary-fixed-variant: #583e5b;
-  --color-background: #fbf9f5;
-  --color-on-background: #1b1c1a;
-  --color-surface-variant: #e4e2de;
+  /* Colors — Gold & Onyx theme */
+  --color-surface: #020202;
+  --color-surface-dim: #000000;
+  --color-surface-bright: #262626;
+  --color-surface-container-lowest: #000000;
+  --color-surface-container-low: #0d0d0d;
+  --color-surface-container: #171717;
+  --color-surface-container-high: #1f1f1f;
+  --color-surface-container-highest: #262626;
+  --color-on-surface: #f5f0e6;
+  --color-on-surface-variant: #a8a29a;
+  --color-inverse-surface: #f5f0e6;
+  --color-inverse-on-surface: #171717;
+  --color-outline: #4a4a4a;
+  --color-outline-variant: #2a2a2a;
+  --color-surface-tint: #b4832b;
+  --color-primary: #b4832b;
+  --color-on-primary: #020202;
+  --color-primary-container: #3a2c12;
+  --color-on-primary-container: #e8ce93;
+  --color-inverse-primary: #d9b45b;
+  --color-secondary: #8c7853;
+  --color-on-secondary: #020202;
+  --color-secondary-container: #3a2e1e;
+  --color-on-secondary-container: #d9c9a8;
+  --color-tertiary: #6b6560;
+  --color-on-tertiary: #f5f0e6;
+  --color-tertiary-container: #2e2a27;
+  --color-on-tertiary-container: #d6d0ca;
+  --color-error: #e66767;
+  --color-on-error: #020202;
+  --color-error-container: #3a1414;
+  --color-on-error-container: #f5c9c9;
+  --color-primary-fixed: #d9b45b;
+  --color-primary-fixed-dim: #c9a227;
+  --color-on-primary-fixed: #2a1d06;
+  --color-on-primary-fixed-variant: #5c4614;
+  --color-secondary-fixed: #c7b08a;
+  --color-secondary-fixed-dim: #a88f65;
+  --color-on-secondary-fixed: #241c0f;
+  --color-on-secondary-fixed-variant: #4a3b24;
+  --color-tertiary-fixed: #b8b2ab;
+  --color-tertiary-fixed-dim: #99938c;
+  --color-on-tertiary-fixed: #211e1b;
+  --color-on-tertiary-fixed-variant: #45403b;
+  --color-background: #020202;
+  --color-on-background: #f5f0e6;
+  --color-surface-variant: #262626;
 
   /* Fonts */
   --font-display: var(--font-playfair-display);
@@ -146,19 +146,19 @@ body {
 
 /* Glassmorphism Styles */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 .bg-atelier-gradient {
-  background: linear-gradient(135deg, #fbf9f5 0%, #ffe0e3 100%);
+  background: linear-gradient(135deg, #020202 0%, #241a08 55%, #171717 100%);
 }
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
   vertical-align: middle;
 }
 .rose-gold-glow:focus {
-  box-shadow: 0 0 15px rgba(138, 72, 83, 0.2);
-  border-bottom: 2px solid #8a4853;
+  box-shadow: 0 0 15px rgba(180, 131, 43, 0.35);
+  border-bottom: 2px solid #b4832b;
 }

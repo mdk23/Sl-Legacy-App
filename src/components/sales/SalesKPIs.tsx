@@ -11,6 +11,13 @@ import {
   LucideIcon,
 } from "lucide-react";
 
+const SPARKLINE_COLORS: Record<string, string> = {
+  primary: "#B4832B",
+  secondary: "#8C7853",
+  tertiary: "#6B6560",
+  error: "#e66767",
+};
+
 interface KPIStatsProps {
   title: string;
   value: string;
@@ -30,7 +37,7 @@ export const KPIStats = ({
 }: KPIStatsProps) => (
   <motion.div
     whileHover={{ y: -5 }}
-    className="glass-panel p-6 rounded-2xl border border-white/50 relative overflow-hidden group hover:shadow-2xl transition-all"
+    className="glass-panel p-6 rounded-2xl border border-white/12 relative overflow-hidden group hover:shadow-2xl transition-all"
   >
     <div className="flex justify-between items-start mb-4">
       <div className={`p-3 rounded-xl bg-${color}/10 text-${color}`}>
@@ -56,7 +63,7 @@ export const KPIStats = ({
           <Area
             type="monotone"
             dataKey="value"
-            stroke={color === "primary" ? "#8a4853" : color === "secondary" ? "#735c00" : "#6e5371"}
+            stroke={SPARKLINE_COLORS[color] ?? SPARKLINE_COLORS.primary}
             fill="transparent"
             strokeWidth={2}
             dot={false}

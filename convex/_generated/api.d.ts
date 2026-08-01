@@ -16,6 +16,8 @@ import type * as caixaHelpers from "../caixaHelpers.js";
 import type * as cleanup from "../cleanup.js";
 import type * as crons from "../crons.js";
 import type * as customers from "../customers.js";
+import type * as expenseTemplates from "../expenseTemplates.js";
+import type * as expenses from "../expenses.js";
 import type * as intelligence from "../intelligence.js";
 import type * as ledgerHelpers from "../ledgerHelpers.js";
 import type * as movements from "../movements.js";
@@ -41,6 +43,8 @@ declare const fullApi: ApiFromModules<{
   cleanup: typeof cleanup;
   crons: typeof crons;
   customers: typeof customers;
+  expenseTemplates: typeof expenseTemplates;
+  expenses: typeof expenses;
   intelligence: typeof intelligence;
   ledgerHelpers: typeof ledgerHelpers;
   movements: typeof movements;

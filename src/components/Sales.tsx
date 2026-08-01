@@ -196,7 +196,7 @@ export default function Sales() {
           </p>
         </div>
         <div className="flex gap-4 w-full md:w-auto">
-          <button className="flex-1 md:flex-none px-6 py-3 bg-white/40 backdrop-blur-md border border-primary/20 text-primary rounded-2xl font-label-caps text-[11px] hover:bg-primary/5 transition-all shadow-sm flex items-center justify-center gap-2">
+          <button className="flex-1 md:flex-none px-6 py-3 bg-white/6 backdrop-blur-md border border-primary/20 text-primary rounded-2xl font-label-caps text-[11px] hover:bg-primary/5 transition-all shadow-sm flex items-center justify-center gap-2">
             <Download size={16} /> EXPORT REPORT
           </button>
           <button

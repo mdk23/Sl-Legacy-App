@@ -1,52 +1,51 @@
-import React from "react";
-import { Filter, ChevronDown, ChevronUp, Calendar, RotateCcw } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+'use client';
 
-interface SalesFiltersProps {
+import React from 'react';
+import { Filter, ChevronDown, ChevronUp, Calendar, RotateCcw } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+
+interface ExpenseFiltersProps {
+  categoryFilter: string;
+  setCategoryFilter: (v: string) => void;
+  originFilter: string;
+  setOriginFilter: (v: string) => void;
   startDate: string;
   setStartDate: (v: string) => void;
   endDate: string;
   setEndDate: (v: string) => void;
-  paymentFilter: string;
-  setPaymentFilter: (v: string) => void;
-  tierFilter: string;
-  setTierFilter: (v: string) => void;
-  statusFilter: string;
-  setStatusFilter: (v: string) => void;
   minAmount: string;
   setMinAmount: (v: string) => void;
   maxAmount: string;
   setMaxAmount: (v: string) => void;
+  categories: string[];
   isFiltersExpanded: boolean;
   setIsFiltersExpanded: (v: boolean) => void;
 }
 
-export const SalesFilters = ({
+export function ExpenseFilters({
+  categoryFilter,
+  setCategoryFilter,
+  originFilter,
+  setOriginFilter,
   startDate,
   setStartDate,
   endDate,
   setEndDate,
-  paymentFilter,
-  setPaymentFilter,
-  tierFilter,
-  setTierFilter,
-  statusFilter,
-  setStatusFilter,
   minAmount,
   setMinAmount,
   maxAmount,
   setMaxAmount,
+  categories,
   isFiltersExpanded,
   setIsFiltersExpanded,
-}: SalesFiltersProps) => {
+}: ExpenseFiltersProps) {
   const handleReset = () => {
-    setStartDate("");
-    setEndDate("");
-    setPaymentFilter("All Methods");
-    setTierFilter("All Tiers");
-    setStatusFilter("All Status");
-    setMinAmount("");
-    setMaxAmount("");
+    setCategoryFilter('All Categories');
+    setOriginFilter('All Origins');
+    setStartDate('');
+    setEndDate('');
+    setMinAmount('');
+    setMaxAmount('');
   };
 
   return (
@@ -57,39 +56,33 @@ export const SalesFilters = ({
             <Filter size={18} />
           </div>
           <div>
-            <h3 className="font-headline-md text-lg text-primary">Dashboard Filters</h3>
+            <h3 className="font-headline-md text-lg text-primary">Expense Filters</h3>
             <p className="font-label-caps text-[9px] text-outline tracking-widest uppercase">
-              {startDate || endDate
-                ? `Active range: ${startDate || "All Time"} to ${endDate || "All Time"}`
-                : "Active range: All Time"}
+              {startDate || endDate ? `Range: ${startDate || 'All Time'} to ${endDate || 'All Time'}` : 'Range: All Time'}
             </p>
           </div>
         </div>
-
-        <div className="flex items-center gap-2 w-full md:w-auto">
-          <button
-            onClick={() => setIsFiltersExpanded(!isFiltersExpanded)}
-            className="px-4 py-2 font-label-caps text-[10px] rounded-xl bg-white/6 hover:bg-white/8 text-primary border border-primary/10 flex items-center gap-1.5 ml-auto"
-          >
-            {isFiltersExpanded ? "HIDE OPTIONS" : "SHOW OPTIONS"}
-            {isFiltersExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-          </button>
-        </div>
+        <button
+          onClick={() => setIsFiltersExpanded(!isFiltersExpanded)}
+          className="px-4 py-2 font-label-caps text-[10px] rounded-xl bg-white/6 hover:bg-white/8 text-primary border border-primary/10 flex items-center gap-1.5 ml-auto"
+        >
+          {isFiltersExpanded ? 'HIDE OPTIONS' : 'SHOW OPTIONS'}
+          {isFiltersExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+        </button>
       </div>
 
       <AnimatePresence>
         {isFiltersExpanded && (
           <motion.div
             initial={{ height: 0, opacity: 0, marginTop: 0 }}
-            animate={{ height: "auto", opacity: 1, marginTop: 24 }}
+            animate={{ height: 'auto', opacity: 1, marginTop: 24 }}
             exit={{ height: 0, opacity: 0, marginTop: 0 }}
             className="overflow-hidden border-t border-primary/10 pt-6"
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {/* Custom Date Pickers */}
               <div className="sm:col-span-2 grid grid-cols-2 gap-4 bg-primary/5 p-4 rounded-2xl border border-primary/10">
                 <div>
-                  <label className="font-label-caps text-[9px] text-outline block mb-1.5">BEGIN DATE</label>
+                  <label className="font-label-caps text-[9px] text-outline block mb-1.5">DUE FROM</label>
                   <div className="relative">
                     <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-outline" />
                     <input
@@ -101,7 +94,7 @@ export const SalesFilters = ({
                   </div>
                 </div>
                 <div>
-                  <label className="font-label-caps text-[9px] text-outline block mb-1.5">END DATE</label>
+                  <label className="font-label-caps text-[9px] text-outline block mb-1.5">DUE TO</label>
                   <div className="relative">
                     <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-outline" />
                     <input
@@ -114,58 +107,33 @@ export const SalesFilters = ({
                 </div>
               </div>
 
-              {/* Payment Method */}
               <div>
-                <label className="font-label-caps text-[9px] text-outline block mb-1.5">PAYMENT METHOD</label>
+                <label className="font-label-caps text-[9px] text-outline block mb-1.5">CATEGORY</label>
                 <select
-                  value={paymentFilter}
-                  onChange={(e) => setPaymentFilter(e.target.value)}
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
                   className="w-full px-3 py-2.5 bg-white/8 border border-primary/10 rounded-xl text-xs outline-none focus:ring-2 focus:ring-primary/20 transition-all appearance-none font-bold text-primary cursor-pointer"
                 >
-                  <option value="All Methods">All Methods</option>
-                  <option value="Cash">Cash</option>
-                  <option value="M-Pesa">M-Pesa</option>
-                  <option value="e-Mola">e-Mola</option>
-                  <option value="BCI">BCI</option>
-                  <option value="BIM">BIM</option>
-                  <option value="Bank Transfer">Bank Transfer</option>
-                  <option value="Card">Card</option>
+                  <option value="All Categories">All Categories</option>
+                  {categories.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
                 </select>
               </div>
 
-              {/* Client Loyalty Tier */}
               <div>
-                <label className="font-label-caps text-[9px] text-outline block mb-1.5">LOYALTY TIER</label>
+                <label className="font-label-caps text-[9px] text-outline block mb-1.5">ORIGIN</label>
                 <select
-                  value={tierFilter}
-                  onChange={(e) => setTierFilter(e.target.value)}
+                  value={originFilter}
+                  onChange={(e) => setOriginFilter(e.target.value)}
                   className="w-full px-3 py-2.5 bg-white/8 border border-primary/10 rounded-xl text-xs outline-none focus:ring-2 focus:ring-primary/20 transition-all appearance-none font-bold text-primary cursor-pointer"
                 >
-                  <option value="All Tiers">All Tiers</option>
-                  <option value="VIP / Platinum">VIP / Platinum</option>
-                  <option value="Gold / Premium">Gold / Premium</option>
-                  <option value="Standard / Regular">Standard / Regular</option>
-                  <option value="Walk-in">Walk-in Customer</option>
+                  <option value="All Origins">All Origins</option>
+                  <option value="Manual">Manual</option>
+                  <option value="Recurring">Recurring</option>
                 </select>
               </div>
 
-              {/* Settlement Status */}
-              <div>
-                <label className="font-label-caps text-[9px] text-outline block mb-1.5">SETTLEMENT STATUS</label>
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-white/8 border border-primary/10 rounded-xl text-xs outline-none focus:ring-2 focus:ring-primary/20 transition-all appearance-none font-bold text-primary cursor-pointer"
-                >
-                  <option value="All Status">All Status</option>
-                  <option value="Completed">Completed / Paid</option>
-                  <option value="Partially Paid">Partially Paid</option>
-                  <option value="Pending">Pending</option>
-                  <option value="Refunded">Refunded</option>
-                </select>
-              </div>
-
-              {/* Amount Filter Range */}
               <div className="sm:col-span-2 grid grid-cols-2 gap-4">
                 <div>
                   <label className="font-label-caps text-[9px] text-outline block mb-1.5">MIN AMOUNT (Mt)</label>
@@ -189,7 +157,6 @@ export const SalesFilters = ({
                 </div>
               </div>
 
-              {/* Reset Buttons */}
               <div className="flex items-end gap-2 sm:col-span-2 lg:col-span-1">
                 <button
                   onClick={handleReset}
@@ -204,4 +171,4 @@ export const SalesFilters = ({
       </AnimatePresence>
     </div>
   );
-};
+}

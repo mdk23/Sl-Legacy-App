@@ -188,7 +188,8 @@ export default defineSchema({
     referenceId: v.optional(v.string()),
     ipAddress: v.optional(v.string()),
   }).index("by_timestamp", ["timestamp"])
-    .index("by_action", ["action"]),
+    .index("by_action", ["action"])
+    .index("by_reference", ["referenceId"]),
 
   dailyStats: defineTable({
     date: v.string(), // "YYYY-MM-DD" format
@@ -223,6 +224,8 @@ export default defineSchema({
     cashOut: v.optional(v.number()),
     inventoryCostSold: v.optional(v.number()),
     inventoryRetailSold: v.optional(v.number()),
+    totalExpensesToday: v.optional(v.number()),
+    expensesPaidToday: v.optional(v.number()),
   }).index("by_date", ["date"]),
 
   globalCounters: defineTable({
@@ -243,6 +246,8 @@ export default defineSchema({
     totalCreditRedeemed: v.optional(v.number()),
     totalDebtCreated: v.optional(v.number()),
     totalDebtRecovered: v.optional(v.number()),
+    totalExpenses: v.optional(v.number()),
+    totalExpensesPaid: v.optional(v.number()),
   }).index("by_counter_id", ["id"]),
 
   inventoryCounters: defineTable({
@@ -311,4 +316,55 @@ export default defineSchema({
     blocked: v.optional(v.boolean()),
   }).index("by_username", ["username"])
     .index("by_clerkId", ["clerkId"]),
+
+  expenseTemplates: defineTable({
+    name: v.string(),
+    category: v.string(),
+    amount: v.number(),
+    frequency: v.string(), // "Daily" | "Weekly" | "Monthly"
+    dueDay: v.optional(v.number()), // 1-31; used when frequency === "Monthly", clamped to the last day of the month when shorter
+    dayOfWeek: v.optional(v.number()), // 0 (Sunday) - 6 (Saturday); used when frequency === "Weekly"
+    startDate: v.number(), // timestamp; no generation before this date
+    endDate: v.optional(v.number()), // timestamp; no generation after this date if set
+    active: v.boolean(),
+    notes: v.optional(v.string()),
+    createdAt: v.optional(v.number()),
+    updatedAt: v.optional(v.number()),
+  }).index("by_active", ["active"])
+    .index("by_category", ["category"]),
+
+  expenses: defineTable({
+    templateId: v.optional(v.id("expenseTemplates")), // set only for Recurring-origin rows; never mutated after insert
+    title: v.string(),
+    category: v.string(),
+    amount: v.number(),
+    dueDate: v.number(), // timestamp
+    paymentDate: v.optional(v.number()), // set exactly once at payExpense() time
+    status: v.string(), // "Pending" | "Paid" | "Cancelled" | "Overdue"
+    paymentMethod: v.optional(v.string()), // set at payExpense() time only
+    origin: v.string(), // "Manual" | "Recurring" — denormalized at insert, immutable
+    notes: v.optional(v.string()),
+    createdAt: v.optional(v.number()),
+    updatedAt: v.optional(v.number()),
+  }).index("by_status_and_dueDate", ["status", "dueDate"])
+    .index("by_dueDate", ["dueDate"])
+    .index("by_category", ["category"])
+    .index("by_templateId_and_dueDate", ["templateId", "dueDate"])
+    .index("by_paymentDate", ["paymentDate"])
+    .index("by_origin", ["origin"]),
+
+  expenseCounters: defineTable({
+    id: v.string(), // "main" (all-time) | "YYYY-MM" (per calendar month, bucketed by expense.dueDate's month)
+    totalCount: v.optional(v.number()),
+    paidCount: v.optional(v.number()),
+    pendingCount: v.optional(v.number()),
+    overdueCount: v.optional(v.number()),
+    cancelledCount: v.optional(v.number()),
+    paidAmount: v.optional(v.number()), // the only figure that counts as "spent" per the financial rules
+    pendingAmount: v.optional(v.number()),
+    overdueAmount: v.optional(v.number()),
+    expensesByCategory: v.optional(v.any()), // Record<category, paidAmount> — Paid-only
+    recurringCount: v.optional(v.number()),
+    manualCount: v.optional(v.number()),
+  }).index("by_counter_id", ["id"]),
 });

@@ -38,6 +38,7 @@ import {
   Cell,
   Legend
 } from 'recharts';
+import { CHART_COLORS, CHART_CHROME } from '@/lib/chartColors';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // --- Types & Interfaces ---
@@ -85,7 +86,7 @@ const StatCard = ({ title, value, subValue, icon: Icon, percentage, color }: any
     <p className="font-label-caps text-[10px] text-outline mb-1">{title}</p>
     <h3 className="font-headline-md text-2xl text-primary mb-1">{value}</h3>
     <p className="font-body-md text-xs text-on-surface-variant opacity-70">{subValue}</p>
-    <div className="mt-4 h-1 w-full bg-white/20 rounded-full overflow-hidden">
+    <div className="mt-4 h-1 w-full bg-white/4 rounded-full overflow-hidden">
       <motion.div
         initial={{ width: 0 }}
         animate={{ width: `${percentage || 0}%` }}
@@ -232,7 +233,7 @@ export default function Inventory() {
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
   const paginatedProducts = filteredProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  const COLORS = ['#8a4853', '#735c00', '#6e5371', '#d7c1c3', '#857374'];
+  const COLORS = CHART_COLORS;
 
   const handleOpenAdd = () => {
     setEditingId(null);
@@ -428,7 +429,7 @@ export default function Inventory() {
         <button
           onClick={() => setActiveTab(activeTab === "catalog" ? "movements" : "catalog")}
           className={`flex items-center gap-2 px-5 py-2.5 backdrop-blur-md border text-on-surface-variant rounded-xl font-label-caps text-[11px] hover:bg-surface-variant/50 transition-all ${
-            activeTab === "movements" ? "bg-primary/10 border-primary text-primary" : "bg-white/60 border-outline-variant"
+            activeTab === "movements" ? "bg-primary/10 border-primary text-primary" : "bg-white/8 border-outline-variant"
           }`}
         >
           <Filter size={16} /> {activeTab === "movements" ? "VIEW CATALOG" : "VIEW MOVEMENTS LOG"}
@@ -454,7 +455,7 @@ export default function Inventory() {
                   { label: 'Dead Stock Threshold', desc: '12 items idle > 9 months', type: 'warning' },
                   { label: 'Low Margin Warning', desc: 'Celestial Collection (Promo)', type: 'info' },
                 ].map((alert, i) => (
-                  <div key={i} className="p-3 bg-white/40 rounded-xl border border-white/60 hover:bg-white/60 transition-colors cursor-pointer group">
+                  <div key={i} className="p-3 bg-white/6 rounded-xl border border-white/12 hover:bg-white/8 transition-colors cursor-pointer group">
                     <div className="flex justify-between items-start">
                       <div>
                         <p className="font-label-caps text-[11px] text-on-surface">{alert.label}</p>
@@ -517,14 +518,20 @@ export default function Inventory() {
               <div className="h-48 w-full min-h-[192px]">
                 <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                   <BarChart data={agingData}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e4e2de" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#857374' }} />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={CHART_CHROME.grid} />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: CHART_CHROME.axisText }} />
                     <YAxis hide />
                     <Tooltip
-                      cursor={{ fill: 'rgba(138, 72, 83, 0.05)' }}
-                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                      cursor={{ fill: 'rgba(180, 131, 43, 0.12)' }}
+                      contentStyle={{
+                        borderRadius: '12px',
+                        border: `1px solid ${CHART_CHROME.tooltipBorder}`,
+                        boxShadow: CHART_CHROME.tooltipShadow,
+                        backgroundColor: CHART_CHROME.tooltipBg,
+                        color: CHART_CHROME.tooltipText,
+                      }}
                     />
-                    <Bar dataKey="value" fill="#8a4853" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="value" fill={CHART_COLORS[0]} radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -537,7 +544,7 @@ export default function Inventory() {
           </div>
 
           {/* Product Table Section */}
-          <section className="glass-panel rounded-2xl overflow-hidden shadow-xl border border-white/40">
+          <section className="glass-panel rounded-2xl overflow-hidden shadow-xl border border-white/10">
             <div className="px-8 py-6 flex flex-col md:flex-row justify-between items-center gap-4 border-b border-primary/10">
               <div className="flex items-center gap-4 w-full md:w-auto">
                 <h4 className="font-headline-md text-xl text-primary whitespace-nowrap">Product Catalog</h4>
@@ -548,7 +555,7 @@ export default function Inventory() {
                     placeholder="Search SKU or Name..."
                     value={searchQuery}
                     onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-                    className="w-full pl-10 pr-4 py-2 bg-white/50 border border-primary/10 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                    className="w-full pl-10 pr-4 py-2 bg-white/6 border border-primary/10 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                   />
                 </div>
                 
@@ -568,7 +575,7 @@ export default function Inventory() {
                   <button
                     key={cat}
                     onClick={() => { setCategoryFilter(cat); setCurrentPage(1); }}
-                    className={`px-4 py-1.5 rounded-full font-label-caps text-[10px] transition-all whitespace-nowrap ${categoryFilter === cat ? 'bg-primary text-on-primary shadow-md' : 'bg-white/60 text-primary border border-primary/20 hover:bg-primary/5'}`}
+                    className={`px-4 py-1.5 rounded-full font-label-caps text-[10px] transition-all whitespace-nowrap ${categoryFilter === cat ? 'bg-primary text-on-primary shadow-md' : 'bg-white/8 text-primary border border-primary/20 hover:bg-primary/5'}`}
                   >
                     {cat.toUpperCase()}
                   </button>
@@ -605,7 +612,7 @@ export default function Inventory() {
                   {paginatedProducts.map((product: any) => (
                     <tr
                       key={product._id}
-                      className="hover:bg-white/50 transition-colors group cursor-pointer"
+                      className="hover:bg-white/6 transition-colors group cursor-pointer"
                       onClick={() => setSelectedProduct(product)}
                     >
                       <td className="px-8 py-5">
@@ -689,7 +696,7 @@ export default function Inventory() {
           </section>
         </>
       ) : (
-        <div className="glass-panel rounded-2xl p-8 shadow-xl border border-white/40 mb-10">
+        <div className="glass-panel rounded-2xl p-8 shadow-xl border border-white/10 mb-10">
           <div className="flex justify-between items-center mb-6 border-b border-primary/10 pb-4">
             <div>
               <h3 className="font-headline-md text-2xl text-primary font-bold">Stock Movements Audit Log</h3>
@@ -728,7 +735,7 @@ export default function Inventory() {
                     const isDamage = movement.movementType === "Damage";
 
                     return (
-                      <tr key={movement._id} className="hover:bg-white/40 transition-colors">
+                      <tr key={movement._id} className="hover:bg-white/6 transition-colors">
                         <td className="px-6 py-4 font-data-tabular text-xs text-outline">{formattedTime}</td>
                         <td className="px-6 py-4 font-body-md text-xs font-bold text-on-surface">
                           {product ? product.name : "Unknown Product"}
@@ -792,7 +799,7 @@ export default function Inventory() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="relative w-full max-w-2xl h-full bg-surface-container overflow-y-auto shadow-2xl rounded-l-3xl md:rounded-3xl border-l border-white/40"
+              className="relative w-full max-w-2xl h-full bg-surface-container overflow-y-auto shadow-2xl rounded-l-3xl md:rounded-3xl border-l border-white/10"
             >
               {/* Modal Header */}
               <div className="sticky top-0 z-10 bg-surface-container/80 backdrop-blur-md p-8 flex justify-between items-start border-b border-outline-variant/30">
@@ -825,7 +832,7 @@ export default function Inventory() {
                       <h4 className="font-label-caps text-[11px] text-outline mb-3 flex items-center gap-2">
                         <ImageIcon size={14} /> BASIC INFO
                       </h4>
-                      <div className="space-y-3 bg-white/40 p-4 rounded-2xl border border-white/60">
+                      <div className="space-y-3 bg-white/6 p-4 rounded-2xl border border-white/12">
                         <div className="flex justify-between border-b border-outline-variant/20 pb-2">
                           <span className="font-body-md text-sm text-on-surface-variant">Brand</span>
                           <span className="font-body-md text-sm font-bold">{selectedProduct.brand}</span>
@@ -856,7 +863,7 @@ export default function Inventory() {
                       <h4 className="font-label-caps text-[11px] text-outline mb-3 flex items-center gap-2">
                         <DollarSign size={14} /> FINANCIAL DATA
                       </h4>
-                      <div className="space-y-3 bg-white/40 p-4 rounded-2xl border border-white/60">
+                      <div className="space-y-3 bg-white/6 p-4 rounded-2xl border border-white/12">
                         <div className="flex justify-between border-b border-outline-variant/20 pb-2">
                           <span className="font-body-md text-sm text-on-surface-variant">Cost Price</span>
                           <span className="font-data-tabular text-sm">{(selectedProduct.costPrice).toLocaleString()} Mt</span>
@@ -882,19 +889,19 @@ export default function Inventory() {
                     <Box size={14} /> STOCK LEVELS
                   </h4>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="bg-white/60 p-4 rounded-2xl border border-white shadow-sm text-center">
+                    <div className="bg-white/8 p-4 rounded-2xl border border-white shadow-sm text-center">
                       <p className="font-label-caps text-[10px] text-outline mb-1">TOTAL</p>
                       <p className="font-headline-md text-2xl text-on-surface">{selectedProduct.stock}</p>
                     </div>
-                    <div className="bg-white/60 p-4 rounded-2xl border border-white shadow-sm text-center">
+                    <div className="bg-white/8 p-4 rounded-2xl border border-white shadow-sm text-center">
                       <p className="font-label-caps text-[10px] text-outline mb-1">STATUS</p>
                       <p className="font-headline-md text-sm text-secondary">{selectedProduct.stock > selectedProduct.reorderLevel ? 'STOCK OK' : 'LOW STOCK'}</p>
                     </div>
-                    <div className="bg-white/60 p-4 rounded-2xl border border-white shadow-sm text-center opacity-40">
+                    <div className="bg-white/8 p-4 rounded-2xl border border-white shadow-sm text-center opacity-40">
                       <p className="font-label-caps text-[10px] text-outline mb-1">RESERVED</p>
                       <p className="font-headline-md text-2xl text-primary">0</p>
                     </div>
-                    <div className={`bg-white/60 p-4 rounded-2xl border border-white shadow-sm text-center ${damagedCount > 0 ? '' : 'opacity-40'}`}>
+                    <div className={`bg-white/8 p-4 rounded-2xl border border-white shadow-sm text-center ${damagedCount > 0 ? '' : 'opacity-40'}`}>
                       <p className="font-label-caps text-[10px] text-outline mb-1">DAMAGED</p>
                       <p className="font-headline-md text-2xl text-error">{damagedCount}</p>
                     </div>
@@ -912,7 +919,7 @@ export default function Inventory() {
                         <img src={photo} alt="" className="w-full h-full object-cover" />
                       </div>
                     ))}
-                    <button className="aspect-square rounded-2xl border-2 border-dashed border-outline-variant flex flex-col items-center justify-center text-outline hover:bg-white/20 transition-all">
+                    <button className="aspect-square rounded-2xl border-2 border-dashed border-outline-variant flex flex-col items-center justify-center text-outline hover:bg-white/4 transition-all">
                       <Plus size={24} />
                       <span className="font-label-caps text-[9px] mt-2">ADD PHOTO</span>
                     </button>
@@ -1015,7 +1022,7 @@ export default function Inventory() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="relative w-full max-w-xl h-full bg-surface-container shadow-2xl overflow-y-auto border-l border-white/40 flex flex-col"
+              className="relative w-full max-w-xl h-full bg-surface-container shadow-2xl overflow-y-auto border-l border-white/10 flex flex-col"
             >
               {/* Drawer Header */}
               <div className="p-8 pb-12 bg-atelier-gradient relative">
@@ -1025,13 +1032,13 @@ export default function Inventory() {
                     setAdjustProduct(null);
                     setSelectedProductId("");
                   }}
-                  className="absolute top-6 right-6 p-2 bg-white/40 backdrop-blur-md rounded-full text-primary hover:bg-white transition-all shadow-sm"
+                  className="absolute top-6 right-6 p-2 bg-white/6 backdrop-blur-md rounded-full text-primary hover:bg-white transition-all shadow-sm"
                 >
                   <X size={20} />
                 </button>
 
                 <div className="flex flex-col items-center text-center mt-4">
-                  <div className="w-20 h-20 bg-white/40 backdrop-blur-md rounded-3xl border-2 border-white flex items-center justify-center text-primary shadow-xl mb-4">
+                  <div className="w-20 h-20 bg-white/6 backdrop-blur-md rounded-3xl border-2 border-white flex items-center justify-center text-primary shadow-xl mb-4">
                     <AlertTriangle size={32} />
                   </div>
                   <h2 className="font-headline-md text-3xl text-primary uppercase tracking-tight">
@@ -1049,7 +1056,7 @@ export default function Inventory() {
                 <div className="space-y-1.5">
                   <label className="font-label-caps text-[9px] text-outline ml-1">SELECT PIECE / PRODUCT</label>
                   {adjustProduct ? (
-                    <div className="p-4 bg-white/40 border border-white/60 rounded-xl flex items-center gap-4">
+                    <div className="p-4 bg-white/6 border border-white/12 rounded-xl flex items-center gap-4">
                       <div className="w-12 h-12 rounded-lg overflow-hidden border border-white bg-surface-container shadow-sm flex-shrink-0">
                         <img src={adjustProduct.imageUrl} alt="" className="w-full h-full object-cover" />
                       </div>
@@ -1062,7 +1069,7 @@ export default function Inventory() {
                     <select
                       value={selectedProductId}
                       onChange={(e) => setSelectedProductId(e.target.value)}
-                      className="w-full px-4 py-3 bg-white/40 border border-white/60 rounded-xl font-body-md text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
+                      className="w-full px-4 py-3 bg-white/6 border border-white/12 rounded-xl font-body-md text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
                       required
                     >
                       <option value="" disabled>-- Select a Jewelry Piece --</option>
@@ -1083,7 +1090,7 @@ export default function Inventory() {
                     min={1}
                     value={adjustForm.quantity}
                     onChange={(e) => setAdjustForm({ ...adjustForm, quantity: Math.max(1, parseInt(e.target.value) || 1) })}
-                    className="w-full px-4 py-3 bg-white/40 border border-white/60 rounded-xl font-data-tabular text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
+                    className="w-full px-4 py-3 bg-white/6 border border-white/12 rounded-xl font-data-tabular text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
                     required
                   />
                 </div>
@@ -1094,7 +1101,7 @@ export default function Inventory() {
                   <select
                     value={damageReason}
                     onChange={(e) => setDamageReason(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/40 border border-white/60 rounded-xl font-body-md text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
+                    className="w-full px-4 py-3 bg-white/6 border border-white/12 rounded-xl font-body-md text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
                     required
                   >
                     <option value="" disabled>-- Select Damage Type --</option>
@@ -1114,7 +1121,7 @@ export default function Inventory() {
                     placeholder="e.g. Scratched gold setting, loose center diamond"
                     value={damageNotes}
                     onChange={(e) => setDamageNotes(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/40 border border-white/60 rounded-xl font-body-md text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm resize-none"
+                    className="w-full px-4 py-3 bg-white/6 border border-white/12 rounded-xl font-body-md text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm resize-none"
                   />
                 </div>
 
@@ -1148,19 +1155,19 @@ export default function Inventory() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="relative w-full max-w-xl h-full bg-surface-container shadow-2xl overflow-y-auto border-l border-white/40 flex flex-col"
+              className="relative w-full max-w-xl h-full bg-surface-container shadow-2xl overflow-y-auto border-l border-white/10 flex flex-col"
             >
               {/* Drawer Header */}
               <div className="p-8 pb-12 bg-atelier-gradient relative">
                 <button
                   onClick={() => setIsAddingProduct(false)}
-                  className="absolute top-6 right-6 p-2 bg-white/40 backdrop-blur-md rounded-full text-primary hover:bg-white transition-all shadow-sm"
+                  className="absolute top-6 right-6 p-2 bg-white/6 backdrop-blur-md rounded-full text-primary hover:bg-white transition-all shadow-sm"
                 >
                   <X size={20} />
                 </button>
 
                 <div className="flex flex-col items-center text-center mt-4">
-                  <div className="w-20 h-20 bg-white/40 backdrop-blur-md rounded-3xl border-2 border-white flex items-center justify-center text-primary shadow-xl mb-4 group cursor-pointer hover:bg-white transition-all">
+                  <div className="w-20 h-20 bg-white/6 backdrop-blur-md rounded-3xl border-2 border-white flex items-center justify-center text-primary shadow-xl mb-4 group cursor-pointer hover:bg-white transition-all">
                     <Camera size={32} className="group-hover:scale-110 transition-transform" />
                   </div>
                   <h2 className="font-headline-md text-3xl text-primary uppercase tracking-tight">
@@ -1187,7 +1194,7 @@ export default function Inventory() {
                           placeholder="e.g. Diamond Drop Earrings"
                           value={formData.name}
                           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                          className="w-full px-4 py-3 bg-white/40 border border-white/60 rounded-xl text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
+                          className="w-full px-4 py-3 bg-white/6 border border-white/12 rounded-xl text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
                           required
                         />
                       </div>
@@ -1198,7 +1205,7 @@ export default function Inventory() {
                           placeholder="VAULT-..."
                           value={formData.code}
                           onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                          className="w-full px-4 py-3 bg-white/40 border border-white/60 rounded-xl text-xs font-bold text-primary focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
+                          className="w-full px-4 py-3 bg-white/6 border border-white/12 rounded-xl text-xs font-bold text-primary focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
                           required
                         />
                       </div>
@@ -1209,7 +1216,7 @@ export default function Inventory() {
                         <select
                           value={formData.category}
                           onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                          className="w-full px-4 py-3 bg-white/40 border border-white/60 rounded-xl text-xs font-bold text-primary focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm appearance-none"
+                          className="w-full px-4 py-3 bg-white/6 border border-white/12 rounded-xl text-xs font-bold text-primary focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm appearance-none"
                         >
                           <option value="Earrings">EARRINGS</option>
                           <option value="Bracelets">BRACELETS</option>
@@ -1228,7 +1235,7 @@ export default function Inventory() {
                           placeholder="Brief stylistic details"
                           value={formData.description}
                           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                          className="w-full px-4 py-3 bg-white/40 border border-white/60 rounded-xl text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
+                          className="w-full px-4 py-3 bg-white/6 border border-white/12 rounded-xl text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
                         />
                       </div>
                     </div>
@@ -1249,7 +1256,7 @@ export default function Inventory() {
                         <input
                           type="text"
                           placeholder="e.g. 18K Rose Gold"
-                          className="w-full pl-12 pr-4 py-3 bg-white/40 border border-white/60 rounded-xl text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
+                          className="w-full pl-12 pr-4 py-3 bg-white/6 border border-white/12 rounded-xl text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
                         />
                       </div>
                     </div>
@@ -1271,7 +1278,7 @@ export default function Inventory() {
                         placeholder="0.00"
                         value={formData.costPrice}
                         onChange={(e) => setFormData({ ...formData, costPrice: parseFloat(e.target.value) || 0 })}
-                        className="w-full px-4 py-3 bg-white/40 border border-white/60 rounded-xl font-data-tabular text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
+                        className="w-full px-4 py-3 bg-white/6 border border-white/12 rounded-xl font-data-tabular text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
                         required
                       />
                     </div>
@@ -1282,7 +1289,7 @@ export default function Inventory() {
                         placeholder="0.00"
                         value={formData.sellingPrice}
                         onChange={(e) => setFormData({ ...formData, sellingPrice: parseFloat(e.target.value) || 0 })}
-                        className="w-full px-4 py-3 bg-white/40 border border-white/60 rounded-xl font-data-tabular text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
+                        className="w-full px-4 py-3 bg-white/6 border border-white/12 rounded-xl font-data-tabular text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
                         required
                       />
                     </div>
@@ -1309,7 +1316,7 @@ export default function Inventory() {
                       type="number"
                       value={formData.stock}
                       onChange={(e) => setFormData({ ...formData, stock: parseInt(e.target.value) || 0 })}
-                      className="w-full px-4 py-3 bg-white/40 border border-white/60 rounded-xl font-data-tabular text-sm text-center focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
+                      className="w-full px-4 py-3 bg-white/6 border border-white/12 rounded-xl font-data-tabular text-sm text-center focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
                       required
                     />
                   </div>
@@ -1322,7 +1329,7 @@ export default function Inventory() {
                       <select
                         value={adjustmentReason}
                         onChange={(e) => setAdjustmentReason(e.target.value)}
-                        className="w-full px-4 py-3 bg-white/40 border border-error/50 rounded-xl font-body-md text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
+                        className="w-full px-4 py-3 bg-white/6 border border-error/50 rounded-xl font-body-md text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
                         required
                       >
                         <option value="" disabled>-- Select Reason --</option>
@@ -1341,7 +1348,7 @@ export default function Inventory() {
                       type="number"
                       value={formData.reorderLevel}
                       onChange={(e) => setFormData({ ...formData, reorderLevel: parseInt(e.target.value) || 0 })}
-                      className="w-full px-4 py-3 bg-white/40 border border-white/60 rounded-xl font-data-tabular text-sm text-center focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
+                      className="w-full px-4 py-3 bg-white/6 border border-white/12 rounded-xl font-data-tabular text-sm text-center focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-sm"
                       required
                     />
                   </div>
@@ -1359,7 +1366,7 @@ export default function Inventory() {
               </form>
 
               {/* Drawer Footer Actions */}
-              <div className="p-8 border-t border-outline-variant/30 bg-white/20 sticky bottom-0">
+              <div className="p-8 border-t border-outline-variant/30 bg-white/4 sticky bottom-0">
                 <div className="flex gap-4">
                   <button
                     onClick={() => setIsAddingProduct(false)}

@@ -4,16 +4,16 @@ import { motion } from "framer-motion";
 
 export default function LuxuryLoader({ text = "Entering Digital Atelier..." }: { text?: string }) {
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#fdfbf7]">
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background">
       {/* Background Silk Image with overlay */}
       <div className="absolute inset-0 z-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           alt="Luxury silk background"
-          className="w-full h-full object-cover opacity-20"
+          className="w-full h-full object-cover opacity-10"
           src="/login-bg.png"
         />
-        <div className="absolute inset-0 bg-[#fdfbf7]/90"></div>
+        <div className="absolute inset-0 bg-background/90"></div>
       </div>
 
       {/* Spinner and Text */}

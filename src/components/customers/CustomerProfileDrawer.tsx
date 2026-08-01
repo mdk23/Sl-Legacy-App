@@ -55,12 +55,12 @@ export const CustomerProfileDrawer = ({
         animate={{ x: 0 }}
         exit={{ x: "100%" }}
         transition={{ type: "spring", damping: 25, stiffness: 200 }}
-        className="relative w-full max-w-xl h-full bg-surface-container shadow-2xl overflow-y-auto border-l border-white/40 flex flex-col"
+        className="relative w-full max-w-xl h-full bg-surface-container shadow-2xl overflow-y-auto border-l border-white/10 flex flex-col"
       >
         <div className="p-8 pb-12 bg-atelier-gradient relative">
           <button
             onClick={onClose}
-            className="absolute top-6 right-6 p-2 bg-white/40 backdrop-blur-md rounded-full text-primary hover:bg-white transition-all shadow-sm"
+            className="absolute top-6 right-6 p-2 bg-white/6 backdrop-blur-md rounded-full text-primary hover:bg-white transition-all shadow-sm"
           >
             <X size={20} />
           </button>
@@ -85,7 +85,7 @@ export const CustomerProfileDrawer = ({
 
         <div className="flex-1 p-8 space-y-10">
           {/* Score ring */}
-          <section className="flex flex-col items-center justify-center p-6 bg-white/40 rounded-3xl border border-white/60 shadow-inner relative overflow-hidden">
+          <section className="flex flex-col items-center justify-center p-6 bg-white/6 rounded-3xl border border-white/12 shadow-inner relative overflow-hidden">
             <div className="relative flex items-center justify-center w-32 h-32">
               <svg className="w-full h-full transform -rotate-90">
                 <circle
@@ -131,7 +131,7 @@ export const CustomerProfileDrawer = ({
               <Users size={18} className="text-primary" />
               <h4 className="font-label-caps text-[11px] text-primary tracking-widest">BASIC INFORMATION</h4>
             </div>
-            <div className="grid grid-cols-2 gap-4 bg-white/40 p-5 rounded-3xl border border-white/60">
+            <div className="grid grid-cols-2 gap-4 bg-white/6 p-5 rounded-3xl border border-white/12">
               <div>
                 <p className="font-label-caps text-[9px] text-outline mb-1">PRIMARY PHONE</p>
                 <p className="font-data-tabular text-sm font-bold">{selectedCustomer.phone1}</p>
@@ -258,7 +258,7 @@ export const CustomerProfileDrawer = ({
           </section>
         </div>
 
-        <div className="p-8 border-t border-outline-variant/30 bg-white/20 sticky bottom-0">
+        <div className="p-8 border-t border-outline-variant/30 bg-white/4 sticky bottom-0">
           <div className="grid grid-cols-2 gap-4">
             <button
               onClick={() => onEdit(selectedCustomer)}

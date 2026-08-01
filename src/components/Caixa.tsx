@@ -135,7 +135,7 @@ export default function Caixa() {
   }, [movements, typeFilter, searchQuery]);
 
   const KPICard = ({ title, value, colorClass, icon: Icon }: any) => (
-    <div className={`p-6 rounded-3xl border border-white/50 bg-white/40 backdrop-blur-md shadow-sm relative overflow-hidden group hover:shadow-xl transition-all`}>
+    <div className={`p-6 rounded-3xl border border-white/12 bg-white/6 backdrop-blur-md shadow-sm relative overflow-hidden group hover:shadow-xl transition-all`}>
       <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-4 ${colorClass}`}>
         <Icon size={18} />
       </div>
@@ -178,7 +178,7 @@ export default function Caixa() {
       {activeSession === undefined ? (
         <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>
       ) : activeSession === null ? (
-        <div className="glass-panel p-12 rounded-3xl border border-white/50 text-center max-w-2xl mx-auto mt-20 shadow-2xl">
+        <div className="glass-panel p-12 rounded-3xl border border-white/12 text-center max-w-2xl mx-auto mt-20 shadow-2xl">
           <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
             <Unlock className="text-primary" size={32} />
           </div>
@@ -224,8 +224,8 @@ export default function Caixa() {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Ledger Table */}
-            <div className="lg:col-span-2 glass-panel rounded-3xl overflow-hidden border border-white/50 shadow-sm flex flex-col">
-              <div className="p-6 border-b border-primary/10 bg-white/40 flex flex-wrap justify-between items-center gap-4">
+            <div className="lg:col-span-2 glass-panel rounded-3xl overflow-hidden border border-white/12 shadow-sm flex flex-col">
+              <div className="p-6 border-b border-primary/10 bg-white/6 flex flex-wrap justify-between items-center gap-4">
                 <h3 className="font-headline-md text-lg text-primary">Live Ledger</h3>
                 <div className="flex gap-2">
                   <div className="relative">
@@ -235,13 +235,13 @@ export default function Caixa() {
                       placeholder="Search description..."
                       value={searchQuery}
                       onChange={e => setSearchQuery(e.target.value)}
-                      className="pl-9 pr-4 py-2 rounded-xl text-xs bg-white/60 border border-primary/10 focus:ring-2 focus:ring-primary/20 outline-none w-48"
+                      className="pl-9 pr-4 py-2 rounded-xl text-xs bg-white/8 border border-primary/10 focus:ring-2 focus:ring-primary/20 outline-none w-48"
                     />
                   </div>
                   <select 
                     value={typeFilter}
                     onChange={e => setTypeFilter(e.target.value)}
-                    className="px-4 py-2 rounded-xl text-xs bg-white/60 border border-primary/10 focus:ring-2 focus:ring-primary/20 outline-none font-label-caps cursor-pointer"
+                    className="px-4 py-2 rounded-xl text-xs bg-white/8 border border-primary/10 focus:ring-2 focus:ring-primary/20 outline-none font-label-caps cursor-pointer"
                   >
                     <option value="ALL">All Types</option>
                     <option value="OPENING">Opening</option>
@@ -255,7 +255,7 @@ export default function Caixa() {
               
               <div className="overflow-x-auto flex-1 max-h-[500px] overflow-y-auto">
                 <table className="w-full text-left border-collapse text-sm">
-                  <thead className="sticky top-0 bg-white/90 backdrop-blur-md z-10 text-[10px] font-label-caps text-outline uppercase">
+                  <thead className="sticky top-0 bg-white/10 backdrop-blur-md z-10 text-[10px] font-label-caps text-outline uppercase">
                     <tr>
                       <th className="px-6 py-4">Time</th>
                       <th className="px-6 py-4">Type</th>
@@ -268,7 +268,7 @@ export default function Caixa() {
                     {filteredMovements.length === 0 ? (
                       <tr><td colSpan={5} className="p-8 text-center text-outline">No movements found.</td></tr>
                     ) : filteredMovements.map((m) => (
-                      <tr key={m._id} className="hover:bg-white/40 transition-colors">
+                      <tr key={m._id} className="hover:bg-white/6 transition-colors">
                         <td className="px-6 py-4 font-data-tabular text-xs text-outline">{formatTime(m.timestamp)}</td>
                         <td className="px-6 py-4">
                           <span className={`px-2 py-1 rounded-md text-[9px] font-bold uppercase tracking-wider ${
@@ -301,7 +301,7 @@ export default function Caixa() {
             {/* Sidebar Widgets */}
             <div className="flex flex-col gap-8">
               {/* Active Session Info */}
-              <div className="glass-panel p-6 rounded-3xl border border-white/50 shadow-sm">
+              <div className="glass-panel p-6 rounded-3xl border border-white/12 shadow-sm">
                 <h3 className="font-headline-md text-lg text-primary mb-4">Session Info</h3>
                 <div className="space-y-4">
                   <div className="flex justify-between items-center pb-4 border-b border-primary/10">
@@ -323,11 +323,11 @@ export default function Caixa() {
               </div>
 
               {/* Past Sessions */}
-              <div className="glass-panel p-6 rounded-3xl border border-white/50 shadow-sm flex-1">
+              <div className="glass-panel p-6 rounded-3xl border border-white/12 shadow-sm flex-1">
                 <h3 className="font-headline-md text-lg text-primary mb-4 flex items-center gap-2"><History size={18}/> Last Sessions</h3>
                 <div className="space-y-4">
                   {recentSessions.filter(s => s.status === 'CLOSED').slice(0, 4).map(s => (
-                    <div key={s._id} className="p-4 rounded-2xl border border-primary/5 bg-white/40 hover:bg-white/60 transition-all flex flex-col gap-2 cursor-pointer group">
+                    <div key={s._id} className="p-4 rounded-2xl border border-primary/5 bg-white/6 hover:bg-white/8 transition-all flex flex-col gap-2 cursor-pointer group">
                       <div className="flex justify-between items-center">
                         <span className="text-xs font-bold text-primary">{formatDate(s.openedAt)}</span>
                         <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest ${

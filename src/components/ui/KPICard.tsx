@@ -15,7 +15,7 @@ export const KPICard = ({ title, value, subValue, trend, icon: Icon, color }: KP
   return (
     <motion.div
       whileHover={{ y: -4, transition: { duration: 0.18 } }}
-      className="glass-panel p-6 rounded-2xl border border-white/50 hover:shadow-2xl hover:shadow-primary/5 transition-all relative overflow-hidden"
+      className="glass-panel p-6 rounded-2xl border border-white/12 hover:shadow-2xl hover:shadow-primary/5 transition-all relative overflow-hidden"
     >
       <div className="flex justify-between items-start mb-4">
         <div className={`p-3 rounded-xl bg-${color}/10 text-${color}`}>

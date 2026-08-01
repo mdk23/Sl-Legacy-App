@@ -21,11 +21,11 @@ export default function AppShell({ children }: AppShellProps) {
 
   return (
     <div className="bg-atelier-gradient min-h-screen text-on-surface font-body-md overflow-x-hidden">
-      <header className="fixed top-0 w-full z-50 flex justify-between items-center px-container-padding h-16 bg-white/40 backdrop-blur-xl shadow-sm border-b border-white/50">
+      <header className="fixed top-0 w-full z-50 flex justify-between items-center px-container-padding h-16 bg-white/6 backdrop-blur-xl shadow-sm border-b border-white/12">
         <div className="flex items-center gap-4 md:gap-8">
           <button
             onClick={() => setMobileSidebarOpen(true)}
-            className="lg:hidden material-symbols-outlined text-primary p-2 hover:bg-white/20 rounded-full transition-colors"
+            className="lg:hidden material-symbols-outlined text-primary p-2 hover:bg-white/4 rounded-full transition-colors"
           >
             menu
           </button>
@@ -41,7 +41,7 @@ export default function AppShell({ children }: AppShellProps) {
             {firstLetter}
           </div>
           {pathname !== '/inventory' && (
-            <button onClick={logout} className="material-symbols-outlined text-primary p-2 hover:bg-white/20 rounded-full transition-colors" title="Logout">logout</button>
+            <button onClick={logout} className="material-symbols-outlined text-primary p-2 hover:bg-white/4 rounded-full transition-colors" title="Logout">logout</button>
           )}
         </div>
       </header>

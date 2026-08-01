@@ -14,27 +14,16 @@ import {
   Bar,
   Treemap,
 } from "recharts";
+import { CHART_COLORS, CHART_CHROME } from "@/lib/chartColors";
 
-const COLORS = [
-  "#8a4853",
-  "#735c00",
-  "#6e5371",
-  "#d7c1c3",
-  "#4a3b32",
-  "#c2a38d",
-  "#d4af37",
-  "#6b4c41",
-  "#9e7b6d",
-  "#8c7b75",
-  "#43323c",
-  "#5c6b73",
-  "#bda09a",
-  "#d1cdcb",
-  "#a88d75",
-  "#554d48",
-  "#8a9591",
-  "#f3e5d8",
-];
+const COLORS = CHART_COLORS;
+const tooltipContentStyle = {
+  borderRadius: "16px",
+  border: `1px solid ${CHART_CHROME.tooltipBorder}`,
+  boxShadow: CHART_CHROME.tooltipShadow,
+  backgroundColor: CHART_CHROME.tooltipBg,
+  color: CHART_CHROME.tooltipText,
+};
 
 interface SalesChartsProps {
   dynamicRevenueHistory: any[];
@@ -59,8 +48,8 @@ export const SalesCharts = ({
   if (!mounted) {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
-        <div className="lg:col-span-2 glass-panel p-8 rounded-3xl border border-white/50 h-96 bg-white/5 animate-pulse" />
-        <div className="glass-panel p-8 rounded-3xl border border-white/50 h-96 bg-white/5 animate-pulse" />
+        <div className="lg:col-span-2 glass-panel p-8 rounded-3xl border border-white/12 h-96 bg-white/5 animate-pulse" />
+        <div className="glass-panel p-8 rounded-3xl border border-white/12 h-96 bg-white/5 animate-pulse" />
       </div>
     );
   }
@@ -69,7 +58,7 @@ export const SalesCharts = ({
     <>
       {/* Analytics Bento Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
-        <div className="lg:col-span-2 glass-panel p-8 rounded-3xl border border-white/50">
+        <div className="lg:col-span-2 glass-panel p-8 rounded-3xl border border-white/12">
           <div className="flex justify-between items-start mb-10">
             <div>
               <h3 className="font-headline-md text-xl text-primary">Revenue Trends</h3>
@@ -83,36 +72,30 @@ export const SalesCharts = ({
               <AreaChart data={dynamicRevenueHistory}>
                 <defs>
                   <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#8a4853" stopOpacity={0.1} />
-                    <stop offset="95%" stopColor="#8a4853" stopOpacity={0} />
+                    <stop offset="5%" stopColor={CHART_COLORS[0]} stopOpacity={0.3} />
+                    <stop offset="95%" stopColor={CHART_COLORS[0]} stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e4e2de" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={CHART_CHROME.grid} />
                 <XAxis
                   dataKey="name"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fontSize: 10, fill: "#857374" }}
+                  tick={{ fontSize: 10, fill: CHART_CHROME.axisText }}
                   dy={10}
                 />
                 <YAxis
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fontSize: 10, fill: "#857374" }}
+                  tick={{ fontSize: 10, fill: CHART_CHROME.axisText }}
                   dx={-10}
                   tickFormatter={(val) => `${val / 1000}k`}
                 />
-                <Tooltip
-                  contentStyle={{
-                    borderRadius: "16px",
-                    border: "none",
-                    boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)",
-                  }}
-                />
+                <Tooltip contentStyle={tooltipContentStyle} />
                 <Area
                   type="monotone"
                   dataKey="revenue"
-                  stroke="#8a4853"
+                  stroke={CHART_COLORS[0]}
                   strokeWidth={3}
                   fillOpacity={1}
                   fill="url(#colorValue)"
@@ -122,7 +105,7 @@ export const SalesCharts = ({
           </div>
         </div>
 
-        <div className="glass-panel p-8 rounded-3xl border border-white/50 flex flex-col">
+        <div className="glass-panel p-8 rounded-3xl border border-white/12 flex flex-col">
           <h3 className="font-headline-md text-xl text-primary mb-2">Category Performance</h3>
           <p className="font-label-caps text-[9px] text-outline tracking-widest mb-10">SALES DISTRIBUTION</p>
           <div className="flex-1 flex flex-col justify-center items-center relative">
@@ -169,14 +152,23 @@ export const SalesCharts = ({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
-        <div className="glass-panel p-8 rounded-3xl border border-white/50 flex flex-col">
+        <div className="glass-panel p-8 rounded-3xl border border-white/12 flex flex-col">
           <h3 className="font-headline-md text-xl text-primary mb-2">Payout Methods</h3>
           <p className="font-label-caps text-[9px] text-outline tracking-widest mb-10">TENDER DISTRIBUTION</p>
           <div className="flex-1 flex flex-col justify-center items-center relative">
             {dynamicPayoutDistribution.length > 0 ? (
               <ResponsiveContainer width="100%" height={240}>
-                <Treemap data={dynamicPayoutDistribution} dataKey="amount" stroke="#fff" isAnimationActive={false}>
-                  <Tooltip formatter={(value: any) => formatCurrency(Number(value) || 0)} />
+                <Treemap
+                  data={dynamicPayoutDistribution}
+                  dataKey="amount"
+                  stroke={CHART_CHROME.surface}
+                  colorPanel={[...COLORS]}
+                  isAnimationActive={false}
+                >
+                  <Tooltip
+                    formatter={(value: any) => formatCurrency(Number(value) || 0)}
+                    contentStyle={tooltipContentStyle}
+                  />
                 </Treemap>
               </ResponsiveContainer>
             ) : (
@@ -201,32 +193,28 @@ export const SalesCharts = ({
           </div>
         </div>
 
-        <div className="glass-panel p-8 rounded-3xl border border-white/50 flex flex-col">
+        <div className="glass-panel p-8 rounded-3xl border border-white/12 flex flex-col">
           <h3 className="font-headline-md text-xl text-primary mb-2">Top 5 Selling Items</h3>
           <p className="font-label-caps text-[9px] text-outline tracking-widest mb-10">MOST POPULAR PIECES</p>
           <div className="flex-1 h-[240px]">
             {topSellingItems.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={topSellingItems} layout="vertical" margin={{ top: 0, right: 30, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e4e2de" />
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke={CHART_CHROME.grid} />
                   <XAxis type="number" hide />
                   <YAxis
                     dataKey="name"
                     type="category"
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fontSize: 10, fill: "#857374" }}
+                    tick={{ fontSize: 10, fill: CHART_CHROME.axisText }}
                     width={120}
                   />
                   <Tooltip
-                    cursor={{ fill: "rgba(138, 72, 83, 0.05)" }}
-                    contentStyle={{
-                      borderRadius: "12px",
-                      border: "none",
-                      boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)",
-                    }}
+                    cursor={{ fill: "rgba(180, 131, 43, 0.12)" }}
+                    contentStyle={{ ...tooltipContentStyle, borderRadius: "12px" }}
                   />
-                  <Bar dataKey="count" fill="#8a4853" radius={[0, 4, 4, 0]} barSize={24} />
+                  <Bar dataKey="count" fill={CHART_COLORS[0]} radius={[0, 4, 4, 0]} barSize={24} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (

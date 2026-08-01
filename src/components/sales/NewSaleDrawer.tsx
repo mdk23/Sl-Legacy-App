@@ -68,13 +68,13 @@ export const NewSaleDrawer = ({
         initial={{ x: "100%" }}
         animate={{ x: 0 }}
         exit={{ x: "100%" }}
-        className="relative w-full max-w-2xl h-full bg-surface-container shadow-2xl flex flex-col border-l border-white/40"
+        className="relative w-full max-w-2xl h-full bg-surface-container shadow-2xl flex flex-col border-l border-white/10"
       >
         {/* POS Header */}
         <div className="p-8 bg-atelier-gradient border-b border-primary/10">
           <div className="flex justify-between items-center">
             <h2 className="font-headline-md text-3xl text-primary">New Sale Ticket</h2>
-            <button onClick={() => setIsAddingSale(false)} className="p-2 hover:bg-white/40 rounded-full text-primary">
+            <button onClick={() => setIsAddingSale(false)} className="p-2 hover:bg-white/6 rounded-full text-primary">
               <X size={24} />
             </button>
           </div>
@@ -98,7 +98,7 @@ export const NewSaleDrawer = ({
                   The sale has been successfully recorded in the vault.
                 </p>
 
-                <div className="w-full bg-white/40 border border-white/60 rounded-3xl p-6 mb-10">
+                <div className="w-full bg-white/6 border border-white/12 rounded-3xl p-6 mb-10">
                   <p className="font-label-caps text-[10px] text-outline mb-2">RECEIPT NUMBER</p>
                   <p className="font-data-tabular text-2xl font-bold text-primary">{lastReceipt}</p>
                 </div>
@@ -125,7 +125,7 @@ export const NewSaleDrawer = ({
                 <section>
                   <label className="font-label-caps text-[11px] text-outline mb-4 block">1. LINK CLIENT ACCOUNT</label>
                   <select
-                    className="w-full p-4 bg-white/40 border border-white/60 rounded-2xl text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all"
+                    className="w-full p-4 bg-white/6 border border-white/12 rounded-2xl text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all"
                     value={saleForm.customerId || ""}
                     onChange={(e) => setSaleForm({ ...saleForm, customerId: e.target.value || undefined })}
                   >
@@ -167,7 +167,7 @@ export const NewSaleDrawer = ({
                               });
                             }
                           }}
-                          className="p-4 bg-white/60 border border-white/80 rounded-2xl flex flex-col items-start gap-2 hover:bg-white transition-all text-left group"
+                          className="p-4 bg-white/8 border border-white/16 rounded-2xl flex flex-col items-start gap-2 hover:bg-white transition-all text-left group"
                         >
                           <div className="w-full aspect-square rounded-xl overflow-hidden mb-2">
                             <img
@@ -216,7 +216,7 @@ export const NewSaleDrawer = ({
                 </section>
 
                 {/* Financial Summary */}
-                <section className="bg-white/40 p-6 rounded-3xl border border-white space-y-4">
+                <section className="bg-white/6 p-6 rounded-3xl border border-white space-y-4">
                   <h4 className="font-label-caps text-[11px] text-outline">3. FINANCIAL RECONCILIATION</h4>
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
@@ -254,7 +254,7 @@ export const NewSaleDrawer = ({
                         className="flex gap-4 items-center"
                       >
                         <select
-                          className="flex-1 p-4 bg-white/40 border border-white/60 rounded-2xl text-xs font-bold"
+                          className="flex-1 p-4 bg-white/6 border border-white/12 rounded-2xl text-xs font-bold"
                           value={pay.method}
                           onChange={(e) =>
                             setSaleForm({
@@ -285,7 +285,7 @@ export const NewSaleDrawer = ({
                               ),
                             })
                           }
-                          className="flex-1 p-4 bg-white/40 border border-white/60 rounded-2xl font-data-tabular text-sm"
+                          className="flex-1 p-4 bg-white/6 border border-white/12 rounded-2xl font-data-tabular text-sm"
                         />
                         {saleForm.paymentBreakdown.length > 1 && (
                           <button
@@ -340,7 +340,7 @@ export const NewSaleDrawer = ({
 
         {/* POS Footer */}
         {!isSuccess && (
-          <div className="p-8 border-t border-outline-variant/30 bg-white/60 sticky bottom-0">
+          <div className="p-8 border-t border-outline-variant/30 bg-white/8 sticky bottom-0">
             <button
               type="button"
               onClick={handleRegisterSale}

@@ -29,10 +29,10 @@ export const SaleDetailDrawer = ({
         animate={{ x: 0 }}
         exit={{ x: "100%" }}
         transition={{ type: "spring", damping: 25, stiffness: 200 }}
-        className="relative w-full max-w-xl h-full bg-surface-container shadow-2xl flex flex-col border-l border-white/40"
+        className="relative w-full max-w-xl h-full bg-surface-container shadow-2xl flex flex-col border-l border-white/10"
       >
         {/* Drawer Header */}
-        <div className="p-8 border-b border-outline-variant/30 flex justify-between items-start bg-white/40 backdrop-blur-md">
+        <div className="p-8 border-b border-outline-variant/30 flex justify-between items-start bg-white/6 backdrop-blur-md">
           <div>
             <h2 className="font-headline-md text-2xl text-primary">
               {selectedSale.receiptNumber?.replace("INV-", "ORD-")}
@@ -88,7 +88,7 @@ export const SaleDetailDrawer = ({
             </div>
             <div className="space-y-4">
               {(selectedSale.items || []).map((item: any, i: number) => (
-                <div key={i} className="flex items-center gap-4 p-4 bg-white/40 rounded-2xl border border-white/60">
+                <div key={i} className="flex items-center gap-4 p-4 bg-white/6 rounded-2xl border border-white/12">
                   <div className="w-16 h-16 rounded-xl overflow-hidden shadow-md">
                     <img src={item.photo || undefined} alt="" className="w-full h-full object-cover" />
                   </div>
@@ -171,7 +171,7 @@ export const SaleDetailDrawer = ({
         </div>
 
         {/* Drawer Footer Actions */}
-        <div className="p-8 border-t border-outline-variant/30 bg-white/40 backdrop-blur-md sticky bottom-0">
+        <div className="p-8 border-t border-outline-variant/30 bg-white/6 backdrop-blur-md sticky bottom-0">
           <div className="grid grid-cols-2 gap-3">
             <button className="flex flex-col items-center gap-2 p-3 bg-white border border-outline-variant/30 rounded-2xl text-primary hover:bg-primary/5 transition-all">
               <Printer size={18} />

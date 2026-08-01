@@ -21,19 +21,12 @@ import {
   AlertCircle
 } from 'lucide-react';
 import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
   ResponsiveContainer,
-  BarChart,
-  Bar,
   PieChart,
   Pie,
   Cell
 } from 'recharts';
+import { CHART_COLORS } from '@/lib/chartColors';
 import { motion } from 'framer-motion';
 
 import { useQuery } from 'convex/react';
@@ -45,7 +38,7 @@ import { toast } from 'sonner';
 const ExecutiveKPI = ({ title, value, trend, icon: Icon, color, subText }: any) => (
   <motion.div
     whileHover={{ scale: 1.02 }}
-    className="glass-panel p-6 rounded-3xl border border-white/50 relative overflow-hidden group hover:shadow-2xl transition-all"
+    className="glass-panel p-6 rounded-3xl border border-white/12 relative overflow-hidden group hover:shadow-2xl transition-all"
   >
     <div className="flex justify-between items-start mb-6">
       <div className={`p-3 rounded-2xl bg-${color}/10 text-${color} shadow-sm`}>
@@ -126,7 +119,7 @@ export default function Dashboard() {
         </motion.div>
 
         <div className="flex items-center gap-4 w-full md:w-auto">
-          <div className="flex items-center gap-2 bg-white/40 backdrop-blur-md p-1.5 rounded-2xl border border-white/60 shadow-sm mr-2">
+          <div className="flex items-center gap-2 bg-white/6 backdrop-blur-md p-1.5 rounded-2xl border border-white/12 shadow-sm mr-2">
             {[
               { label: 'TODAY', value: 'today' },
               { label: 'YESTERDAY', value: 'yesterday' },
@@ -206,7 +199,7 @@ export default function Dashboard() {
                 <motion.div
                   key={pm.name}
                   whileHover={{ scale: 1.02 }}
-                  className="glass-panel p-6 rounded-3xl border border-white/50 relative overflow-hidden group hover:shadow-xl transition-all flex flex-col justify-between min-h-[160px]"
+                  className="glass-panel p-6 rounded-3xl border border-white/12 relative overflow-hidden group hover:shadow-xl transition-all flex flex-col justify-between min-h-[160px]"
                 >
                   <div className="flex justify-between items-start mb-4">
                     <div className={`p-3 rounded-2xl bg-${pm.color}/10 text-${pm.color} shadow-sm w-fit`}>
@@ -228,7 +221,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="glass-panel p-8 rounded-[2rem] border border-white/50 flex flex-col items-center text-center">
+        <div className="glass-panel p-8 rounded-[2rem] border border-white/12 flex flex-col items-center text-center">
           <h3 className="font-headline-md text-xl text-primary mb-2">Boutique Inventory</h3>
           <p className="font-label-caps text-[9px] text-outline tracking-widest mb-10">SOLD CATEGORY DISTRIBUTION</p>
 
@@ -245,7 +238,7 @@ export default function Dashboard() {
                   dataKey="value"
                 >
                   {(brief?.categoryDistribution || []).map((entry: any, index: number) => (
-                    <Cell key={`cell-${index}`} fill={['#8a4853', '#735c00', '#6e5371', '#857374'][index % 4]} />
+                    <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                   ))}
                 </Pie>
               </PieChart>
@@ -254,7 +247,7 @@ export default function Dashboard() {
 
           <div className="grid grid-cols-2 gap-2 w-full mt-6">
             {(brief?.categoryDistribution || []).slice(0, 4).map((stat: any) => (
-              <div key={stat.name} className="flex flex-col items-center p-3 bg-white/40 rounded-2xl border border-white/60">
+              <div key={stat.name} className="flex flex-col items-center p-3 bg-white/6 rounded-2xl border border-white/12">
                 <span className="font-data-tabular text-sm font-bold text-primary">{stat.value}%</span>
                 <span className="font-label-caps text-[8px] text-outline truncate">{stat.name.toUpperCase()}</span>
               </div>
@@ -266,8 +259,8 @@ export default function Dashboard() {
       {/* Bento Activity Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         {/* Recent Activity Table */}
-        <div className="lg:col-span-2 glass-panel rounded-[2rem] border border-white/50 bg-white/20">
-          <div className="p-8 border-b border-primary/10 flex justify-between items-center bg-white/40 rounded-t-[2rem]">
+        <div className="lg:col-span-2 glass-panel rounded-[2rem] border border-white/12 bg-white/4">
+          <div className="p-8 border-b border-primary/10 flex justify-between items-center bg-white/6 rounded-t-[2rem]">
             <div>
               <h3 className="font-headline-md text-xl text-primary">Sales Activity</h3>
               <p className="font-label-caps text-[9px] text-outline tracking-widest">REAL-TIME TRANSACTION  </p>
@@ -285,7 +278,7 @@ export default function Dashboard() {
               </thead>
               <tbody className="divide-y divide-primary/5">
                 {(filteredRecentTransactions || []).slice(0, 5).map((tx) => (
-                  <tr key={tx._id} className="hover:bg-white/40 transition-colors group cursor-pointer">
+                  <tr key={tx._id} className="hover:bg-white/6 transition-colors group cursor-pointer">
                     <td className="px-8 py-5 font-data-tabular text-xs font-bold text-primary">{tx.receiptNumber}</td>
                     <td className="px-6 py-5 font-body-md text-sm text-on-surface">{tx.cashierName}</td>
                     <td className="px-6 py-5">
@@ -302,7 +295,7 @@ export default function Dashboard() {
               </tbody>
             </table>
           </div>
-          <div className="p-6 bg-white/40 text-center">
+          <div className="p-6 bg-white/6 text-center">
             <button className="font-label-caps text-[10px] text-primary flex items-center gap-2 mx-auto hover:opacity-70 transition-opacity">
               VIEW COMPREHENSIVE HISTORY <ChevronRight size={14} />
             </button>
@@ -321,7 +314,7 @@ export default function Dashboard() {
             <div className="space-y-4">
               {(lowStock || []).length > 0 ? (
                 lowStock!.slice(0, 5).map((item) => (
-                  <div key={item._id} className="p-4 bg-white/60 rounded-2xl border border-white shadow-sm flex items-start gap-4">
+                  <div key={item._id} className="p-4 bg-white/8 rounded-2xl border border-white shadow-sm flex items-start gap-4">
                     <Package className="text-error mt-1" size={18} />
                     <div>
                       <p className="font-label-caps text-[10px] text-on-surface font-bold uppercase">CRITICAL STOCK: {item.name}</p>
@@ -330,7 +323,7 @@ export default function Dashboard() {
                   </div>
                 ))
               ) : (
-                <div className="p-4 bg-white/60 rounded-2xl border border-white shadow-sm flex items-start gap-4 opacity-60">
+                <div className="p-4 bg-white/8 rounded-2xl border border-white shadow-sm flex items-start gap-4 opacity-60">
                   <ShieldCheck className="text-secondary mt-1" size={18} />
                   <div>
                     <p className="font-label-caps text-[10px] text-on-surface font-bold">ALL SYSTEMS CLEAR</p>

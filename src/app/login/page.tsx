@@ -216,7 +216,7 @@ export default function LoginPage() {
               {/* Submit Button */}
               <div className="pt-6">
                 <button
-                  className="w-full flex justify-center items-center py-4 px-6 rounded-full font-label-caps text-label-caps text-white tracking-[0.2em] shadow-lg bg-gradient-to-br from-[#8a4853] to-[#b76e79] hover:-translate-y-[2px] hover:shadow-[0_10px_20px_rgba(138,72,83,0.2)] transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] disabled:opacity-70 disabled:hover:translate-y-0"
+                  className="w-full flex justify-center items-center py-4 px-6 rounded-full font-label-caps text-label-caps text-on-primary tracking-[0.2em] shadow-lg bg-gradient-to-br from-[#B4832B] to-[#D9B45B] hover:-translate-y-[2px] hover:shadow-[0_10px_20px_rgba(180,131,43,0.35)] transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] disabled:opacity-70 disabled:hover:translate-y-0"
                   type="submit"
                   disabled={isSubmitting}
                 >
@@ -226,7 +226,7 @@ export default function LoginPage() {
             </form>
 
             {/* Alternative Action */}
-            <div className="mt-8 pt-8 border-t border-white/20 text-center">
+            <div className="mt-8 pt-8 border-t border-white/8 text-center">
               <p className="font-label-caps text-[10px] text-on-surface-variant/60 tracking-widest uppercase">
                 Administrative access only
               </p>
