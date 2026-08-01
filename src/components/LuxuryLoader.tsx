@@ -19,7 +19,7 @@ export default function LuxuryLoader({ text = "Entering Digital Atelier..." }: {
       {/* Spinner and Text */}
       <div className="relative z-10 flex flex-col items-center gap-6">
         <span className="font-label-caps text-[10px] text-primary tracking-[0.3em] uppercase opacity-75">
-          Biju Deesse
+          Sl Legacy
         </span>
         
         {/* Luxury Rotating Circle */}

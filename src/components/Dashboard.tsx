@@ -119,7 +119,7 @@ export default function Dashboard() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
         >
-          <h1 className="font-headline-lg text-4xl text-primary mb-2">Morning, Biju Deesse</h1>
+          <h1 className="font-headline-lg text-4xl text-primary mb-2">Morning, Sl Legacy</h1>
           <p className="font-body-lg text-on-surface-variant opacity-80 max-w-xl">
             The <span className="text-primary font-bold">Summer Haute Couture</span> collection is performing 24% above projections. Here is your boutique's daily brief.
           </p>

@@ -1,7 +1,7 @@
 export default {
   providers: [
     {
-      domain: "https://notable-aardvark-82.clerk.accounts.dev",
+      domain: "https://concise-sturgeon-86.clerk.accounts.dev",
       applicationID: "convex",
     },
   ],

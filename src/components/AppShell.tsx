@@ -29,7 +29,7 @@ export default function AppShell({ children }: AppShellProps) {
           >
             menu
           </button>
-          <span className="font-headline-md text-headline-md font-semibold text-primary tracking-tight">Biju Deesse</span>
+          <span className="font-headline-md text-headline-md font-semibold text-primary tracking-tight">Sl Legacy</span>
 
         </div>
 

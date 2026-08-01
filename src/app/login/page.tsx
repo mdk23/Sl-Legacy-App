@@ -21,7 +21,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
  
   const { signIn } = useSignIn();
-  const { signOut } = useClerk();
+  const { signOut, setActive } = useClerk();
   const { isSignedIn, isLoaded: isUserLoaded } = useUser();
   const router = useRouter();
   const convex = useConvex();
@@ -31,37 +31,55 @@ export default function LoginPage() {
   }, []);
 
   useEffect(() => {
-    if (mounted && isUserLoaded && isSignedIn && !isSubmitting && !isRedirecting) {
-      console.log("User is already signed in on login page, redirecting to home...");
-      window.location.href = "/";
+    if (mounted && isUserLoaded && isSignedIn) {
+      setIsRedirecting(true);
+      router.replace("/");
     }
-  }, [mounted, isUserLoaded, isSignedIn, isSubmitting, isRedirecting]);
- 
-  if (isRedirecting || (mounted && isUserLoaded && isSignedIn && !isSubmitting)) {
+  }, [mounted, isUserLoaded, isSignedIn, router]);
+
+  if (isRedirecting) {
     return <LuxuryLoader text="Entering secure portal..." />;
   }
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
+
+    if (isUserLoaded && isSignedIn) {
+      toast.success("Active session detected! Entering portal...");
+      setIsRedirecting(true);
+      window.location.href = "/";
+      return;
+    }
+
     if (!signIn) return;
 
     setIsSubmitting(true);
 
+    const formattedIdentifier = username.trim().startsWith("usr_") 
+      ? username.trim() 
+      : `usr_${username.trim()}`;
+
     try {
-      const result = await signIn.password({
-        identifier: `usr_${username}`,
+      let result: any = await signIn.create({
+        identifier: formattedIdentifier,
         password,
       });
 
-      if (result.error) {
-        toast.error(result.error.message || "Invalid credentials");
-        console.error(result.error);
-        return;
+      if (result?.status === "needs_first_factor" || result?.status === "needs_factor_one") {
+        if (typeof (signIn as any).attemptFirstFactor === "function") {
+          result = await (signIn as any).attemptFirstFactor({
+            strategy: "password",
+            password,
+          });
+        }
       }
 
-      if (signIn.status === "complete") {
-        // Query Convex to check if this user is blocked
-        const dbUser = await convex.query(api.users.getUserByUsername, { username });
+      const isComplete = result?.status === "complete" || (signIn as any)?.status === "complete";
+
+      if (isComplete) {
+        const cleanUsername = username.trim().replace(/^usr_/, "");
+        const dbUser = await convex.query(api.users.getUserByUsername, { username: cleanUsername });
+        
         if (dbUser && dbUser.blocked) {
           toast.error("User is blocked, contact admin");
           await signOut();
@@ -69,83 +87,37 @@ export default function LoginPage() {
           return;
         }
 
-        // Enforce single session restriction
-        if (signIn.createdSessionId) {
-          await enforceSingleSessionAction(signIn.createdSessionId);
+        const sessionId = result?.createdSessionId || (signIn as any)?.createdSessionId;
+        if (sessionId) {
+          await enforceSingleSessionAction(sessionId);
+          if (setActive) {
+            await setActive({ session: sessionId });
+          }
         }
 
-        toast.success(`Welcome back!`);
+        toast.success("Welcome back!");
         setIsRedirecting(true);
-        setTimeout(async () => {
-          await signIn.finalize({
-            navigate: ({ decorateUrl }) => {
-              const url = decorateUrl("/");
-              if (url.startsWith("http")) {
-                window.location.href = url;
-              } else {
-                router.push(url);
-              }
-            },
-          });
-        }, 1800);
+        window.location.href = "/";
       } else {
-        console.log(signIn);
-        toast.error("Further action required to sign in.");
+        console.log("Sign-in incomplete status:", result?.status, result);
+        if (result?.firstFactorVerification?.status === "failed" || result?.status === "needs_first_factor") {
+          toast.error("Invalid username or password. Please check your credentials.");
+        } else {
+          toast.error("Invalid username or password. Please check your credentials.");
+        }
       }
     } catch (err: any) {
-      const errMsg = err.message || "";
-      if (errMsg.includes("already signed in")) {
-        toast.info("Clearing active session... Logging you in...");
-        try {
-          await signOut();
-          const retryResult = await signIn.password({
-            identifier: `usr_${username}`,
-            password,
-          });
-
-          if (retryResult.error) {
-            toast.error(retryResult.error.message || "Invalid credentials");
-            return;
-          }
-
-          if (signIn.status === "complete") {
-            // Query Convex to check if this user is blocked
-            const dbUser = await convex.query(api.users.getUserByUsername, { username });
-            if (dbUser && dbUser.blocked) {
-              toast.error("User is blocked, contact admin");
-              await signOut();
-              setIsSubmitting(false);
-              return;
-            }
-
-            // Enforce single session restriction
-            if (signIn.createdSessionId) {
-              await enforceSingleSessionAction(signIn.createdSessionId);
-            }
-
-            toast.success(`Welcome back!`);
-            setIsRedirecting(true);
-            setTimeout(async () => {
-              await signIn.finalize({
-                navigate: ({ decorateUrl }) => {
-                  const url = decorateUrl("/");
-                  if (url.startsWith("http")) {
-                    window.location.href = url;
-                  } else {
-                    router.push(url);
-                  }
-                },
-              });
-            }, 1800);
-          }
-        } catch (retryErr: any) {
-          toast.error(retryErr.message || "Invalid credentials");
-          console.error(retryErr);
-        }
-      } else {
-        toast.error(errMsg || "Invalid credentials");
+      const clerkErrorMsg = (err.errors?.[0]?.longMessage || err.errors?.[0]?.message || err.message || "").toString();
+      
+      if (clerkErrorMsg.toLowerCase().includes("already signed in") || isSignedIn) {
+        toast.success("Active session detected! Entering portal...");
+        setIsRedirecting(true);
+        window.location.href = "/";
+        return;
       }
-      console.error(err);
+      
+      toast.error(clerkErrorMsg || "Invalid credentials");
+      console.error("Login error:", err);
     } finally {
       setIsSubmitting(false);
     }

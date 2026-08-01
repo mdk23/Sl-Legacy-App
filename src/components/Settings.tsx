@@ -84,6 +84,10 @@ function ProfileSection() {
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) {
+      toast.error("You must be logged in to change your password");
+      return;
+    }
     if (newPassword !== confirmPassword) {
       toast.error("Passwords do not match");
       return;
@@ -95,15 +99,30 @@ function ProfileSection() {
 
     setIsSubmitting(true);
     try {
+      let clerkUpdated = false;
       if (user?.clerkId) {
         const clerkRes = await updateClerkPasswordAction(user.clerkId, newPassword);
-        if (!clerkRes.success) {
-          throw new Error(clerkRes.message || "Failed to update password in Clerk");
+        if (clerkRes.success) {
+          clerkUpdated = true;
+        } else {
+          // Check if it's a "not found" error, meaning the user is not in the new Clerk instance yet
+          const errorMsg = clerkRes.message || "";
+          const isNotFoundError = 
+            errorMsg.toLowerCase().includes("not found") || 
+            errorMsg.toLowerCase().includes("no user") ||
+            user.clerkId === "user_3Fe9z6wBbcaaSJpE19raWsaJWLd"; // old fallback ID
+          
+          if (isNotFoundError) {
+            console.warn("User not found in Clerk. Updating password in Convex only.");
+            toast.warning("User not found in Clerk. Password updated locally in database only.");
+          } else {
+            throw new Error(errorMsg || "Failed to update password in Clerk");
+          }
         }
       }
 
-      await resetPassword({ userId: user!._id as Id<"users">, newPassword });
-      toast.success("Password updated successfully");
+      await resetPassword({ username: user.username, newPassword });
+      toast.success(clerkUpdated ? "Password updated successfully in Clerk and database" : "Password updated locally");
       setNewPassword("");
       setConfirmPassword("");
     } catch (error: any) {

@@ -31,7 +31,7 @@ const agathaRegular = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Biju Deesse | Analytics Dashboard",
+  title: "Sl Legacy | Analytics Dashboard",
   description: " ERP Suite for Jewelry Management",
 };
 

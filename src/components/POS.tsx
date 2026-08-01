@@ -233,7 +233,7 @@ export default function POS() {
         taxes: 0,
         total: saleTotals.total,
         profit: saleTotals.profit,
-        cashierName: user?.username || "Biju Cashier",
+        cashierName: user?.username || "Sl Legacy Cashier",
         amountReceived: effectiveSettlement === "Pending" ? 0 : amountReceived,
         changeGiven,
         changeHandling: changeGiven > 0 ? changeHandling : undefined,

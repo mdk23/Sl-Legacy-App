@@ -186,9 +186,23 @@ export const toggleBlockUser = mutation({
 });
 
 export const resetPassword = mutation({
-  args: { userId: v.id("users"), newPassword: v.string() },
+  args: { username: v.string(), newPassword: v.string() },
   handler: async (ctx, args) => {
-    await ctx.db.patch(args.userId, { passwordHash: args.newPassword });
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_username", (q) => q.eq("username", args.username))
+      .first();
+    
+    if (!user) {
+      await ctx.db.insert("users", {
+        username: args.username,
+        role: args.username === "mdk" ? "admin" : "POS",
+        passwordHash: args.newPassword,
+      });
+      return;
+    }
+    
+    await ctx.db.patch(user._id, { passwordHash: args.newPassword });
   },
 });
 
@@ -205,5 +219,54 @@ export const removeNameFromUsers = mutation({
       }
     }
     return `Removed name from ${count} users`;
+  },
+});
+
+export const syncUser = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      return null;
+    }
+    const clerkId = identity.subject;
+    // Extract username from identity fields
+    let username = identity.nickname || identity.name || identity.preferredUsername || "user";
+    // Strip usr_ prefix if clerk username has it
+    username = username.replace(/^usr_/, "");
+
+    // Check if user already exists by clerkId
+    let user = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", clerkId))
+      .first();
+
+    if (user) {
+      return user;
+    }
+
+    // Check if user exists by username (e.g. from seed or manual input)
+    user = await ctx.db
+      .query("users")
+      .withIndex("by_username", (q) => q.eq("username", username))
+      .first();
+
+    if (user) {
+      // Update their clerkId
+      await ctx.db.patch(user._id, { clerkId });
+      return await ctx.db.get(user._id);
+    }
+
+    // Determine role. If they are the first user or username is "mdk", make them admin
+    const allUsers = await ctx.db.query("users").collect();
+    const role = (allUsers.length === 0 || username === "mdk") ? "admin" : "POS";
+
+    const newUserId = await ctx.db.insert("users", {
+      clerkId,
+      username,
+      role,
+    });
+
+    return await ctx.db.get(newUserId);
   },
 });
