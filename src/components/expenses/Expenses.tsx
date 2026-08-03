@@ -23,7 +23,7 @@ const StatCard = ({ title, value, subValue, icon: Icon, color }: any) => (
         <Icon size={20} />
       </div>
     </div>
-    <p className="font-label-caps text-[10px] text-outline mb-1">{title}</p>
+    <p className="font-label-caps text-[10px] text-on-surface-variant mb-1">{title}</p>
     <h3 className="font-headline-md text-2xl text-primary mb-1">{value}</h3>
     <p className="font-body-md text-xs text-on-surface-variant opacity-70">{subValue}</p>
   </div>
@@ -82,7 +82,7 @@ export default function Expenses() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
           <h1 className="font-headline-lg text-headline-lg text-primary tracking-tight">Expenses</h1>
-          <p className="font-label-caps text-[10px] text-outline tracking-widest mt-1">{currentMonthLabel.toUpperCase()}</p>
+          <p className="font-label-caps text-[10px] text-on-surface-variant tracking-widest mt-1">{currentMonthLabel.toUpperCase()}</p>
         </div>
         {canManage && (
           <div className="flex items-center gap-3">

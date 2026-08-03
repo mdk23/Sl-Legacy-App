@@ -156,7 +156,7 @@ export function ExpenseTemplateManager({ open, onClose, formatCurrency }: Expens
             <div className="sticky top-0 z-10 bg-surface-container/80 backdrop-blur-md p-8 flex justify-between items-start border-b border-outline-variant/30">
               <div>
                 <h3 className="font-headline-md text-xl text-primary">Recurring Templates</h3>
-                <p className="font-label-caps text-[9px] text-outline tracking-widest mt-1">RENT, SALARIES, UTILITIES...</p>
+                <p className="font-label-caps text-[9px] text-on-surface-variant tracking-widest mt-1">RENT, SALARIES, UTILITIES...</p>
               </div>
               <button onClick={onClose} className="p-2 hover:bg-primary/10 rounded-full text-outline transition-colors">
                 <X size={20} />
@@ -205,7 +205,7 @@ export function ExpenseTemplateManager({ open, onClose, formatCurrency }: Expens
                     />
 
                     <div>
-                      <label className="font-label-caps text-[9px] text-outline block mb-1.5">REPEATS</label>
+                      <label className="font-label-caps text-[9px] text-on-surface-variant block mb-1.5">REPEATS</label>
                       <select
                         value={form.frequency}
                         onChange={(e) => setForm({ ...form, frequency: e.target.value })}
@@ -219,7 +219,7 @@ export function ExpenseTemplateManager({ open, onClose, formatCurrency }: Expens
 
                     {form.frequency === 'Monthly' && (
                       <div>
-                        <label className="font-label-caps text-[9px] text-outline block mb-1.5">DUE DAY (1-31)</label>
+                        <label className="font-label-caps text-[9px] text-on-surface-variant block mb-1.5">DUE DAY (1-31)</label>
                         <input
                           type="number"
                           min="1"
@@ -233,7 +233,7 @@ export function ExpenseTemplateManager({ open, onClose, formatCurrency }: Expens
 
                     {form.frequency === 'Weekly' && (
                       <div>
-                        <label className="font-label-caps text-[9px] text-outline block mb-1.5">DAY OF WEEK</label>
+                        <label className="font-label-caps text-[9px] text-on-surface-variant block mb-1.5">DAY OF WEEK</label>
                         <select
                           value={form.dayOfWeek}
                           onChange={(e) => setForm({ ...form, dayOfWeek: e.target.value })}
@@ -247,7 +247,7 @@ export function ExpenseTemplateManager({ open, onClose, formatCurrency }: Expens
                     )}
 
                     <div>
-                      <label className="font-label-caps text-[9px] text-outline block mb-1.5">STARTS ON</label>
+                      <label className="font-label-caps text-[9px] text-on-surface-variant block mb-1.5">STARTS ON</label>
                       <input
                         type="date"
                         value={form.startDate}
@@ -286,7 +286,7 @@ export function ExpenseTemplateManager({ open, onClose, formatCurrency }: Expens
                       </div>
                       <div className="min-w-0">
                         <p className="font-body-md text-sm font-bold text-on-surface truncate">{template.name}</p>
-                        <p className="font-label-caps text-[9px] text-outline tracking-widest">
+                        <p className="font-label-caps text-[9px] text-on-surface-variant tracking-widest">
                           {formatCurrency(template.amount)} · {frequencySummary(template)} · {template.category}
                         </p>
                       </div>

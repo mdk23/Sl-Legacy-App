@@ -49,7 +49,7 @@ const ExecutiveKPI = ({ title, value, trend, icon: Icon, color, subText }: any) 
         {Math.abs(trend)}%
       </div>
     </div>
-    <p className="font-label-caps text-[11px] text-outline mb-1 tracking-widest uppercase">{title}</p>
+    <p className="font-label-caps text-[11px] text-on-surface-variant mb-1 tracking-widest uppercase">{title}</p>
     <h3 className="font-headline-md text-3xl text-primary mb-2">{value}</h3>
     <p className="font-body-md text-xs text-on-surface-variant opacity-70">{subText}</p>
 
@@ -183,7 +183,7 @@ export default function Dashboard() {
         <div className="lg:col-span-2 space-y-6">
           <div>
             <h3 className="font-headline-md text-2xl text-primary">Payment Channels</h3>
-            <p className="font-label-caps text-[10px] text-outline tracking-widest">TRANSACTION VOLUME BY PAYMENT METHOD</p>
+            <p className="font-label-caps text-[10px] text-on-surface-variant tracking-widest">TRANSACTION VOLUME BY PAYMENT METHOD</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
             {[
@@ -210,7 +210,7 @@ export default function Dashboard() {
                     </span>
                   </div>
                   <div>
-                    <p className="font-label-caps text-[10px] text-outline tracking-widest uppercase mb-1">{pm.name}</p>
+                    <p className="font-label-caps text-[10px] text-on-surface-variant tracking-widest uppercase mb-1">{pm.name}</p>
                     <h4 className="font-headline-md text-lg text-primary mb-1">{formatCurrency(methodData.amount)}</h4>
                     <p className="font-body-md text-[10px] text-on-surface-variant opacity-75">{methodData.count} transactions</p>
                   </div>
@@ -223,7 +223,7 @@ export default function Dashboard() {
 
         <div className="glass-panel p-8 rounded-[2rem] border border-white/12 flex flex-col items-center text-center">
           <h3 className="font-headline-md text-xl text-primary mb-2">Boutique Inventory</h3>
-          <p className="font-label-caps text-[9px] text-outline tracking-widest mb-10">SOLD CATEGORY DISTRIBUTION</p>
+          <p className="font-label-caps text-[9px] text-on-surface-variant tracking-widest mb-10">SOLD CATEGORY DISTRIBUTION</p>
 
           <div className="flex-1 w-full flex flex-col justify-center items-center relative">
             <ResponsiveContainer width="100%" height={260}>
@@ -249,7 +249,7 @@ export default function Dashboard() {
             {(brief?.categoryDistribution || []).slice(0, 4).map((stat: any) => (
               <div key={stat.name} className="flex flex-col items-center p-3 bg-white/6 rounded-2xl border border-white/12">
                 <span className="font-data-tabular text-sm font-bold text-primary">{stat.value}%</span>
-                <span className="font-label-caps text-[8px] text-outline truncate">{stat.name.toUpperCase()}</span>
+                <span className="font-label-caps text-[8px] text-on-surface-variant truncate">{stat.name.toUpperCase()}</span>
               </div>
             ))}
           </div>
@@ -263,13 +263,13 @@ export default function Dashboard() {
           <div className="p-8 border-b border-primary/10 flex justify-between items-center bg-white/6 rounded-t-[2rem]">
             <div>
               <h3 className="font-headline-md text-xl text-primary">Sales Activity</h3>
-              <p className="font-label-caps text-[9px] text-outline tracking-widest">REAL-TIME TRANSACTION  </p>
+              <p className="font-label-caps text-[9px] text-on-surface-variant tracking-widest">REAL-TIME TRANSACTION  </p>
             </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="bg-primary/5 font-label-caps text-[10px] text-primary/70">
+                <tr className="bg-primary/5 font-label-caps text-[10px] text-primary">
                   <th className="px-8 py-4">RECEIPT</th>
                   <th className="px-6 py-4">CASHIER</th>
                   <th className="px-6 py-4">STATUS</th>

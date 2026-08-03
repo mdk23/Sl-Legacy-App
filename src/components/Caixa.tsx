@@ -139,7 +139,7 @@ export default function Caixa() {
       <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-4 ${colorClass}`}>
         <Icon size={18} />
       </div>
-      <p className="text-[10px] font-label-caps text-outline uppercase tracking-widest">{title}</p>
+      <p className="text-[10px] font-label-caps text-on-surface-variant uppercase tracking-widest">{title}</p>
       <h3 className="text-2xl font-headline-md text-primary mt-1">{value}</h3>
     </div>
   );
@@ -255,7 +255,7 @@ export default function Caixa() {
               
               <div className="overflow-x-auto flex-1 max-h-[500px] overflow-y-auto">
                 <table className="w-full text-left border-collapse text-sm">
-                  <thead className="sticky top-0 bg-white/10 backdrop-blur-md z-10 text-[10px] font-label-caps text-outline uppercase">
+                  <thead className="sticky top-0 bg-white/10 backdrop-blur-md z-10 text-[10px] font-label-caps text-primary uppercase">
                     <tr>
                       <th className="px-6 py-4">Time</th>
                       <th className="px-6 py-4">Type</th>
@@ -305,15 +305,15 @@ export default function Caixa() {
                 <h3 className="font-headline-md text-lg text-primary mb-4">Session Info</h3>
                 <div className="space-y-4">
                   <div className="flex justify-between items-center pb-4 border-b border-primary/10">
-                    <span className="text-xs text-outline font-label-caps">Opened By</span>
+                    <span className="text-xs text-on-surface-variant font-label-caps">Opened By</span>
                     <span className="text-sm font-bold text-primary">{activeSession.openedBy}</span>
                   </div>
                   <div className="flex justify-between items-center pb-4 border-b border-primary/10">
-                    <span className="text-xs text-outline font-label-caps">Opened At</span>
+                    <span className="text-xs text-on-surface-variant font-label-caps">Opened At</span>
                     <span className="text-sm font-data-tabular text-primary">{formatDate(activeSession.openedAt)} {formatTime(activeSession.openedAt)}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-xs text-outline font-label-caps">Duration</span>
+                    <span className="text-xs text-on-surface-variant font-label-caps">Duration</span>
                     <span className="text-sm font-data-tabular font-bold text-primary flex items-center gap-1">
                       <Clock size={14} className="text-outline" />
                       {Math.floor((now - activeSession.openedAt) / 3600000)}h {Math.floor(((now - activeSession.openedAt) % 3600000) / 60000)}m
@@ -338,11 +338,11 @@ export default function Caixa() {
                       </div>
                       <div className="flex justify-between items-end">
                         <div className="flex flex-col">
-                          <span className="text-[10px] text-outline font-label-caps">Expected</span>
+                          <span className="text-[10px] text-on-surface-variant font-label-caps">Expected</span>
                           <span className="text-xs font-data-tabular text-primary">{formatCurrency(s.expectedCash)}</span>
                         </div>
                         <div className="flex flex-col text-right">
-                          <span className="text-[10px] text-outline font-label-caps">Counted</span>
+                          <span className="text-[10px] text-on-surface-variant font-label-caps">Counted</span>
                           <span className="text-xs font-data-tabular font-bold text-primary">{formatCurrency(s.countedCash || 0)}</span>
                         </div>
                       </div>
@@ -384,8 +384,8 @@ export default function Caixa() {
               <p className="text-sm text-outline mb-6">Manually record cash added or removed from the drawer.</p>
               <form onSubmit={handleAddMovement} className="flex flex-col gap-4">
                 <div className="grid grid-cols-2 gap-2">
-                  <button type="button" onClick={() => setMovementType('CASH_IN')} className={`py-3 rounded-xl font-label-caps text-xs border ${movementType === 'CASH_IN' ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'bg-surface border-primary/10 text-outline'}`}>CASH IN</button>
-                  <button type="button" onClick={() => setMovementType('CASH_OUT')} className={`py-3 rounded-xl font-label-caps text-xs border ${movementType === 'CASH_OUT' ? 'bg-rose-50 border-rose-500 text-rose-700' : 'bg-surface border-primary/10 text-outline'}`}>CASH OUT</button>
+                  <button type="button" onClick={() => setMovementType('CASH_IN')} className={`py-3 rounded-xl font-label-caps text-xs border ${movementType === 'CASH_IN' ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'bg-surface border-primary/10 text-on-surface-variant'}`}>CASH IN</button>
+                  <button type="button" onClick={() => setMovementType('CASH_OUT')} className={`py-3 rounded-xl font-label-caps text-xs border ${movementType === 'CASH_OUT' ? 'bg-rose-50 border-rose-500 text-rose-700' : 'bg-surface border-primary/10 text-on-surface-variant'}`}>CASH OUT</button>
                 </div>
                 <div>
                   <label className="text-[10px] font-label-caps text-outline mb-1 block">AMOUNT (MT)</label>

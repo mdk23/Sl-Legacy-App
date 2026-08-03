@@ -13,6 +13,7 @@ import {
   Crown,
   AlertTriangle,
   TrendingUp,
+  Info,
 } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 import { useQuery, useMutation } from "convex/react";
@@ -25,6 +26,7 @@ import { AdvancedSegmentChart, HEALTH_COLORS, SegmentData } from "./customers/Ad
 import { CustomerTable } from "./customers/CustomerTable";
 import { CustomerProfileDrawer } from "./customers/CustomerProfileDrawer";
 import { CustomerFormDrawer } from "./customers/CustomerFormDrawer";
+import { ClientHealthGuideModal } from "./customers/ClientHealthGuideModal";
 
 const HEALTH_LEVELS = ["New Client", "At Risk", "Growing Client", "Valuable Client", "Elite Client"];
 
@@ -49,6 +51,7 @@ interface Customer {
 
 export default function Customers() {
   const customers = (useQuery(api.customers.list) || []) as Customer[];
+  const trendBaseline = useQuery(api.customerCounterHistory.getBaseline);
   const upsertCustomer = useMutation(api.customers.upsert);
   const deleteCustomer = useMutation(api.customers.remove);
 
@@ -59,6 +62,7 @@ export default function Customers() {
 
   const [healthFilter, setHealthFilter] = useState("All Health");
   const [creditFilter, setCreditFilter] = useState("All Credits");
+  const [showHealthGuide, setShowHealthGuide] = useState(false);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -94,6 +98,11 @@ export default function Customers() {
   }, [customers, searchQuery, healthFilter, creditFilter]);
 
   // ── KPIs ───────────────────────────────────────────────
+  const pctChange = (current: number, past: number | undefined): number | undefined => {
+    if (past === undefined || past <= 0) return undefined;
+    return Math.round(((current - past) / past) * 1000) / 10;
+  };
+
   const kpis = useMemo(() => {
     const total = customers.length;
     if (!total)
@@ -104,20 +113,32 @@ export default function Customers() {
         frequentBuyerCount: 0,
         totalDebt: 0,
         averageLTV: 0,
+        totalCustomersTrend: undefined as number | undefined,
+        topTierTrend: undefined as number | undefined,
+        frequentBuyerTrend: undefined as number | undefined,
+        totalDebtTrend: undefined as number | undefined,
+        averageLTVTrend: undefined as number | undefined,
       };
     const topTierCount = customers.filter((c) =>
       ["Elite Client", "Valuable Client"].includes(c.customerHealth || "New Client")
     ).length;
     const frequentBuyerCount = customers.filter((c) => (c.orderCount || 0) >= 20).length;
+    const totalDebt = customers.reduce((s, c) => s + (c.debitBalance || 0), 0);
+    const averageLTV = Math.round(customers.reduce((s, c) => s + (c.totalSpent || 0), 0) / total);
     return {
       totalCustomers: total,
       topTierCount,
       topTierPercent: Math.round((topTierCount / total) * 100),
       frequentBuyerCount,
-      totalDebt: customers.reduce((s, c) => s + (c.debitBalance || 0), 0),
-      averageLTV: Math.round(customers.reduce((s, c) => s + (c.totalSpent || 0), 0) / total),
+      totalDebt,
+      averageLTV,
+      totalCustomersTrend: pctChange(total, trendBaseline?.totalCustomers),
+      topTierTrend: pctChange(topTierCount, trendBaseline?.eliteValuableCount),
+      frequentBuyerTrend: pctChange(frequentBuyerCount, trendBaseline?.frequentBuyerCount),
+      totalDebtTrend: pctChange(totalDebt, trendBaseline?.totalDebt),
+      averageLTVTrend: pctChange(averageLTV, trendBaseline?.avgLTV),
     };
-  }, [customers]);
+  }, [customers, trendBaseline]);
 
   // ── Segment aggregations ───────────────────────────────
   const segmentData = useMemo(() => {
@@ -323,7 +344,7 @@ export default function Customers() {
           title="TOTAL CLIENTS"
           value={kpis.totalCustomers.toString()}
           subValue="Active boutique database"
-          trend={12.5}
+          trend={kpis.totalCustomersTrend}
           icon={Users}
           color="primary"
         />
@@ -331,7 +352,7 @@ export default function Customers() {
           title="ELITE / VALUABLE"
           value={kpis.topTierCount.toString()}
           subValue={`${kpis.topTierPercent}% of customer base`}
-          trend={8.2}
+          trend={kpis.topTierTrend}
           icon={Crown}
           color="secondary"
         />
@@ -339,7 +360,7 @@ export default function Customers() {
           title="FREQUENT BUYERS"
           value={kpis.frequentBuyerCount.toString()}
           subValue="20+ lifetime orders"
-          trend={2.1}
+          trend={kpis.frequentBuyerTrend}
           icon={Repeat}
           color="tertiary"
         />
@@ -347,7 +368,8 @@ export default function Customers() {
           title="OUTSTANDING DEBT"
           value={formatCurrency(kpis.totalDebt)}
           subValue="Credits pending payment"
-          trend={-5.4}
+          trend={kpis.totalDebtTrend}
+          invertTrendColor
           icon={CreditCard}
           color="error"
         />
@@ -355,7 +377,7 @@ export default function Customers() {
           title="AVG CLIENT LTV"
           value={formatCurrency(kpis.averageLTV)}
           subValue="Lifetime spend average"
-          trend={15.8}
+          trend={kpis.averageLTVTrend}
           icon={DollarSign}
           color="primary"
         />
@@ -372,7 +394,16 @@ export default function Customers() {
         <div className="flex flex-col justify-between">
           <div className="bg-white/4 backdrop-blur-xl border border-white/12 rounded-3xl p-6 shadow-xl h-full flex flex-col justify-between">
             <div>
-              <h3 className="font-headline-md text-xl text-primary mb-2">Automated Insights</h3>
+              <div className="flex items-center gap-2 mb-2">
+                <h3 className="font-headline-md text-xl text-primary">Automated Insights</h3>
+                <button
+                  onClick={() => setShowHealthGuide(true)}
+                  className="p-1 rounded-full text-outline hover:text-primary hover:bg-primary/10 transition-colors"
+                  title="What do New, At Risk, Growing, Valuable & Elite mean?"
+                >
+                  <Info size={16} />
+                </button>
+              </div>
               <p className="font-body-md text-xs text-on-surface-variant leading-relaxed">
                 Boutique intelligence insights generated from real-time sales and customer loyalty profiles.
               </p>
@@ -418,6 +449,9 @@ export default function Customers() {
           />
         )}
       </AnimatePresence>
+
+      {/* ── Client Health Guide Modal ─────────────────── */}
+      <ClientHealthGuideModal open={showHealthGuide} onClose={() => setShowHealthGuide(false)} />
     </div>
   );
 }

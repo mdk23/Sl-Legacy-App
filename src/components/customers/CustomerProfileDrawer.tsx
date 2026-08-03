@@ -127,7 +127,7 @@ export const CustomerProfileDrawer = ({
               <p className="text-[10px] text-outline max-w-[270px] mt-1 leading-normal">
                 {healthStyle.description}
               </p>
-              <p className="text-[9px] font-label-caps text-outline/70 tracking-wider mt-2">
+              <p className="text-[9px] font-label-caps text-on-surface-variant/70 tracking-wider mt-2">
                 {frequencyLabel(selectedCustomer.orderCount)} · {selectedCustomer.orderCount} orders
               </p>
             </div>
@@ -141,17 +141,17 @@ export const CustomerProfileDrawer = ({
             </div>
             <div className="grid grid-cols-2 gap-4 bg-white/6 p-5 rounded-3xl border border-white/12">
               <div>
-                <p className="font-label-caps text-[9px] text-outline mb-1">PRIMARY PHONE</p>
+                <p className="font-label-caps text-[9px] text-on-surface-variant mb-1">PRIMARY PHONE</p>
                 <p className="font-data-tabular text-sm font-bold">{selectedCustomer.phone1}</p>
               </div>
               <div>
-                <p className="font-label-caps text-[9px] text-outline mb-1">EMAIL</p>
+                <p className="font-label-caps text-[9px] text-on-surface-variant mb-1">EMAIL</p>
                 <p className="font-data-tabular text-sm font-bold text-primary truncate">
                   {selectedCustomer.email || "—"}
                 </p>
               </div>
               <div className="col-span-2">
-                <p className="font-label-caps text-[9px] text-outline mb-1">PURCHASE FREQUENCY</p>
+                <p className="font-label-caps text-[9px] text-on-surface-variant mb-1">PURCHASE FREQUENCY</p>
                 <p className="text-sm font-bold">
                   {frequencyLabel(selectedCustomer.orderCount)} · {selectedCustomer.orderCount} lifetime orders
                 </p>
@@ -189,7 +189,7 @@ export const CustomerProfileDrawer = ({
                 </p>
               </div>
               <div className="bg-outline/5 p-4 rounded-2xl border border-outline/10">
-                <p className="font-label-caps text-[9px] text-outline mb-1">LAST PURCHASE</p>
+                <p className="font-label-caps text-[9px] text-on-surface-variant mb-1">LAST PURCHASE</p>
                 <p className="text-lg font-bold mt-1">
                   {selectedCustomer.lastPurchaseDate
                     ? new Date(selectedCustomer.lastPurchaseDate).toLocaleDateString()
@@ -256,7 +256,7 @@ export const CustomerProfileDrawer = ({
 
           {/* Notes */}
           <section>
-            <h4 className="font-label-caps text-[11px] text-outline mb-4">CLIENT NOTES</h4>
+            <h4 className="font-label-caps text-[11px] text-on-surface-variant mb-4">CLIENT NOTES</h4>
             <div className="bg-secondary-fixed/10 p-5 rounded-3xl border border-secondary-fixed-dim/30">
               <p className="font-body-md text-sm italic text-on-surface-variant leading-relaxed">
                 "{selectedCustomer.notes || "No boutique preferences recorded."}"

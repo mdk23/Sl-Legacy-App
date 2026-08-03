@@ -15,6 +15,7 @@ import type * as caixa from "../caixa.js";
 import type * as caixaHelpers from "../caixaHelpers.js";
 import type * as cleanup from "../cleanup.js";
 import type * as crons from "../crons.js";
+import type * as customerCounterHistory from "../customerCounterHistory.js";
 import type * as customers from "../customers.js";
 import type * as expenseTemplates from "../expenseTemplates.js";
 import type * as expenses from "../expenses.js";
@@ -42,6 +43,7 @@ declare const fullApi: ApiFromModules<{
   caixaHelpers: typeof caixaHelpers;
   cleanup: typeof cleanup;
   crons: typeof crons;
+  customerCounterHistory: typeof customerCounterHistory;
   customers: typeof customers;
   expenseTemplates: typeof expenseTemplates;
   expenses: typeof expenses;

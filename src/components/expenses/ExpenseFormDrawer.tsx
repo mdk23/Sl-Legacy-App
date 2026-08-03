@@ -101,7 +101,7 @@ export function ExpenseFormDrawer({ open, onClose, editingExpense, categories }:
             <div className="sticky top-0 z-10 bg-surface-container/80 backdrop-blur-md p-8 flex justify-between items-start border-b border-outline-variant/30">
               <div>
                 <h3 className="font-headline-md text-xl text-primary">{editingExpense ? 'Edit Expense' : 'New Expense'}</h3>
-                <p className="font-label-caps text-[9px] text-outline tracking-widest mt-1">ONE-TIME EXPENSE</p>
+                <p className="font-label-caps text-[9px] text-on-surface-variant tracking-widest mt-1">ONE-TIME EXPENSE</p>
               </div>
               <button onClick={onClose} className="p-2 hover:bg-primary/10 rounded-full text-outline transition-colors">
                 <X size={20} />
@@ -110,7 +110,7 @@ export function ExpenseFormDrawer({ open, onClose, editingExpense, categories }:
 
             <form onSubmit={handleSubmit} className="p-8 space-y-6">
               <div>
-                <label className="font-label-caps text-[10px] text-outline block mb-2">TITLE</label>
+                <label className="font-label-caps text-[10px] text-on-surface-variant block mb-2">TITLE</label>
                 <input
                   type="text"
                   value={form.title}
@@ -122,7 +122,7 @@ export function ExpenseFormDrawer({ open, onClose, editingExpense, categories }:
               </div>
 
               <div>
-                <label className="font-label-caps text-[10px] text-outline block mb-2">CATEGORY</label>
+                <label className="font-label-caps text-[10px] text-on-surface-variant block mb-2">CATEGORY</label>
                 <input
                   type="text"
                   list="expense-categories"
@@ -141,7 +141,7 @@ export function ExpenseFormDrawer({ open, onClose, editingExpense, categories }:
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="font-label-caps text-[10px] text-outline block mb-2">AMOUNT (Mt)</label>
+                  <label className="font-label-caps text-[10px] text-on-surface-variant block mb-2">AMOUNT (Mt)</label>
                   <input
                     type="number"
                     min="0"
@@ -153,7 +153,7 @@ export function ExpenseFormDrawer({ open, onClose, editingExpense, categories }:
                   />
                 </div>
                 <div>
-                  <label className="font-label-caps text-[10px] text-outline block mb-2">DUE DATE</label>
+                  <label className="font-label-caps text-[10px] text-on-surface-variant block mb-2">DUE DATE</label>
                   <input
                     type="date"
                     value={form.dueDate}
@@ -165,7 +165,7 @@ export function ExpenseFormDrawer({ open, onClose, editingExpense, categories }:
               </div>
 
               <div>
-                <label className="font-label-caps text-[10px] text-outline block mb-2">NOTES (OPTIONAL)</label>
+                <label className="font-label-caps text-[10px] text-on-surface-variant block mb-2">NOTES (OPTIONAL)</label>
                 <textarea
                   value={form.notes}
                   onChange={(e) => setForm({ ...form, notes: e.target.value })}

@@ -54,7 +54,7 @@ export const KPIStats = ({
         {Math.abs(trend)}%
       </div>
     </div>
-    <p className="font-label-caps text-[10px] text-outline mb-1">{title}</p>
+    <p className="font-label-caps text-[10px] text-on-surface-variant mb-1">{title}</p>
     <h3 className="font-headline-md text-2xl text-primary">{value}</h3>
 
     <div className="mt-4 h-12 w-full">

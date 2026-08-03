@@ -57,7 +57,7 @@ export function ExpenseFilters({
           </div>
           <div>
             <h3 className="font-headline-md text-lg text-primary">Expense Filters</h3>
-            <p className="font-label-caps text-[9px] text-outline tracking-widest uppercase">
+            <p className="font-label-caps text-[9px] text-on-surface-variant tracking-widest uppercase">
               {startDate || endDate ? `Range: ${startDate || 'All Time'} to ${endDate || 'All Time'}` : 'Range: All Time'}
             </p>
           </div>
@@ -82,7 +82,7 @@ export function ExpenseFilters({
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="sm:col-span-2 grid grid-cols-2 gap-4 bg-primary/5 p-4 rounded-2xl border border-primary/10">
                 <div>
-                  <label className="font-label-caps text-[9px] text-outline block mb-1.5">DUE FROM</label>
+                  <label className="font-label-caps text-[9px] text-on-surface-variant block mb-1.5">DUE FROM</label>
                   <div className="relative">
                     <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-outline" />
                     <input
@@ -94,7 +94,7 @@ export function ExpenseFilters({
                   </div>
                 </div>
                 <div>
-                  <label className="font-label-caps text-[9px] text-outline block mb-1.5">DUE TO</label>
+                  <label className="font-label-caps text-[9px] text-on-surface-variant block mb-1.5">DUE TO</label>
                   <div className="relative">
                     <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-outline" />
                     <input
@@ -108,7 +108,7 @@ export function ExpenseFilters({
               </div>
 
               <div>
-                <label className="font-label-caps text-[9px] text-outline block mb-1.5">CATEGORY</label>
+                <label className="font-label-caps text-[9px] text-on-surface-variant block mb-1.5">CATEGORY</label>
                 <select
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value)}
@@ -122,7 +122,7 @@ export function ExpenseFilters({
               </div>
 
               <div>
-                <label className="font-label-caps text-[9px] text-outline block mb-1.5">ORIGIN</label>
+                <label className="font-label-caps text-[9px] text-on-surface-variant block mb-1.5">ORIGIN</label>
                 <select
                   value={originFilter}
                   onChange={(e) => setOriginFilter(e.target.value)}
@@ -136,7 +136,7 @@ export function ExpenseFilters({
 
               <div className="sm:col-span-2 grid grid-cols-2 gap-4">
                 <div>
-                  <label className="font-label-caps text-[9px] text-outline block mb-1.5">MIN AMOUNT (Mt)</label>
+                  <label className="font-label-caps text-[9px] text-on-surface-variant block mb-1.5">MIN AMOUNT (Mt)</label>
                   <input
                     type="number"
                     placeholder="Min limit"
@@ -146,7 +146,7 @@ export function ExpenseFilters({
                   />
                 </div>
                 <div>
-                  <label className="font-label-caps text-[9px] text-outline block mb-1.5">MAX AMOUNT (Mt)</label>
+                  <label className="font-label-caps text-[9px] text-on-surface-variant block mb-1.5">MAX AMOUNT (Mt)</label>
                   <input
                     type="number"
                     placeholder="Max limit"

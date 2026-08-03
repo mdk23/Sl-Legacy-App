@@ -67,7 +67,7 @@ export function PayExpenseModal({ expense, onClose, formatCurrency }: PayExpense
               </div>
               <div>
                 <h3 className="font-headline-md text-lg text-primary">Record Payment</h3>
-                <p className="font-label-caps text-[9px] text-outline tracking-widest">{expense.title}</p>
+                <p className="font-label-caps text-[9px] text-on-surface-variant tracking-widest">{expense.title}</p>
               </div>
             </div>
 
@@ -75,7 +75,7 @@ export function PayExpenseModal({ expense, onClose, formatCurrency }: PayExpense
 
             <div className="space-y-4">
               <div>
-                <label className="font-label-caps text-[10px] text-outline block mb-2">PAYMENT METHOD</label>
+                <label className="font-label-caps text-[10px] text-on-surface-variant block mb-2">PAYMENT METHOD</label>
                 <select
                   value={paymentMethod}
                   onChange={(e) => setPaymentMethod(e.target.value)}
@@ -87,7 +87,7 @@ export function PayExpenseModal({ expense, onClose, formatCurrency }: PayExpense
                 </select>
               </div>
               <div>
-                <label className="font-label-caps text-[10px] text-outline block mb-2">PAYMENT DATE</label>
+                <label className="font-label-caps text-[10px] text-on-surface-variant block mb-2">PAYMENT DATE</label>
                 <input
                   type="date"
                   value={paymentDate}

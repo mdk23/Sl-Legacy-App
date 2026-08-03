@@ -58,7 +58,7 @@ export const SalesFilters = ({
           </div>
           <div>
             <h3 className="font-headline-md text-lg text-primary">Dashboard Filters</h3>
-            <p className="font-label-caps text-[9px] text-outline tracking-widest uppercase">
+            <p className="font-label-caps text-[9px] text-on-surface-variant tracking-widest uppercase">
               {startDate || endDate
                 ? `Active range: ${startDate || "All Time"} to ${endDate || "All Time"}`
                 : "Active range: All Time"}
@@ -89,7 +89,7 @@ export const SalesFilters = ({
               {/* Custom Date Pickers */}
               <div className="sm:col-span-2 grid grid-cols-2 gap-4 bg-primary/5 p-4 rounded-2xl border border-primary/10">
                 <div>
-                  <label className="font-label-caps text-[9px] text-outline block mb-1.5">BEGIN DATE</label>
+                  <label className="font-label-caps text-[9px] text-on-surface-variant block mb-1.5">BEGIN DATE</label>
                   <div className="relative">
                     <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-outline" />
                     <input
@@ -101,7 +101,7 @@ export const SalesFilters = ({
                   </div>
                 </div>
                 <div>
-                  <label className="font-label-caps text-[9px] text-outline block mb-1.5">END DATE</label>
+                  <label className="font-label-caps text-[9px] text-on-surface-variant block mb-1.5">END DATE</label>
                   <div className="relative">
                     <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-outline" />
                     <input
@@ -116,7 +116,7 @@ export const SalesFilters = ({
 
               {/* Payment Method */}
               <div>
-                <label className="font-label-caps text-[9px] text-outline block mb-1.5">PAYMENT METHOD</label>
+                <label className="font-label-caps text-[9px] text-on-surface-variant block mb-1.5">PAYMENT METHOD</label>
                 <select
                   value={paymentFilter}
                   onChange={(e) => setPaymentFilter(e.target.value)}
@@ -135,7 +135,7 @@ export const SalesFilters = ({
 
               {/* Client Loyalty Tier */}
               <div>
-                <label className="font-label-caps text-[9px] text-outline block mb-1.5">LOYALTY TIER</label>
+                <label className="font-label-caps text-[9px] text-on-surface-variant block mb-1.5">LOYALTY TIER</label>
                 <select
                   value={tierFilter}
                   onChange={(e) => setTierFilter(e.target.value)}
@@ -151,7 +151,7 @@ export const SalesFilters = ({
 
               {/* Settlement Status */}
               <div>
-                <label className="font-label-caps text-[9px] text-outline block mb-1.5">SETTLEMENT STATUS</label>
+                <label className="font-label-caps text-[9px] text-on-surface-variant block mb-1.5">SETTLEMENT STATUS</label>
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
@@ -168,7 +168,7 @@ export const SalesFilters = ({
               {/* Amount Filter Range */}
               <div className="sm:col-span-2 grid grid-cols-2 gap-4">
                 <div>
-                  <label className="font-label-caps text-[9px] text-outline block mb-1.5">MIN AMOUNT (Mt)</label>
+                  <label className="font-label-caps text-[9px] text-on-surface-variant block mb-1.5">MIN AMOUNT (Mt)</label>
                   <input
                     type="number"
                     placeholder="Min limit"
@@ -178,7 +178,7 @@ export const SalesFilters = ({
                   />
                 </div>
                 <div>
-                  <label className="font-label-caps text-[9px] text-outline block mb-1.5">MAX AMOUNT (Mt)</label>
+                  <label className="font-label-caps text-[9px] text-on-surface-variant block mb-1.5">MAX AMOUNT (Mt)</label>
                   <input
                     type="number"
                     placeholder="Max limit"

@@ -55,7 +55,7 @@ export function ExpenseCharts({ byCategory, monthlyTrend, statusBreakdown, forma
       <div className="lg:col-span-2 glass-panel p-8 rounded-3xl border border-white/12">
         <div className="mb-10">
           <h3 className="font-headline-md text-xl text-primary">Monthly Expense Trend</h3>
-          <p className="font-label-caps text-[9px] text-outline tracking-widest">LAST 6 MONTHS — PAID VS PENDING</p>
+          <p className="font-label-caps text-[9px] text-on-surface-variant tracking-widest">LAST 6 MONTHS — PAID VS PENDING</p>
         </div>
         <div className="h-72">
           <ResponsiveContainer width="100%" height="100%">
@@ -89,7 +89,7 @@ export function ExpenseCharts({ byCategory, monthlyTrend, statusBreakdown, forma
 
       <div className="glass-panel p-8 rounded-3xl border border-white/12 flex flex-col">
         <h3 className="font-headline-md text-xl text-primary mb-2">Expenses by Category</h3>
-        <p className="font-label-caps text-[9px] text-outline tracking-widest mb-10">PAID THIS MONTH</p>
+        <p className="font-label-caps text-[9px] text-on-surface-variant tracking-widest mb-10">PAID THIS MONTH</p>
         <div className="flex-1 flex flex-col justify-center items-center relative">
           {categoryData.length > 0 ? (
             <ResponsiveContainer width="100%" height={200}>
@@ -121,7 +121,7 @@ export function ExpenseCharts({ byCategory, monthlyTrend, statusBreakdown, forma
 
       <div className="lg:col-span-3 glass-panel p-8 rounded-3xl border border-white/12 flex flex-col">
         <h3 className="font-headline-md text-xl text-primary mb-2">Payment Status</h3>
-        <p className="font-label-caps text-[9px] text-outline tracking-widest mb-8">THIS MONTH'S EXPENSE RECORDS BY STATUS</p>
+        <p className="font-label-caps text-[9px] text-on-surface-variant tracking-widest mb-8">THIS MONTH'S EXPENSE RECORDS BY STATUS</p>
         {statusData.length > 0 ? (
           <div className="flex flex-wrap gap-4">
             {statusData.map((entry, i) => (
@@ -129,13 +129,13 @@ export function ExpenseCharts({ byCategory, monthlyTrend, statusBreakdown, forma
                 <div className="w-3 h-3 rounded-full" style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }} />
                 <div>
                   <p className="font-headline-md text-lg text-primary">{entry.value}</p>
-                  <p className="font-label-caps text-[9px] text-outline tracking-widest">{entry.name.toUpperCase()}</p>
+                  <p className="font-label-caps text-[9px] text-on-surface-variant tracking-widest">{entry.name.toUpperCase()}</p>
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <p className="font-label-caps text-[10px] text-outline">No expense records this month</p>
+          <p className="font-label-caps text-[10px] text-on-surface-variant">No expense records this month</p>
         )}
       </div>
     </div>

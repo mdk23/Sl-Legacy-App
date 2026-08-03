@@ -3,11 +3,19 @@ import { internal } from "./_generated/api";
 
 const crons = cronJobs();
 
-// Run loyalty level decay and customer score sweeps weekly every Sunday at midnight
+// Run customer intelligence (health/credit status) recompute sweep weekly every Sunday at midnight
 crons.cron(
   "weekly-customer-intelligence-decay-sweep",
   "0 0 * * 0", // weekly Sunday at 00:00
   internal.intelligence.runLoyaltyDecaySweep,
+  {}
+);
+
+// Daily snapshot for the /customers KPI trend badges (30-day-vs-today comparison)
+crons.cron(
+  "daily-customer-counter-snapshot",
+  "10 0 * * *", // 00:10 UTC, staggered after other daily jobs
+  internal.customerCounterHistory.snapshotDaily,
   {}
 );
 

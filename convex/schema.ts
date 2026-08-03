@@ -272,6 +272,15 @@ export default defineSchema({
     overdueCustomers: v.number(),
   }).index("by_counter_id", ["id"]),
 
+  customerCounterHistory: defineTable({
+    date: v.string(), // "YYYY-MM-DD" (UTC), one row per day
+    totalCustomers: v.number(),
+    eliteValuableCount: v.number(),
+    frequentBuyerCount: v.number(),
+    totalDebt: v.number(),
+    avgLTV: v.number(),
+  }).index("by_date", ["date"]),
+
   financialCounters: defineTable({
     id: v.string(), // "main" or "YYYY-MM"
     totalCustomerCredit: v.number(),

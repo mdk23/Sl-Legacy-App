@@ -98,7 +98,7 @@ export const NewSaleDrawer = ({
                 </p>
 
                 <div className="w-full bg-white/6 border border-white/12 rounded-3xl p-6 mb-10">
-                  <p className="font-label-caps text-[10px] text-outline mb-2">RECEIPT NUMBER</p>
+                  <p className="font-label-caps text-[10px] text-on-surface-variant mb-2">RECEIPT NUMBER</p>
                   <p className="font-data-tabular text-2xl font-bold text-primary">{lastReceipt}</p>
                 </div>
 
@@ -122,7 +122,7 @@ export const NewSaleDrawer = ({
               >
                 {/* Customer Selection */}
                 <section>
-                  <label className="font-label-caps text-[11px] text-outline mb-4 block">1. LINK CLIENT ACCOUNT</label>
+                  <label className="font-label-caps text-[11px] text-on-surface-variant mb-4 block">1. LINK CLIENT ACCOUNT</label>
                   <select
                     className="w-full p-4 bg-white/6 border border-white/12 rounded-2xl text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all"
                     value={saleForm.customerId || ""}
@@ -139,7 +139,7 @@ export const NewSaleDrawer = ({
 
                 {/* Items Selection */}
                 <section className="space-y-6">
-                  <label className="font-label-caps text-[11px] text-outline block">2. SELECT BOUTIQUE PIECES</label>
+                  <label className="font-label-caps text-[11px] text-on-surface-variant block">2. SELECT BOUTIQUE PIECES</label>
                   <div className="grid grid-cols-2 gap-3 max-h-[300px] overflow-y-auto p-1">
                     {products
                       .filter((p) => p.stock > 0)
@@ -216,7 +216,7 @@ export const NewSaleDrawer = ({
 
                 {/* Financial Summary */}
                 <section className="bg-white/6 p-6 rounded-3xl border border-white space-y-4">
-                  <h4 className="font-label-caps text-[11px] text-outline">3. FINANCIAL RECONCILIATION</h4>
+                  <h4 className="font-label-caps text-[11px] text-on-surface-variant">3. FINANCIAL RECONCILIATION</h4>
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-outline">SUBTOTAL</span>
@@ -240,7 +240,7 @@ export const NewSaleDrawer = ({
 
                 {/* Payment Breakdown */}
                 <section>
-                  <label className="font-label-caps text-[11px] text-outline mb-4 block">
+                  <label className="font-label-caps text-[11px] text-on-surface-variant mb-4 block">
                     4. PAYMENT METHODS & SPLITS
                   </label>
 
@@ -318,7 +318,7 @@ export const NewSaleDrawer = ({
                       </button>
 
                       <div className="text-right">
-                        <p className="font-label-caps text-[9px] text-outline">REMAINING</p>
+                        <p className="font-label-caps text-[9px] text-on-surface-variant">REMAINING</p>
                         <p
                           className={`font-data-tabular font-bold ${
                             saleTotals.total - saleForm.paymentBreakdown.reduce((acc, p) => acc + p.amount, 0) > 0

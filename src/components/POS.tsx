@@ -273,7 +273,7 @@ export default function POS() {
                 size={20}
               />
               <input
-                className="w-full pl-12 pr-4 py-3 bg-transparent border-b border-primary/20 focus:border-primary focus:ring-0 font-label-caps text-label-caps outline-none transition-all placeholder:text-outline/50"
+                className="w-full pl-12 pr-4 py-3 bg-transparent border-b border-primary/20 focus:border-primary focus:ring-0 font-label-caps text-label-caps outline-none transition-all placeholder:text-on-surface-variant/50"
                 placeholder="SEARCH BY NAME, SKU, OR BARCODE"
                 type="text"
               />
@@ -451,7 +451,7 @@ export default function POS() {
                       }}
                       className="w-full text-left px-4 py-2.5 text-xs hover:bg-primary/5 transition-colors border-b border-outline-variant/10 last:border-0"
                     >
-                      <span className="font-bold text-on-surface">
+                      <span className="font-bold text-inverse-on-surface">
                         {c.firstName} {c.lastName}
                       </span>
                     </button>
@@ -519,7 +519,7 @@ export default function POS() {
                             }),
                           )
                         }
-                        className="w-6 h-6 border border-outline-variant/50 rounded flex items-center justify-center text-on-surface-variant hover:bg-white"
+                        className="w-6 h-6 border border-outline-variant/50 rounded flex items-center justify-center text-on-surface-variant hover:bg-white hover:text-primary transition-colors"
                       >
                         -
                       </button>
@@ -534,7 +534,7 @@ export default function POS() {
                             ),
                           )
                         }
-                        className="w-6 h-6 border border-outline-variant/50 rounded flex items-center justify-center text-on-surface-variant hover:bg-white"
+                        className="w-6 h-6 border border-outline-variant/50 rounded flex items-center justify-center text-on-surface-variant hover:bg-white hover:text-primary transition-colors"
                       >
                         +
                       </button>

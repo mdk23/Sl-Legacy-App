@@ -359,10 +359,10 @@ function UserManagementSection() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-white/12 bg-white/4">
-                <th className="py-3 px-4 font-label-caps text-[10px] text-outline tracking-wider">USERNAME</th>
-                <th className="py-3 px-4 font-label-caps text-[10px] text-outline tracking-wider">ROLE</th>
-                <th className="py-3 px-4 font-label-caps text-[10px] text-outline tracking-wider">STATUS</th>
-                <th className="py-3 px-4 font-label-caps text-[10px] text-outline tracking-wider text-right">ACTIONS</th>
+                <th className="py-3 px-4 font-label-caps text-[10px] text-primary tracking-wider">USERNAME</th>
+                <th className="py-3 px-4 font-label-caps text-[10px] text-primary tracking-wider">ROLE</th>
+                <th className="py-3 px-4 font-label-caps text-[10px] text-primary tracking-wider">STATUS</th>
+                <th className="py-3 px-4 font-label-caps text-[10px] text-primary tracking-wider text-right">ACTIONS</th>
               </tr>
             </thead>
             <tbody>

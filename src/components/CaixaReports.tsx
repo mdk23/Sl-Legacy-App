@@ -261,7 +261,7 @@ export default function CaixaReports() {
       <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-4 ${colorClass}`}>
         <Icon size={18} />
       </div>
-      <p className="text-[10px] font-label-caps text-outline uppercase tracking-widest">{title}</p>
+      <p className="text-[10px] font-label-caps text-on-surface-variant uppercase tracking-widest">{title}</p>
       <h3 className="text-2xl font-headline-md text-primary mt-1">{value}</h3>
     </div>
   );
@@ -317,7 +317,7 @@ export default function CaixaReports() {
         </div>
         <div className="overflow-x-auto flex-1">
           <table className="w-full text-left border-collapse text-sm">
-            <thead className="bg-white/10 text-[10px] font-label-caps text-outline uppercase">
+            <thead className="bg-white/10 text-[10px] font-label-caps text-primary uppercase">
               <tr>
                 <th className="px-6 py-4">Date</th>
                 <th className="px-6 py-4">User</th>
@@ -422,7 +422,7 @@ export default function CaixaReports() {
               <div className="flex-1 overflow-y-auto p-8 space-y-8">
                 {/* Financial Summary */}
                 <div>
-                  <h4 className="text-[10px] font-label-caps text-outline uppercase tracking-wider mb-3">Financial Summary</h4>
+                  <h4 className="text-[10px] font-label-caps text-on-surface-variant uppercase tracking-wider mb-3">Financial Summary</h4>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     <div className="p-4 rounded-2xl bg-white border border-primary/5 shadow-sm">
                       <p className="text-[9px] font-label-caps text-outline uppercase tracking-wider">Opening Float</p>
@@ -514,14 +514,14 @@ export default function CaixaReports() {
 
                 {selectedSession.closingNote && (
                   <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10">
-                    <p className="text-[10px] font-label-caps text-outline uppercase tracking-wider mb-1">Closing Note</p>
+                    <p className="text-[10px] font-label-caps text-on-surface-variant uppercase tracking-wider mb-1">Closing Note</p>
                     <p className="text-sm text-primary italic">"{selectedSession.closingNote}"</p>
                   </div>
                 )}
 
                 {/* Transaction Ledger */}
                 <div>
-                  <h4 className="text-[10px] font-label-caps text-outline uppercase tracking-wider mb-3">Transaction & Movement Ledger</h4>
+                  <h4 className="text-[10px] font-label-caps text-on-surface-variant uppercase tracking-wider mb-3">Transaction & Movement Ledger</h4>
 
                   {selectedSessionMovements.length === 0 ? (
                     <div className="p-8 text-center bg-white rounded-2xl border border-primary/5 text-outline text-sm">
@@ -530,7 +530,7 @@ export default function CaixaReports() {
                   ) : (
                     <div className="bg-white rounded-2xl border border-primary/5 overflow-hidden shadow-sm">
                       <table className="w-full text-left border-collapse text-xs">
-                        <thead className="bg-primary/5 text-[9px] font-label-caps text-outline uppercase">
+                        <thead className="bg-primary/5 text-[9px] font-label-caps text-primary uppercase">
                           <tr>
                             <th className="px-4 py-3">Time</th>
                             <th className="px-4 py-3">Type</th>

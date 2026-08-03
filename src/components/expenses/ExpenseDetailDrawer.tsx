@@ -181,7 +181,7 @@ export function ExpenseDetailDrawer({ expenseId, onClose, onEdit, onPay, formatC
 
                   {/* General Information */}
                   <div>
-                    <h4 className="font-label-caps text-[10px] text-outline tracking-widest mb-4 flex items-center gap-2">
+                    <h4 className="font-label-caps text-[10px] text-on-surface-variant tracking-widest mb-4 flex items-center gap-2">
                       <FileText size={14} /> GENERAL INFORMATION
                     </h4>
                     <div className="grid grid-cols-2 gap-4">
@@ -202,7 +202,7 @@ export function ExpenseDetailDrawer({ expenseId, onClose, onEdit, onPay, formatC
 
                   {/* Payment History */}
                   <div>
-                    <h4 className="font-label-caps text-[10px] text-outline tracking-widest mb-4 flex items-center gap-2">
+                    <h4 className="font-label-caps text-[10px] text-on-surface-variant tracking-widest mb-4 flex items-center gap-2">
                       <CreditCard size={14} /> PAYMENT HISTORY
                     </h4>
                     {expense.status === 'Paid' ? (
@@ -218,7 +218,7 @@ export function ExpenseDetailDrawer({ expenseId, onClose, onEdit, onPay, formatC
                   {/* Template Information */}
                   {template && (
                     <div>
-                      <h4 className="font-label-caps text-[10px] text-outline tracking-widest mb-4 flex items-center gap-2">
+                      <h4 className="font-label-caps text-[10px] text-on-surface-variant tracking-widest mb-4 flex items-center gap-2">
                         <Repeat size={14} /> TEMPLATE INFORMATION
                       </h4>
                       <div className="grid grid-cols-2 gap-4">
@@ -232,7 +232,7 @@ export function ExpenseDetailDrawer({ expenseId, onClose, onEdit, onPay, formatC
 
                   {/* Notes */}
                   <div>
-                    <h4 className="font-label-caps text-[10px] text-outline tracking-widest mb-4">NOTES</h4>
+                    <h4 className="font-label-caps text-[10px] text-on-surface-variant tracking-widest mb-4">NOTES</h4>
                     <p className="font-body-md text-sm text-on-surface-variant whitespace-pre-line">
                       {expense.notes || 'No notes.'}
                     </p>
@@ -240,7 +240,7 @@ export function ExpenseDetailDrawer({ expenseId, onClose, onEdit, onPay, formatC
 
                   {/* Audit Timeline */}
                   <div>
-                    <h4 className="font-label-caps text-[10px] text-outline tracking-widest mb-4 flex items-center gap-2">
+                    <h4 className="font-label-caps text-[10px] text-on-surface-variant tracking-widest mb-4 flex items-center gap-2">
                       <History size={14} /> AUDIT TIMELINE
                     </h4>
                     <div className="space-y-3">
@@ -273,7 +273,7 @@ export function ExpenseDetailDrawer({ expenseId, onClose, onEdit, onPay, formatC
 function InfoField({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div>
-      <p className="font-label-caps text-[9px] text-outline tracking-widest mb-1">{label.toUpperCase()}</p>
+      <p className="font-label-caps text-[9px] text-on-surface-variant tracking-widest mb-1">{label.toUpperCase()}</p>
       <p className="font-body-md text-sm font-bold text-on-surface">{value}</p>
     </div>
   );

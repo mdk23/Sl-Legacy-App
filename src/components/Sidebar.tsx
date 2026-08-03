@@ -42,7 +42,7 @@ export default function Sidebar({ collapsed, mobileOpen, onToggleCollapse }: Sid
     >
       <div className={`px-6 mb-12 transition-opacity ${collapsed ? 'opacity-0' : 'opacity-100'}`}>
         <h2 className="font-headline-lg text-headline-lg text-primary tracking-tight">Sl Legacy</h2>
-        <p className="font-label-caps text-[10px] text-outline tracking-widest mt-1">LUXURY ERP SUITE</p>
+        <p className="font-label-caps text-[10px] text-on-surface-variant tracking-widest mt-1">LUXURY ERP SUITE</p>
       </div>
 
       <nav className="flex-1 space-y-1">

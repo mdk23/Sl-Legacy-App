@@ -133,7 +133,7 @@ export function ExpenseTable({
             ))}
             {expenses.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-8 py-16 text-center text-outline/50 font-label-caps text-xs">
+                <td colSpan={8} className="px-8 py-16 text-center text-on-surface-variant/50 font-label-caps text-xs">
                   No expenses match the current filters.
                 </td>
               </tr>
@@ -143,7 +143,7 @@ export function ExpenseTable({
       </div>
 
       <div className="px-8 py-5 bg-white/6 flex justify-between items-center border-t border-primary/5">
-        <p className="font-label-caps text-[10px] text-outline">Showing {expenses.length} records</p>
+        <p className="font-label-caps text-[10px] text-primary">Showing {expenses.length} records</p>
       </div>
     </section>
   );

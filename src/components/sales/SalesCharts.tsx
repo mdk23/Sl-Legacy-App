@@ -62,7 +62,7 @@ export const SalesCharts = ({
           <div className="flex justify-between items-start mb-10">
             <div>
               <h3 className="font-headline-md text-xl text-primary">Revenue Trends</h3>
-              <p className="font-label-caps text-[9px] text-outline tracking-widest">
+              <p className="font-label-caps text-[9px] text-on-surface-variant tracking-widest">
                 DYNAMIC FISCAL PERFORMANCE
               </p>
             </div>
@@ -107,7 +107,7 @@ export const SalesCharts = ({
 
         <div className="glass-panel p-8 rounded-3xl border border-white/12 flex flex-col">
           <h3 className="font-headline-md text-xl text-primary mb-2">Category Performance</h3>
-          <p className="font-label-caps text-[9px] text-outline tracking-widest mb-10">SALES DISTRIBUTION</p>
+          <p className="font-label-caps text-[9px] text-on-surface-variant tracking-widest mb-10">SALES DISTRIBUTION</p>
           <div className="flex-1 flex flex-col justify-center items-center relative">
             {dynamicCategoryDistribution.length > 0 ? (
               <ResponsiveContainer width="100%" height={240}>
@@ -154,7 +154,7 @@ export const SalesCharts = ({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
         <div className="glass-panel p-8 rounded-3xl border border-white/12 flex flex-col">
           <h3 className="font-headline-md text-xl text-primary mb-2">Payout Methods</h3>
-          <p className="font-label-caps text-[9px] text-outline tracking-widest mb-10">TENDER DISTRIBUTION</p>
+          <p className="font-label-caps text-[9px] text-on-surface-variant tracking-widest mb-10">TENDER DISTRIBUTION</p>
           <div className="flex-1 flex flex-col justify-center items-center relative">
             {dynamicPayoutDistribution.length > 0 ? (
               <ResponsiveContainer width="100%" height={240}>
@@ -195,7 +195,7 @@ export const SalesCharts = ({
 
         <div className="glass-panel p-8 rounded-3xl border border-white/12 flex flex-col">
           <h3 className="font-headline-md text-xl text-primary mb-2">Top 5 Selling Items</h3>
-          <p className="font-label-caps text-[9px] text-outline tracking-widest mb-10">MOST POPULAR PIECES</p>
+          <p className="font-label-caps text-[9px] text-on-surface-variant tracking-widest mb-10">MOST POPULAR PIECES</p>
           <div className="flex-1 h-[240px]">
             {topSellingItems.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">

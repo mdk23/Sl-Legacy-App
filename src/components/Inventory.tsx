@@ -83,7 +83,7 @@ const StatCard = ({ title, value, subValue, icon: Icon, percentage, color }: any
         </span>
       )}
     </div>
-    <p className="font-label-caps text-[10px] text-outline mb-1">{title}</p>
+    <p className="font-label-caps text-[10px] text-on-surface-variant mb-1">{title}</p>
     <h3 className="font-headline-md text-2xl text-primary mb-1">{value}</h3>
     <p className="font-body-md text-xs text-on-surface-variant opacity-70">{subValue}</p>
     <div className="mt-4 h-1 w-full bg-white/4 rounded-full overflow-hidden">
@@ -474,7 +474,7 @@ export default function Inventory() {
               <div className="flex justify-between items-start mb-6">
                 <div>
                   <h3 className="font-headline-md text-lg text-primary">Category Distribution</h3>
-                  <p className="font-label-caps text-[9px] text-outline">TOTAL VOLUME BY TYPE</p>
+                  <p className="font-label-caps text-[9px] text-on-surface-variant">TOTAL VOLUME BY TYPE</p>
                 </div>
               </div>
               <div className="h-48 w-full min-h-[192px]">
@@ -512,7 +512,7 @@ export default function Inventory() {
               <div className="flex justify-between items-start mb-6">
                 <div>
                   <h3 className="font-headline-md text-lg text-primary">Inventory Aging</h3>
-                  <p className="font-label-caps text-[9px] text-outline">STOCK RETENTION PERIOD</p>
+                  <p className="font-label-caps text-[9px] text-on-surface-variant">STOCK RETENTION PERIOD</p>
                 </div>
               </div>
               <div className="h-48 w-full min-h-[192px]">
@@ -560,7 +560,7 @@ export default function Inventory() {
                 </div>
                 
                 <div className="flex items-center gap-2 ml-4">
-                  <label className="font-label-caps text-[10px] text-outline whitespace-nowrap">SHOW ARCHIVED</label>
+                  <label className="font-label-caps text-[10px] text-on-surface-variant whitespace-nowrap">SHOW ARCHIVED</label>
                   <button
                     type="button"
                     onClick={() => { setShowArchived(!showArchived); setCurrentPage(1); }}
@@ -673,7 +673,7 @@ export default function Inventory() {
               </table>
             </div>
             <div className="px-8 py-4 bg-primary/5 flex justify-between items-center border-t border-primary/10">
-              <p className="font-label-caps text-[10px] text-outline">
+              <p className="font-label-caps text-[10px] text-primary">
                 Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredProducts.length)} of {filteredProducts.length} pieces
               </p>
               <div className="flex gap-2">
@@ -700,7 +700,7 @@ export default function Inventory() {
           <div className="flex justify-between items-center mb-6 border-b border-primary/10 pb-4">
             <div>
               <h3 className="font-headline-md text-2xl text-primary font-bold">Stock Movements Audit Log</h3>
-              <p className="font-label-caps text-[9px] text-outline tracking-widest mt-1">REAL-TIME INVENTORY AUDIT TRAIL</p>
+              <p className="font-label-caps text-[9px] text-on-surface-variant tracking-widest mt-1">REAL-TIME INVENTORY AUDIT TRAIL</p>
             </div>
             <span className="bg-primary/10 text-primary px-3 py-1 rounded-lg font-label-caps text-[10px] font-bold">
               {allMovements.length} MOVEMENTS RECORDED
@@ -764,7 +764,7 @@ export default function Inventory() {
                         <td className="px-6 py-4 font-body-md text-xs text-on-surface-variant italic">
                           {movement.reason}
                         </td>
-                        <td className="px-6 py-4 font-label-caps text-[10px] text-outline">
+                        <td className="px-6 py-4 font-label-caps text-[10px] text-on-surface-variant">
                           {movement.userId || "System"}
                         </td>
                       </tr>
@@ -809,7 +809,7 @@ export default function Inventory() {
                   </div>
                   <div>
                     <h2 className="font-headline-md text-2xl text-primary">{selectedProduct.name}</h2>
-                    <p className="font-label-caps text-xs text-outline">{selectedProduct.code} • {selectedProduct.category.toUpperCase()}</p>
+                    <p className="font-label-caps text-xs text-on-surface-variant">{selectedProduct.code} • {selectedProduct.category.toUpperCase()}</p>
                     <div className="mt-2 flex gap-2">
                       <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold">PREMIUM COLLECTION</span>
                       <span className="px-2 py-0.5 rounded-full bg-secondary-container/20 text-secondary text-[10px] font-bold">CERTIFIED</span>
@@ -829,7 +829,7 @@ export default function Inventory() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-6">
                     <div>
-                      <h4 className="font-label-caps text-[11px] text-outline mb-3 flex items-center gap-2">
+                      <h4 className="font-label-caps text-[11px] text-on-surface-variant mb-3 flex items-center gap-2">
                         <ImageIcon size={14} /> BASIC INFO
                       </h4>
                       <div className="space-y-3 bg-white/6 p-4 rounded-2xl border border-white/12">
@@ -848,7 +848,7 @@ export default function Inventory() {
                       </div>
                     </div>
                     <div>
-                      <h4 className="font-label-caps text-[11px] text-outline mb-3 flex items-center gap-2">
+                      <h4 className="font-label-caps text-[11px] text-on-surface-variant mb-3 flex items-center gap-2">
                         <ShieldCheck size={14} /> JEWELRY SPECIFIC
                       </h4>
                       <div className="bg-atelier-gradient p-5 rounded-2xl border border-primary/10 text-primary">
@@ -860,7 +860,7 @@ export default function Inventory() {
 
                   <div className="space-y-6">
                     <div>
-                      <h4 className="font-label-caps text-[11px] text-outline mb-3 flex items-center gap-2">
+                      <h4 className="font-label-caps text-[11px] text-on-surface-variant mb-3 flex items-center gap-2">
                         <DollarSign size={14} /> FINANCIAL DATA
                       </h4>
                       <div className="space-y-3 bg-white/6 p-4 rounded-2xl border border-white/12">
@@ -885,24 +885,24 @@ export default function Inventory() {
 
                 {/* Stock Info */}
                 <div>
-                  <h4 className="font-label-caps text-[11px] text-outline mb-4 flex items-center gap-2">
+                  <h4 className="font-label-caps text-[11px] text-on-surface-variant mb-4 flex items-center gap-2">
                     <Box size={14} /> STOCK LEVELS
                   </h4>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="bg-white/8 p-4 rounded-2xl border border-white shadow-sm text-center">
-                      <p className="font-label-caps text-[10px] text-outline mb-1">TOTAL</p>
+                      <p className="font-label-caps text-[10px] text-on-surface-variant mb-1">TOTAL</p>
                       <p className="font-headline-md text-2xl text-on-surface">{selectedProduct.stock}</p>
                     </div>
                     <div className="bg-white/8 p-4 rounded-2xl border border-white shadow-sm text-center">
-                      <p className="font-label-caps text-[10px] text-outline mb-1">STATUS</p>
+                      <p className="font-label-caps text-[10px] text-on-surface-variant mb-1">STATUS</p>
                       <p className="font-headline-md text-sm text-secondary">{selectedProduct.stock > selectedProduct.reorderLevel ? 'STOCK OK' : 'LOW STOCK'}</p>
                     </div>
                     <div className="bg-white/8 p-4 rounded-2xl border border-white shadow-sm text-center opacity-40">
-                      <p className="font-label-caps text-[10px] text-outline mb-1">RESERVED</p>
+                      <p className="font-label-caps text-[10px] text-on-surface-variant mb-1">RESERVED</p>
                       <p className="font-headline-md text-2xl text-primary">0</p>
                     </div>
                     <div className={`bg-white/8 p-4 rounded-2xl border border-white shadow-sm text-center ${damagedCount > 0 ? '' : 'opacity-40'}`}>
-                      <p className="font-label-caps text-[10px] text-outline mb-1">DAMAGED</p>
+                      <p className="font-label-caps text-[10px] text-on-surface-variant mb-1">DAMAGED</p>
                       <p className="font-headline-md text-2xl text-error">{damagedCount}</p>
                     </div>
                   </div>
@@ -910,7 +910,7 @@ export default function Inventory() {
 
                 {/* Photos Grid */}
                 <div>
-                  <h4 className="font-label-caps text-[11px] text-outline mb-4 flex items-center gap-2">
+                  <h4 className="font-label-caps text-[11px] text-on-surface-variant mb-4 flex items-center gap-2">
                     <ImageIcon size={14} /> PRODUCT MEDIA
                   </h4>
                   <div className="grid grid-cols-3 gap-4">
@@ -928,7 +928,7 @@ export default function Inventory() {
 
                 {/* History/Timeline */}
                 <div>
-                  <h4 className="font-label-caps text-[11px] text-outline mb-4 flex items-center gap-2">
+                  <h4 className="font-label-caps text-[11px] text-on-surface-variant mb-4 flex items-center gap-2">
                     <History size={14} /> MOVEMENT HISTORY
                   </h4>
                   <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2">
@@ -1044,7 +1044,7 @@ export default function Inventory() {
                   <h2 className="font-headline-md text-3xl text-primary uppercase tracking-tight">
                     Register Damage / Loss
                   </h2>
-                  <p className="font-label-caps text-[10px] text-outline mt-2 tracking-[0.2em]">
+                  <p className="font-label-caps text-[10px] text-on-surface-variant mt-2 tracking-[0.2em]">
                     REGISTER DEFECTIVE / DAMAGED ITEMS
                   </p>
                 </div>
@@ -1054,7 +1054,7 @@ export default function Inventory() {
               <form className="flex-1 p-8 space-y-8" onSubmit={handleAdjustStockSubmit}>
                 {/* Select Product */}
                 <div className="space-y-1.5">
-                  <label className="font-label-caps text-[9px] text-outline ml-1">SELECT PIECE / PRODUCT</label>
+                  <label className="font-label-caps text-[9px] text-on-surface-variant ml-1">SELECT PIECE / PRODUCT</label>
                   {adjustProduct ? (
                     <div className="p-4 bg-white/6 border border-white/12 rounded-xl flex items-center gap-4">
                       <div className="w-12 h-12 rounded-lg overflow-hidden border border-white bg-surface-container shadow-sm flex-shrink-0">
@@ -1084,7 +1084,7 @@ export default function Inventory() {
 
                 {/* Quantity */}
                 <div className="space-y-1.5">
-                  <label className="font-label-caps text-[9px] text-outline ml-1">QUANTITY</label>
+                  <label className="font-label-caps text-[9px] text-on-surface-variant ml-1">QUANTITY</label>
                   <input
                     type="number"
                     min={1}
@@ -1097,7 +1097,7 @@ export default function Inventory() {
 
                 {/* Damage Reason */}
                 <div className="space-y-1.5">
-                  <label className="font-label-caps text-[9px] text-outline ml-1">DAMAGE REASON (REQUIRED)</label>
+                  <label className="font-label-caps text-[9px] text-on-surface-variant ml-1">DAMAGE REASON (REQUIRED)</label>
                   <select
                     value={damageReason}
                     onChange={(e) => setDamageReason(e.target.value)}
@@ -1115,7 +1115,7 @@ export default function Inventory() {
 
                 {/* Reason Notes */}
                 <div className="space-y-1.5">
-                  <label className="font-label-caps text-[9px] text-outline ml-1">DAMAGE NOTES / DETAILS (OPTIONAL)</label>
+                  <label className="font-label-caps text-[9px] text-on-surface-variant ml-1">DAMAGE NOTES / DETAILS (OPTIONAL)</label>
                   <textarea
                     rows={3}
                     placeholder="e.g. Scratched gold setting, loose center diamond"
@@ -1173,7 +1173,7 @@ export default function Inventory() {
                   <h2 className="font-headline-md text-3xl text-primary uppercase tracking-tight">
                     {editingId ? 'Update Piece Integrity' : 'New Piece Acquisition'}
                   </h2>
-                  <p className="font-label-caps text-[10px] text-outline mt-2 tracking-[0.2em]">REGISTER TO THE ROYAL VAULT</p>
+                  <p className="font-label-caps text-[10px] text-on-surface-variant mt-2 tracking-[0.2em]">REGISTER TO THE ROYAL VAULT</p>
                 </div>
               </div>
 
@@ -1188,7 +1188,7 @@ export default function Inventory() {
                   <div className="space-y-4">
                     <div className="grid grid-cols-3 gap-4">
                       <div className="col-span-2 space-y-1.5">
-                        <label className="font-label-caps text-[9px] text-outline ml-1">PIECE NAME</label>
+                        <label className="font-label-caps text-[9px] text-on-surface-variant ml-1">PIECE NAME</label>
                         <input
                           type="text"
                           placeholder="e.g. Diamond Drop Earrings"
@@ -1199,7 +1199,7 @@ export default function Inventory() {
                         />
                       </div>
                       <div className="space-y-1.5">
-                        <label className="font-label-caps text-[9px] text-outline ml-1">PIECE CODE (SKU)</label>
+                        <label className="font-label-caps text-[9px] text-on-surface-variant ml-1">PIECE CODE (SKU)</label>
                         <input
                           type="text"
                           placeholder="VAULT-..."
@@ -1212,7 +1212,7 @@ export default function Inventory() {
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-1.5">
-                        <label className="font-label-caps text-[9px] text-outline ml-1">CATEGORY</label>
+                        <label className="font-label-caps text-[9px] text-on-surface-variant ml-1">CATEGORY</label>
                         <select
                           value={formData.category}
                           onChange={(e) => setFormData({ ...formData, category: e.target.value })}
@@ -1229,7 +1229,7 @@ export default function Inventory() {
                         </select>
                       </div>
                       <div className="space-y-1.5">
-                        <label className="font-label-caps text-[9px] text-outline ml-1">PIECE DESCRIPTION</label>
+                        <label className="font-label-caps text-[9px] text-on-surface-variant ml-1">PIECE DESCRIPTION</label>
                         <input
                           type="text"
                           placeholder="Brief stylistic details"
@@ -1250,7 +1250,7 @@ export default function Inventory() {
                   </div>
                   <div className="grid grid-cols-1 gap-4">
                     <div className="space-y-1.5">
-                      <label className="font-label-caps text-[9px] text-outline ml-1">MATERIAL</label>
+                      <label className="font-label-caps text-[9px] text-on-surface-variant ml-1">MATERIAL</label>
                       <div className="relative">
                         <Tag className="absolute left-4 top-1/2 -translate-y-1/2 text-outline" size={16} />
                         <input
@@ -1272,7 +1272,7 @@ export default function Inventory() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="font-label-caps text-[9px] text-outline ml-1">COST PRICE (Mt)</label>
+                      <label className="font-label-caps text-[9px] text-on-surface-variant ml-1">COST PRICE (Mt)</label>
                       <input
                         type="number"
                         placeholder="0.00"
@@ -1283,7 +1283,7 @@ export default function Inventory() {
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="font-label-caps text-[9px] text-outline ml-1">SELLING PRICE (Mt)</label>
+                      <label className="font-label-caps text-[9px] text-on-surface-variant ml-1">SELLING PRICE (Mt)</label>
                       <input
                         type="number"
                         placeholder="0.00"
@@ -1306,12 +1306,12 @@ export default function Inventory() {
                 <section>
                   <div className="flex items-center gap-2 mb-6">
                     <div className="w-1 h-4 bg-outline rounded-full"></div>
-                    <h4 className="font-label-caps text-[11px] text-outline tracking-widest">
+                    <h4 className="font-label-caps text-[11px] text-on-surface-variant tracking-widest">
                       {editingId ? 'STOCK CONTROL' : 'INITIAL STOCK CONTROL'}
                     </h4>
                   </div>
                   <div className="space-y-1.5">
-                    <label className="font-label-caps text-[9px] text-outline ml-1 text-center block">TOTAL STOCK</label>
+                    <label className="font-label-caps text-[9px] text-on-surface-variant ml-1 text-center block">TOTAL STOCK</label>
                     <input
                       type="number"
                       value={formData.stock}
@@ -1343,7 +1343,7 @@ export default function Inventory() {
                   )}
 
                   <div className="space-y-1.5 mt-4">
-                    <label className="font-label-caps text-[9px] text-outline ml-1 text-center block">REORDER LEVEL</label>
+                    <label className="font-label-caps text-[9px] text-on-surface-variant ml-1 text-center block">REORDER LEVEL</label>
                     <input
                       type="number"
                       value={formData.reorderLevel}
@@ -1353,7 +1353,7 @@ export default function Inventory() {
                     />
                   </div>
                   <div className="flex flex-col justify-center items-center mt-4">
-                    <label className="font-label-caps text-[9px] text-outline mb-2">ARCHIVED</label>
+                    <label className="font-label-caps text-[9px] text-on-surface-variant mb-2">ARCHIVED</label>
                     <button
                       type="button"
                       onClick={() => setFormData({ ...formData, archived: !formData.archived })}

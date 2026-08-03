@@ -80,7 +80,7 @@ async function hydrateTransactions(ctx: any, transactions: any[]) {
     if (!customerName && tx.customerId) {
       const customer = customerMap.get(tx.customerId);
       customerName = customer ? `${customer.firstName} ${customer.lastName}` : "Walk-in";
-      customerTier = customer?.financialTier || "Regular";
+      customerTier = "Regular";
     }
 
     const itemsWithDetails = (tx.items || []).map((item: any) => {
@@ -247,7 +247,7 @@ export const create = mutation({
       if (!customer) throw new Error("Customer not found");
 
       customerName = `${customer.firstName} ${customer.lastName}`;
-      customerTier = customer.financialTier || "Regular";
+      customerTier = "Regular";
       newCreditBalance = customer.creditBalance || 0;
       newDebitBalance = customer.debitBalance || 0;
 

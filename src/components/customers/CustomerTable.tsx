@@ -110,7 +110,7 @@ export const CustomerTable = ({
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead className="sticky top-0 z-10 bg-white/10 backdrop-blur-md">
-            <tr className="border-b border-primary/5 font-label-caps text-[11px] text-outline">
+            <tr className="border-b border-primary/5 font-label-caps text-[11px] text-primary">
               <th className="px-8 py-5">CLIENT & HEALTH</th>
               <th className="px-6 py-5">CONTACTS</th>
               <th className="px-6 py-5">LIFETIME VALUE</th>
@@ -175,7 +175,7 @@ export const CustomerTable = ({
                       <span className="font-data-tabular text-sm font-bold text-primary">
                         {formatCurrency(customer.totalSpent)}
                       </span>
-                      <span className="text-[9px] font-label-caps text-outline tracking-wider">
+                      <span className="text-[9px] font-label-caps text-on-surface-variant tracking-wider">
                         {customer.orderCount} Orders
                       </span>
                     </div>
@@ -228,20 +228,20 @@ export const CustomerTable = ({
 
       <div className="px-8 py-5 bg-white/6 flex justify-between items-center border-t border-primary/5">
         <div className="flex items-center gap-4">
-          <span className="font-label-caps text-[10px] text-outline">Show rows:</span>
-          <select className="bg-transparent font-data-tabular text-xs focus:outline-none">
-            <option>10</option>
-            <option>25</option>
-            <option>50</option>
+          <span className="font-label-caps text-[10px] text-primary">Show rows:</span>
+          <select className="bg-transparent font-data-tabular text-xs text-primary focus:outline-none">
+            <option className="bg-surface-container text-primary">10</option>
+            <option className="bg-surface-container text-primary">25</option>
+            <option className="bg-surface-container text-primary">50</option>
           </select>
         </div>
         <div className="flex items-center gap-6">
-          <p className="font-label-caps text-[10px] text-outline">Page 1 of 1</p>
+          <p className="font-label-caps text-[10px] text-primary">Page 1 of 1</p>
           <div className="flex gap-2">
-            <button className="p-2 border border-outline-variant/30 rounded-lg hover:bg-white transition-all">
+            <button className="p-2 border border-outline-variant/30 rounded-lg text-primary hover:bg-primary hover:text-on-primary transition-all">
               <ChevronRight size={16} className="rotate-180" />
             </button>
-            <button className="p-2 border border-outline-variant/30 rounded-lg hover:bg-white transition-all">
+            <button className="p-2 border border-outline-variant/30 rounded-lg text-primary hover:bg-primary hover:text-on-primary transition-all">
               <ChevronRight size={16} />
             </button>
           </div>

@@ -99,7 +99,7 @@ export const SalesTable = ({
                 <td className="px-6 py-5">
                   <div>
                     <p className="font-body-md text-sm font-bold text-on-surface">{sale.customerName || "Walk-in"}</p>
-                    <p className="font-label-caps text-[9px] text-outline tracking-widest">{sale.paymentStatus}</p>
+                    <p className="font-label-caps text-[9px] text-on-surface-variant tracking-widest">{sale.paymentStatus}</p>
                   </div>
                 </td>
                 <td className="px-6 py-5">
@@ -176,14 +176,14 @@ export const SalesTable = ({
             </button>
           )}
           {paginationStatus === "LoadingMore" && (
-            <span className="font-label-caps text-[10px] text-outline animate-pulse">LOADING MORE...</span>
+            <span className="font-label-caps text-[10px] text-primary animate-pulse">LOADING MORE...</span>
           )}
           {paginationStatus === "Exhausted" && (
-            <span className="font-label-caps text-[10px] text-outline opacity-60">ALL TRANSACTIONS LOADED</span>
+            <span className="font-label-caps text-[10px] text-primary opacity-60">ALL TRANSACTIONS LOADED</span>
           )}
         </div>
         <div className="flex items-center gap-6">
-          <p className="font-label-caps text-[10px] text-outline">
+          <p className="font-label-caps text-[10px] text-primary">
             Showing {filteredSales.length} records
           </p>
         </div>

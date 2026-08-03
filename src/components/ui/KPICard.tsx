@@ -7,11 +7,13 @@ interface KPICardProps {
   value: string;
   subValue: string;
   trend?: number;
+  invertTrendColor?: boolean;
   icon: LucideIcon;
   color: string;
 }
 
-export const KPICard = ({ title, value, subValue, trend, icon: Icon, color }: KPICardProps) => {
+export const KPICard = ({ title, value, subValue, trend, invertTrendColor, icon: Icon, color }: KPICardProps) => {
+  const isPositive = trend !== undefined && (invertTrendColor ? trend < 0 : trend > 0);
   return (
     <motion.div
       whileHover={{ y: -4, transition: { duration: 0.18 } }}
@@ -24,7 +26,7 @@ export const KPICard = ({ title, value, subValue, trend, icon: Icon, color }: KP
         {trend !== undefined && (
           <span
             className={`text-[10px] font-bold px-2 py-1 rounded-full ${
-              trend > 0
+              isPositive
                 ? "bg-secondary-fixed text-on-secondary-fixed"
                 : "bg-error-container text-on-error-container"
             }`}
@@ -34,7 +36,7 @@ export const KPICard = ({ title, value, subValue, trend, icon: Icon, color }: KP
           </span>
         )}
       </div>
-      <p className="font-label-caps text-[10px] text-outline mb-1">{title}</p>
+      <p className="font-label-caps text-[10px] text-on-surface-variant mb-1">{title}</p>
       <h3 className="font-headline-md text-2xl text-primary mb-1">{value}</h3>
       <p className="font-body-md text-xs text-on-surface-variant opacity-70">{subValue}</p>
     </motion.div>

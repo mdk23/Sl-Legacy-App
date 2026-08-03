@@ -37,7 +37,7 @@ export const SaleDetailDrawer = ({
             <h2 className="font-headline-md text-2xl text-primary">
               {selectedSale.receiptNumber?.replace("INV-", "ORD-")}
             </h2>
-            <p className="font-label-caps text-[10px] text-outline tracking-widest mt-1">
+            <p className="font-label-caps text-[10px] text-on-surface-variant tracking-widest mt-1">
               TRANSACTION COMPLETED ON {new Date(selectedSale._creationTime).toLocaleDateString()} AT{" "}
               {new Date(selectedSale._creationTime).toLocaleTimeString()} BY{" "}
               {selectedSale.cashierName?.toUpperCase() || "SYSTEM"}
@@ -64,7 +64,7 @@ export const SaleDetailDrawer = ({
         <div className="flex-1 overflow-y-auto p-8 space-y-10">
           {/* Customer Section */}
           <section>
-            <h4 className="font-label-caps text-[11px] text-outline mb-4">CUSTOMER INSIGHT</h4>
+            <h4 className="font-label-caps text-[11px] text-on-surface-variant mb-4">CUSTOMER INSIGHT</h4>
             <div className="bg-atelier-gradient p-6 rounded-3xl border border-primary/10 flex items-center gap-4">
               <div className="w-14 h-14 rounded-full bg-white shadow-lg flex items-center justify-center text-primary font-bold text-xl">
                 {(selectedSale.customerName || "Walk-in")[0]}
@@ -81,7 +81,7 @@ export const SaleDetailDrawer = ({
           {/* Line Items */}
           <section>
             <div className="flex justify-between items-center mb-6">
-              <h4 className="font-label-caps text-[11px] text-outline">LINE ITEMS</h4>
+              <h4 className="font-label-caps text-[11px] text-on-surface-variant">LINE ITEMS</h4>
               <span className="font-label-caps text-[11px] text-primary">
                 {(selectedSale.items || []).length} ITEMS
               </span>
@@ -108,7 +108,7 @@ export const SaleDetailDrawer = ({
 
           {/* Financial Breakdown */}
           <section>
-            <h4 className="font-label-caps text-[11px] text-outline mb-4">PAYMENT BREAKDOWN</h4>
+            <h4 className="font-label-caps text-[11px] text-on-surface-variant mb-4">PAYMENT BREAKDOWN</h4>
             <div className="bg-surface-container-highest p-6 rounded-3xl space-y-3">
               <div className="flex justify-between text-sm">
                 <span className="text-on-surface-variant font-body-md">Subtotal</span>
@@ -132,7 +132,7 @@ export const SaleDetailDrawer = ({
               {/* Tenders Received */}
               {selectedSale.paymentBreakdown?.length > 0 && (
                 <div className="mt-4 pt-4 border-t border-outline-variant/30 space-y-2">
-                  <span className="font-label-caps text-[9px] text-outline mb-1 block">TENDERS RECEIVED</span>
+                  <span className="font-label-caps text-[9px] text-on-surface-variant mb-1 block">TENDERS RECEIVED</span>
                   {selectedSale.paymentBreakdown.map((p: any, i: number) => (
                     <div key={i} className="flex justify-between text-sm">
                       <span className="text-on-surface-variant font-body-md">{p.method}</span>

@@ -43,7 +43,7 @@ const SegmentTooltip = ({ active, payload, label }: any) => {
   if (!d) return null;
   return (
     <div className="bg-white/10 backdrop-blur-xl border border-white/16 shadow-2xl rounded-2xl p-4 min-w-[200px]">
-      <p className="font-label-caps text-[9px] text-outline mb-2 tracking-widest">{label}</p>
+      <p className="font-label-caps text-[9px] text-on-surface-variant mb-2 tracking-widest">{label}</p>
       <div className="space-y-1.5">
         <div className="flex justify-between items-center">
           <span className="text-xs text-on-surface-variant">Customers</span>
@@ -125,7 +125,7 @@ export const AdvancedSegmentChart = ({ healthData, formatCurrency }: AdvancedSeg
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
           <h3 className="font-headline-md text-xl text-primary">Customer Health Segments</h3>
-          <p className="font-label-caps text-[9px] text-outline tracking-widest mt-0.5">
+          <p className="font-label-caps text-[9px] text-on-surface-variant tracking-widest mt-0.5">
             BASED ON BUYING FREQUENCY, TOTAL SPEND &amp; CREDIT STANDING
           </p>
         </div>

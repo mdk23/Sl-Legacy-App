@@ -57,7 +57,7 @@ export const CustomerFormDrawer = ({
             <h2 className="font-headline-md text-3xl text-primary uppercase tracking-tight">
               {editingId ? "Update Client Profile" : "New Client Registration"}
             </h2>
-            <p className="font-label-caps text-[10px] text-outline mt-2 tracking-[0.2em]">
+            <p className="font-label-caps text-[10px] text-on-surface-variant mt-2 tracking-[0.2em]">
               BOUTIQUE MEMBER ENROLLMENT
             </p>
           </div>
@@ -72,7 +72,7 @@ export const CustomerFormDrawer = ({
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="font-label-caps text-[9px] text-outline ml-1">FIRST NAME</label>
+                <label className="font-label-caps text-[9px] text-on-surface-variant ml-1">FIRST NAME</label>
                 <input
                   type="text"
                   placeholder="e.g. Eleanor"
@@ -83,7 +83,7 @@ export const CustomerFormDrawer = ({
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="font-label-caps text-[9px] text-outline ml-1">LAST NAME</label>
+                <label className="font-label-caps text-[9px] text-on-surface-variant ml-1">LAST NAME</label>
                 <input
                   type="text"
                   placeholder="e.g. Vance"
@@ -104,7 +104,7 @@ export const CustomerFormDrawer = ({
             </div>
             <div className="space-y-4">
               <div className="space-y-1.5">
-                <label className="font-label-caps text-[9px] text-outline ml-1">PRIMARY PHONE</label>
+                <label className="font-label-caps text-[9px] text-on-surface-variant ml-1">PRIMARY PHONE</label>
                 <div className="relative">
                   <Smartphone className="absolute left-4 top-1/2 -translate-y-1/2 text-outline" size={16} />
                   <input
@@ -119,7 +119,7 @@ export const CustomerFormDrawer = ({
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="font-label-caps text-[9px] text-outline ml-1">SECONDARY PHONE</label>
+                  <label className="font-label-caps text-[9px] text-on-surface-variant ml-1">SECONDARY PHONE</label>
                   <div className="relative">
                     <Smartphone className="absolute left-4 top-1/2 -translate-y-1/2 text-outline" size={16} />
                     <input
@@ -132,7 +132,7 @@ export const CustomerFormDrawer = ({
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="font-label-caps text-[9px] text-outline ml-1">ALTERNATIVE PHONE</label>
+                  <label className="font-label-caps text-[9px] text-on-surface-variant ml-1">ALTERNATIVE PHONE</label>
                   <div className="relative">
                     <Smartphone className="absolute left-4 top-1/2 -translate-y-1/2 text-outline" size={16} />
                     <input
@@ -146,7 +146,7 @@ export const CustomerFormDrawer = ({
                 </div>
               </div>
               <div className="space-y-1.5">
-                <label className="font-label-caps text-[9px] text-outline ml-1">EMAIL ADDRESS</label>
+                <label className="font-label-caps text-[9px] text-on-surface-variant ml-1">EMAIL ADDRESS</label>
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-outline" size={16} />
                   <input
@@ -165,7 +165,7 @@ export const CustomerFormDrawer = ({
           <section>
             <div className="flex items-center gap-2 mb-6">
               <div className="w-1 h-4 bg-outline rounded-full" />
-              <h4 className="font-label-caps text-[11px] text-outline tracking-widest">BOUTIQUE NOTES</h4>
+              <h4 className="font-label-caps text-[11px] text-on-surface-variant tracking-widest">BOUTIQUE NOTES</h4>
             </div>
             <textarea
               rows={4}
