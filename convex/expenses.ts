@@ -475,9 +475,6 @@ export const deleteExpense = mutation({
 
     const existing = await ctx.db.get(args.id);
     if (!existing) throw new Error("Expense not found.");
-    if (existing.templateId) {
-      throw new Error("Recurring-generated expenses cannot be deleted. Cancel it instead.");
-    }
     if (existing.status === "Paid") {
       throw new Error("Paid expenses cannot be deleted. Cancel it instead.");
     }

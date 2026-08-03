@@ -3,20 +3,25 @@ import { Id } from "./_generated/dataModel";
 import { v } from "convex/values";
 import { mutation, internalMutation } from "./_generated/server";
 
+const HEALTH_COUNTER_FIELD: Record<string, string> = {
+  "New Client": "newClients",
+  "At Risk": "atRiskClients",
+  "Growing Client": "growingClients",
+  "Valuable Client": "valuableClients",
+  "Elite Client": "eliteClients",
+};
+
 async function updateCustomerCountersHelper(db: DatabaseWriter, oldC: any, newC: any) {
   const counter = await db.query("customerCounters").withIndex("by_counter_id", (q) => q.eq("id", "main")).first();
   let diffs: any = {};
-  
-  if (oldC.financialTier !== newC.financialTier) {
-    if (oldC.financialTier) diffs[`${oldC.financialTier.toLowerCase()}Customers`] = -1;
-    if (newC.financialTier) diffs[`${newC.financialTier.toLowerCase()}Customers`] = 1;
+
+  if (oldC.customerHealth !== newC.customerHealth) {
+    const oldField = oldC.customerHealth ? HEALTH_COUNTER_FIELD[oldC.customerHealth] : undefined;
+    const newField = newC.customerHealth ? HEALTH_COUNTER_FIELD[newC.customerHealth] : undefined;
+    if (oldField) diffs[oldField] = (diffs[oldField] || 0) - 1;
+    if (newField) diffs[newField] = (diffs[newField] || 0) + 1;
   }
-  
-  if (oldC.loyaltyLevel !== newC.loyaltyLevel) {
-    if (oldC.loyaltyLevel) diffs[`${oldC.loyaltyLevel.toLowerCase()}Customers`] = -1;
-    if (newC.loyaltyLevel) diffs[`${newC.loyaltyLevel.toLowerCase()}Customers`] = 1;
-  }
-  
+
   if (oldC.creditStatus !== newC.creditStatus) {
     if (oldC.creditStatus === "Overdue") diffs.overdueCustomers = -1;
     if (newC.creditStatus === "Overdue") diffs.overdueCustomers = 1;
@@ -36,25 +41,59 @@ async function updateCustomerCountersHelper(db: DatabaseWriter, oldC: any, newC:
       totalCustomers: 1,
       activeCustomers: 1,
       inactiveCustomers: 0,
-      regularCustomers: 0,
-      premiumCustomers: 0,
-      vipCustomers: 0,
-      platinumCustomers: 0,
-      bronzeCustomers: 0,
-      silverCustomers: 0,
-      goldCustomers: 0,
-      diamondCustomers: 0,
+      newClients: 0,
+      atRiskClients: 0,
+      growingClients: 0,
+      valuableClients: 0,
+      eliteClients: 0,
       customersWithCredit: 0,
       customersWithDebt: 0,
       overdueCustomers: 0,
     };
     for (const [key, val] of Object.entries(diffs)) {
-      initial[key] = Math.max(0, initial[key] + (val as number));
+      initial[key] = Math.max(0, (initial[key] || 0) + (val as number));
     }
     await db.insert("customerCounters", initial);
   }
 }
 
+// Rule-based health classification driven by three signals only:
+// how often the customer buys, how much they've spent, and whether they
+// carry any debt/credit balance. No composite numeric score.
+function computeCustomerHealth(args: {
+  orderCount: number;
+  totalSpent: number;
+  lastPurchaseDate: number | undefined;
+  creditStatus: string;
+}): string {
+  const { orderCount, totalSpent, lastPurchaseDate, creditStatus } = args;
+
+  if (orderCount === 0) return "New Client";
+
+  const now = Date.now();
+  const ninetyDaysAgo = now - 90 * 24 * 3600 * 1000;
+  const isActive = !!lastPurchaseDate && lastPurchaseDate >= ninetyDaysAgo;
+
+  // Unpaid debt past due always caps health at "At Risk", regardless of spend/frequency.
+  if (creditStatus === "Overdue") return "At Risk";
+
+  const isFrequentBuyer = orderCount >= 20;
+  const isRegularBuyer = orderCount >= 5;
+  const isHighSpender = totalSpent >= 500_000;
+  const isMidSpender = totalSpent >= 100_000;
+  const hasOutstandingDebt = creditStatus === "Outstanding";
+
+  if (isActive && isFrequentBuyer && isHighSpender && !hasOutstandingDebt) {
+    return "Elite Client";
+  }
+  if (isActive && (isFrequentBuyer || isHighSpender) && !hasOutstandingDebt) {
+    return "Valuable Client";
+  }
+  if (isActive && (isRegularBuyer || isMidSpender)) {
+    return "Growing Client";
+  }
+  return "At Risk";
+}
 
 export async function recomputeCustomerIntelligence(db: DatabaseWriter | DatabaseReader, customerId: Id<"customers">) {
   const customer = await db.get(customerId);
@@ -94,13 +133,11 @@ export async function recomputeCustomerIntelligence(db: DatabaseWriter | Databas
     paymentsByTxId.set(p.transactionId, (paymentsByTxId.get(p.transactionId) || 0) + p.amount);
   }
 
-  let totalLifetimePayments = 0;
   let oldestUnpaidDate = now;
 
   for (const tx of transactions) {
     const paid = paymentsByTxId.get(tx._id) || 0;
-    totalLifetimePayments += paid;
-    
+
     // If the individual transaction was underpaid, track its date for overdue logic
     if (paid < tx.total && tx._creationTime < oldestUnpaidDate) {
       oldestUnpaidDate = tx._creationTime;
@@ -108,13 +145,13 @@ export async function recomputeCustomerIntelligence(db: DatabaseWriter | Databas
   }
 
   const currentDebt = customer.debitBalance || 0;
-  
+
   if (currentDebt > 0 && oldestUnpaidDate < thirtyDaysAgo) {
     hasOverdue = true;
   }
 
   // Generic Customer Lockdown
-  const isGeneric = customer.firstName.toLowerCase() === "walk-in" || 
+  const isGeneric = customer.firstName.toLowerCase() === "walk-in" ||
                     customer.lastName.toLowerCase() === "walk-in" ||
                     customer.firstName.toLowerCase() === "generic" ||
                     customer.lastName.toLowerCase() === "generic";
@@ -129,84 +166,10 @@ export async function recomputeCustomerIntelligence(db: DatabaseWriter | Databas
     creditStatus = "Good Standing";
   }
 
-  // 3. Compute Financial Tier
-  let financialTier = "Regular";
-  if (totalSpent > 500000) {
-    financialTier = "Platinum";
-  } else if (totalSpent > 100000) {
-    financialTier = "VIP";
-  } else if (totalSpent > 25000) {
-    financialTier = "Premium";
-  }
-
-  // 4. Compute Loyalty Level
-  let loyaltyLevel = "Bronze";
-  if (orderCount > 75) {
-    loyaltyLevel = "Diamond";
-  } else if (orderCount > 50) {
-    loyaltyLevel = "Gold";
-  } else if (orderCount > 25) {
-    loyaltyLevel = "Silver";
-  }
-
-  // Apply decay rule: If no purchase in 90 days -> downgrade loyalty by 1 level
-  const ninetyDaysAgo = now - 90 * 24 * 3600 * 1000;
-  const isInactive = lastPurchaseDate && lastPurchaseDate < ninetyDaysAgo;
-
-  if (isInactive) {
-    if (loyaltyLevel === "Diamond") {
-      loyaltyLevel = "Gold";
-    } else if (loyaltyLevel === "Gold") {
-      loyaltyLevel = "Silver";
-    } else if (loyaltyLevel === "Silver") {
-      loyaltyLevel = "Bronze";
-    }
-  }
-
-  // 5. Compute Customer Score (0–100)
-  // Financial Score (50%)
-  const financialScore = Math.min(100, (totalSpent / 500000) * 100);
-
-  // Loyalty Score (30%)
-  let loyaltyScore = 25;
-  if (loyaltyLevel === "Diamond") loyaltyScore = 100;
-  else if (loyaltyLevel === "Gold") loyaltyScore = 75;
-  else if (loyaltyLevel === "Silver") loyaltyScore = 50;
-
-  // Apply score penalty if 90-day decay is active
-  if (isInactive) {
-    loyaltyScore = Math.max(0, loyaltyScore - 20);
-  }
-
-  // Payment Score (20%)
-  let paymentScore = 100;
-  if (isGeneric) {
-    paymentScore = 100;
-  } else if (creditStatus === "Overdue") {
-    paymentScore = 20;
-  } else if (creditStatus === "Outstanding") {
-    // Score penalty based on debt size (assuming a nominal 100k threshold)
-    paymentScore = Math.max(40, Math.min(90, 100 - (currentDebt / 100000) * 50));
-  }
-
-  // Composite Score
-  let customerScore = 0;
-  if (orderCount > 0) {
-    const scoreRaw = (financialScore * 0.5) + (loyaltyScore * 0.3) + (paymentScore * 0.2);
-    customerScore = Math.round(Math.max(0, Math.min(100, scoreRaw)));
-  }
-
-  // 6. Compute Customer Health
-  let customerHealth = "At Risk";
-  if (orderCount === 0) {
-    customerHealth = "New Client";
-  } else if (customerScore >= 90) {
-    customerHealth = "Elite Client";
-  } else if (customerScore >= 75) {
-    customerHealth = "Valuable Client";
-  } else if (customerScore >= 50) {
-    customerHealth = "Growing Client";
-  }
+  // 3. Compute Customer Health from frequency, spend, and debt/credit only
+  const customerHealth = isGeneric
+    ? "New Client"
+    : computeCustomerHealth({ orderCount, totalSpent, lastPurchaseDate, creditStatus });
 
   // Write changes back to the database
   if ("patch" in db) {
@@ -214,17 +177,13 @@ export async function recomputeCustomerIntelligence(db: DatabaseWriter | Databas
       totalSpent,
       orderCount,
       lastPurchaseDate,
-      financialTier,
-      loyaltyLevel,
       creditStatus,
-      customerScore,
       customerHealth,
-      customerType: "Registered"
+      customerType: "Registered",
     });
 
     await updateCustomerCountersHelper(db as DatabaseWriter, customer, {
-      financialTier,
-      loyaltyLevel,
+      customerHealth,
       creditStatus,
     });
   }
@@ -233,11 +192,8 @@ export async function recomputeCustomerIntelligence(db: DatabaseWriter | Databas
     totalSpent,
     orderCount,
     lastPurchaseDate,
-    financialTier,
-    loyaltyLevel,
     creditStatus,
-    customerScore,
-    customerHealth
+    customerHealth,
   };
 }
 

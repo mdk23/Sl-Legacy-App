@@ -29,12 +29,8 @@ export default defineSchema({
     phone3: v.optional(v.string()),
     email: v.optional(v.string()),
     customerType: v.optional(v.string()), // "Walk-in", "Registered", "B2B"
-    financialTier: v.optional(v.string()), // "Regular", "Premium", "VIP", "Platinum"
-    loyaltyLevel: v.optional(v.string()), // "Bronze", "Silver", "Gold", "Diamond"
-    loyaltyTier: v.optional(v.string()), // Deprecated, left for schema validation compat
     creditStatus: v.optional(v.string()), // "Good Standing", "Outstanding", "Overdue"
-    customerScore: v.optional(v.number()), // 0 - 100
-    customerHealth: v.optional(v.string()), // "Elite Client", "Valuable Client", "Growing Client", "At Risk"
+    customerHealth: v.optional(v.string()), // "New Client", "At Risk", "Growing Client", "Valuable Client", "Elite Client"
     totalSpent: v.number(),
     creditBalance: v.optional(v.number()),
     debitBalance: v.optional(v.number()),
@@ -266,14 +262,11 @@ export default defineSchema({
     totalCustomers: v.number(),
     activeCustomers: v.number(),
     inactiveCustomers: v.number(),
-    regularCustomers: v.number(),
-    premiumCustomers: v.number(),
-    vipCustomers: v.number(),
-    platinumCustomers: v.number(),
-    bronzeCustomers: v.number(),
-    silverCustomers: v.number(),
-    goldCustomers: v.number(),
-    diamondCustomers: v.number(),
+    newClients: v.optional(v.number()),
+    atRiskClients: v.optional(v.number()),
+    growingClients: v.optional(v.number()),
+    valuableClients: v.optional(v.number()),
+    eliteClients: v.optional(v.number()),
     customersWithCredit: v.number(),
     customersWithDebt: v.number(),
     overdueCustomers: v.number(),

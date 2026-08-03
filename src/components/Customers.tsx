@@ -6,13 +6,13 @@ import {
   Bell,
   Download,
   UserPlus,
-  TrendingUp,
   Users,
   CreditCard,
   DollarSign,
-  Star,
+  Repeat,
   Crown,
-  Gem,
+  AlertTriangle,
+  TrendingUp,
 } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 import { useQuery, useMutation } from "convex/react";
@@ -21,15 +21,12 @@ import { toast } from "sonner";
 
 import { KPICard } from "./ui/KPICard";
 import { InsightsPanel } from "./customers/InsightsPanel";
-import {
-  AdvancedSegmentChart,
-  FINANCIAL_COLORS,
-  LOYALTY_COLORS,
-  SegmentData,
-} from "./customers/AdvancedSegmentChart";
+import { AdvancedSegmentChart, HEALTH_COLORS, SegmentData } from "./customers/AdvancedSegmentChart";
 import { CustomerTable } from "./customers/CustomerTable";
 import { CustomerProfileDrawer } from "./customers/CustomerProfileDrawer";
 import { CustomerFormDrawer } from "./customers/CustomerFormDrawer";
+
+const HEALTH_LEVELS = ["New Client", "At Risk", "Growing Client", "Valuable Client", "Elite Client"];
 
 interface Customer {
   _id: string;
@@ -40,10 +37,7 @@ interface Customer {
   phone3?: string;
   email?: string;
   customerType?: string;
-  financialTier?: string;
-  loyaltyLevel?: string;
   creditStatus?: string;
-  customerScore?: number;
   customerHealth?: string;
   totalSpent: number;
   creditBalance?: number;
@@ -63,8 +57,7 @@ export default function Customers() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const [financialFilter, setFinancialFilter] = useState("All Tiers");
-  const [loyaltyFilter, setLoyaltyFilter] = useState("All Levels");
+  const [healthFilter, setHealthFilter] = useState("All Health");
   const [creditFilter, setCreditFilter] = useState("All Credits");
 
   const [formData, setFormData] = useState({
@@ -90,18 +83,15 @@ export default function Customers() {
         name.includes(searchQuery.toLowerCase()) ||
         c.phone1.includes(searchQuery) ||
         (c.email || "").toLowerCase().includes(searchQuery.toLowerCase());
-      const matchFin =
-        financialFilter === "All Tiers" ||
-        (c.financialTier || "Regular").toLowerCase() === financialFilter.toLowerCase();
-      const matchLoy =
-        loyaltyFilter === "All Levels" ||
-        (c.loyaltyLevel || "Bronze").toLowerCase() === loyaltyFilter.toLowerCase();
+      const matchHealth =
+        healthFilter === "All Health" ||
+        (c.customerHealth || "New Client").toLowerCase() === healthFilter.toLowerCase();
       const matchCrd =
         creditFilter === "All Credits" ||
         (c.creditStatus || "Good Standing").toLowerCase() === creditFilter.toLowerCase();
-      return matchSearch && matchFin && matchLoy && matchCrd;
+      return matchSearch && matchHealth && matchCrd;
     });
-  }, [customers, searchQuery, financialFilter, loyaltyFilter, creditFilter]);
+  }, [customers, searchQuery, healthFilter, creditFilter]);
 
   // ── KPIs ───────────────────────────────────────────────
   const kpis = useMemo(() => {
@@ -109,20 +99,21 @@ export default function Customers() {
     if (!total)
       return {
         totalCustomers: 0,
-        platinumVipCount: 0,
-        platinumVipPercent: 0,
-        averageScore: 0,
+        topTierCount: 0,
+        topTierPercent: 0,
+        frequentBuyerCount: 0,
         totalDebt: 0,
         averageLTV: 0,
       };
-    const platinumVipCount = customers.filter((c) =>
-      ["Platinum", "VIP"].includes(c.financialTier || "Regular")
+    const topTierCount = customers.filter((c) =>
+      ["Elite Client", "Valuable Client"].includes(c.customerHealth || "New Client")
     ).length;
+    const frequentBuyerCount = customers.filter((c) => (c.orderCount || 0) >= 20).length;
     return {
       totalCustomers: total,
-      platinumVipCount,
-      platinumVipPercent: Math.round((platinumVipCount / total) * 100),
-      averageScore: Math.round(customers.reduce((s, c) => s + (c.customerScore || 0), 0) / total),
+      topTierCount,
+      topTierPercent: Math.round((topTierCount / total) * 100),
+      frequentBuyerCount,
       totalDebt: customers.reduce((s, c) => s + (c.debitBalance || 0), 0),
       averageLTV: Math.round(customers.reduce((s, c) => s + (c.totalSpent || 0), 0) / total),
     };
@@ -130,82 +121,100 @@ export default function Customers() {
 
   // ── Segment aggregations ───────────────────────────────
   const segmentData = useMemo(() => {
-    const mkSegment = (
-      tier: string,
-      colorMap: Record<string, any>,
-      field: "financialTier" | "loyaltyLevel"
-    ) => {
-      const group = customers.filter(
-        (c) => (c[field] || Object.keys(colorMap)[0]) === tier
-      );
+    const healthData = HEALTH_LEVELS.map((level) => {
+      const group = customers.filter((c) => (c.customerHealth || "New Client") === level);
       const count = group.length;
       const totalSpent = group.reduce((s, c) => s + c.totalSpent, 0);
       return {
-        name: tier,
-        label: tier,
+        name: level,
+        label: level,
         count,
         totalSpent,
         avgSpent: count > 0 ? Math.round(totalSpent / count) : 0,
-        color: colorMap[tier]?.bar || "#B4832B",
-        group: field === "financialTier" ? "Financial" : "Loyalty",
+        color: HEALTH_COLORS[level]?.bar || "#B4832B",
       } as SegmentData;
-    };
+    });
 
-    const financialData = ["Regular", "Premium", "VIP", "Platinum"].map((t) =>
-      mkSegment(t, FINANCIAL_COLORS, "financialTier")
-    );
-    const loyaltyData = ["Bronze", "Silver", "Gold", "Diamond"].map((t) =>
-      mkSegment(t, LOYALTY_COLORS, "loyaltyLevel")
-    );
-
-    return { financialData, loyaltyData };
+    return { healthData };
   }, [customers]);
 
   // ── Auto insights ──────────────────────────────────────
   const insights = useMemo(() => {
     const total = customers.length;
     const totalRevenue = customers.reduce((s, c) => s + c.totalSpent, 0) || 1;
+    const pct = (n: number) => (total > 0 ? Math.round((n / total) * 100) : 0);
 
-    const vipRev = customers
-      .filter((c) => ["VIP", "Platinum"].includes(c.financialTier || ""))
-      .reduce((s, c) => s + c.totalSpent, 0);
-    const vipPct = Math.round((vipRev / totalRevenue) * 100);
+    const newGroup = customers.filter((c) => (c.customerHealth || "New Client") === "New Client");
+    const atRiskGroup = customers.filter((c) => c.customerHealth === "At Risk");
+    const growingGroup = customers.filter((c) => c.customerHealth === "Growing Client");
+    const valuableGroup = customers.filter((c) => c.customerHealth === "Valuable Client");
+    const eliteGroup = customers.filter((c) => c.customerHealth === "Elite Client");
 
-    const diamondAvgOrders =
-      customers.filter((c) => c.loyaltyLevel === "Diamond").reduce((s, c) => s + c.orderCount, 0) /
-      (customers.filter((c) => c.loyaltyLevel === "Diamond").length || 1);
-    const regularAvgOrders =
-      customers.filter((c) => (c.loyaltyLevel || "Bronze") === "Bronze").reduce((s, c) => s + c.orderCount, 0) /
-      (customers.filter((c) => (c.loyaltyLevel || "Bronze") === "Bronze").length || 1);
-    const freqMultiplier = regularAvgOrders > 0 ? Math.round(diamondAvgOrders / regularAvgOrders) : 3;
+    const overdueCount = atRiskGroup.filter((c) => c.creditStatus === "Overdue").length;
+    const inactiveOnlyCount = atRiskGroup.length - overdueCount;
 
-    const platinumAvg =
-      customers.filter((c) => c.financialTier === "Platinum").reduce((s, c) => s + c.totalSpent, 0) /
-      (customers.filter((c) => c.financialTier === "Platinum").length || 1);
+    const growingAvgOrders = growingGroup.reduce((s, c) => s + c.orderCount, 0) / (growingGroup.length || 1);
+    const growingAvgSpent = growingGroup.reduce((s, c) => s + c.totalSpent, 0) / (growingGroup.length || 1);
 
-    const regularCount = customers.filter((c) => (c.financialTier || "Regular") === "Regular").length;
-    const regularPct = total > 0 ? Math.round((regularCount / total) * 100) : 0;
+    const valuableRev = valuableGroup.reduce((s, c) => s + c.totalSpent, 0);
+    const valuableRevPct = Math.round((valuableRev / totalRevenue) * 100);
+
+    const eliteAvgOrders = eliteGroup.reduce((s, c) => s + c.orderCount, 0) / (eliteGroup.length || 1);
+    const eliteAvgLTV = eliteGroup.reduce((s, c) => s + c.totalSpent, 0) / (eliteGroup.length || 1);
+    const freqMultiplier =
+      growingAvgOrders > 0 ? Math.round((eliteAvgOrders / growingAvgOrders) * 10) / 10 : eliteGroup.length > 0 ? 3 : 0;
+
+    const creditGroup = customers.filter((c) => (c.creditBalance || 0) > 0);
+    const totalStoreCredit = creditGroup.reduce((s, c) => s + (c.creditBalance || 0), 0);
 
     return [
       {
+        icon: <Users size={14} className="text-slate-500" />,
+        text:
+          newGroup.length > 0
+            ? `${newGroup.length} client${newGroup.length === 1 ? "" : "s"} (${pct(newGroup.length)}%) are New Clients with no purchase history yet — prioritize onboarding to their first sale`
+            : `No New Clients right now — every client has at least one purchase on record`,
+        color: "border-slate-200/60 bg-slate-50/40",
+      },
+      {
+        icon: <AlertTriangle size={14} className="text-rose-500" />,
+        text:
+          atRiskGroup.length > 0
+            ? `${atRiskGroup.length} client${atRiskGroup.length === 1 ? "" : "s"} (${pct(atRiskGroup.length)}%) are At Risk — ${overdueCount} from overdue debt, ${inactiveOnlyCount} from 90+ days of inactivity`
+            : `No clients are At Risk — no overdue debt or prolonged inactivity detected`,
+        color: "border-rose-200/60 bg-rose-50/40",
+      },
+      {
+        icon: <TrendingUp size={14} className="text-blue-600" />,
+        text:
+          growingGroup.length > 0
+            ? `${growingGroup.length} Growing clients average ${growingAvgOrders.toFixed(1)} orders and ${formatCurrency(growingAvgSpent)} spent — nurture them toward Valuable status`
+            : `No Growing clients yet — clients building purchase frequency or spend will appear here`,
+        color: "border-blue-200/60 bg-blue-50/40",
+      },
+      {
+        icon: <DollarSign size={14} className="text-emerald-600" />,
+        text:
+          valuableGroup.length > 0
+            ? `${valuableGroup.length} Valuable clients contribute ${valuableRevPct}% of total revenue through strong purchase frequency or spend`
+            : `No Valuable clients yet — strong, debt-free buyers will appear here`,
+        color: "border-emerald-200/60 bg-emerald-50/40",
+      },
+      {
         icon: <Crown size={14} className="text-purple-600" />,
-        text: `VIP & Platinum clients generate ${vipPct}% of total boutique revenue`,
+        text:
+          eliteGroup.length > 0
+            ? `${eliteGroup.length} Elite clients average ${formatCurrency(eliteAvgLTV)} LTV and purchase ${freqMultiplier}× more often than Growing clients`
+            : `No Elite clients yet — frequent, high-spending, debt-free buyers will appear here`,
         color: "border-purple-200/60 bg-purple-50/40",
       },
       {
-        icon: <Gem size={14} className="text-cyan-600" />,
-        text: `Diamond loyalty customers purchase ${freqMultiplier}× more frequently than Bronze members`,
-        color: "border-cyan-200/60 bg-cyan-50/40",
-      },
-      {
-        icon: <Star size={14} className="text-amber-500" />,
-        text: `Platinum clients average ${formatCurrency(platinumAvg)} LTV — the highest of all segments`,
-        color: "border-amber-200/60 bg-amber-50/40",
-      },
-      {
-        icon: <TrendingUp size={14} className="text-rose-500" />,
-        text: `Regular clients represent ${regularPct}% of all customers but contribute the lowest revenue`,
-        color: "border-rose-200/60 bg-rose-50/40",
+        icon: <CreditCard size={14} className="text-indigo-600" />,
+        text:
+          creditGroup.length > 0
+            ? `${creditGroup.length} client${creditGroup.length === 1 ? "" : "s"} hold ${formatCurrency(totalStoreCredit)} in store credit — a redeemable liability against future purchases`
+            : `No store credit currently issued to clients`,
+        color: "border-indigo-200/60 bg-indigo-50/40",
       },
     ];
   }, [customers]);
@@ -319,19 +328,19 @@ export default function Customers() {
           color="primary"
         />
         <KPICard
-          title="PLATINUM / VIP"
-          value={kpis.platinumVipCount.toString()}
-          subValue={`${kpis.platinumVipPercent}% of customer base`}
+          title="ELITE / VALUABLE"
+          value={kpis.topTierCount.toString()}
+          subValue={`${kpis.topTierPercent}% of customer base`}
           trend={8.2}
-          icon={Star}
+          icon={Crown}
           color="secondary"
         />
         <KPICard
-          title="AVG INTEL SCORE"
-          value={`${kpis.averageScore}/100`}
-          subValue="Customer health indicator"
+          title="FREQUENT BUYERS"
+          value={kpis.frequentBuyerCount.toString()}
+          subValue="20+ lifetime orders"
           trend={2.1}
-          icon={TrendingUp}
+          icon={Repeat}
           color="tertiary"
         />
         <KPICard
@@ -356,8 +365,7 @@ export default function Customers() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
         <div className="lg:col-span-2">
           <AdvancedSegmentChart
-            financialData={segmentData.financialData}
-            loyaltyData={segmentData.loyaltyData}
+            healthData={segmentData.healthData}
             formatCurrency={formatCurrency}
           />
         </div>
@@ -377,10 +385,8 @@ export default function Customers() {
       {/* ── Filters & Table ───────────────────────────── */}
       <CustomerTable
         filteredCustomers={filteredCustomers}
-        financialFilter={financialFilter}
-        setFinancialFilter={setFinancialFilter}
-        loyaltyFilter={loyaltyFilter}
-        setLoyaltyFilter={setLoyaltyFilter}
+        healthFilter={healthFilter}
+        setHealthFilter={setHealthFilter}
         creditFilter={creditFilter}
         setCreditFilter={setCreditFilter}
         formatCurrency={formatCurrency}

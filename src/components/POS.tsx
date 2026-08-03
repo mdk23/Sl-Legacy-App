@@ -389,7 +389,7 @@ export default function POS() {
                   : "Walk-in Client"}
               </p>
               <p className="text-[11px] text-on-surface-variant">
-                Tier: {selectedCustomer ? `${selectedCustomer.financialTier} (${selectedCustomer.loyaltyLevel})` : "N/A"}
+                Status: {selectedCustomer ? (selectedCustomer.customerHealth || "New Client") : "N/A"}
               </p>
             </div>
             {selectedCustomer && (

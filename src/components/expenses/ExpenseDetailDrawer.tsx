@@ -62,8 +62,11 @@ export function ExpenseDetailDrawer({ expenseId, onClose, onEdit, onPay, formatC
 
   const handleDelete = () => {
     if (!expense) return;
+    const description = expense.templateId
+      ? 'This is a recurring-generated expense. Deleting it is permanent, and the next generation run will recreate it for this period unless you also disable or delete its template.'
+      : 'Are you sure you want to permanently delete this expense? This action cannot be undone.';
     toast.warning('Confirm Deletion', {
-      description: 'Are you sure you want to permanently delete this expense? This action cannot be undone.',
+      description,
       action: {
         label: 'Delete Permanently',
         onClick: async () => {
@@ -82,7 +85,7 @@ export function ExpenseDetailDrawer({ expenseId, onClose, onEdit, onPay, formatC
   const canEdit = expense && (expense.status === 'Pending' || expense.status === 'Overdue');
   const canPay = expense && (expense.status === 'Pending' || expense.status === 'Overdue');
   const canCancel = expense && expense.status !== 'Cancelled' && (expense.status !== 'Paid' || user?.role === 'admin');
-  const canDelete = expense && !expense.templateId && expense.status !== 'Paid' && user?.role === 'admin';
+  const canDelete = expense && expense.status !== 'Paid' && user?.role === 'admin';
 
   return (
     <AnimatePresence>

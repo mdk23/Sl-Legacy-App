@@ -18,8 +18,7 @@ interface Customer {
   _id: string;
   firstName: string;
   lastName: string;
-  financialTier?: string;
-  loyaltyLevel?: string;
+  customerHealth?: string;
 }
 
 interface NewSaleDrawerProps {
@@ -132,7 +131,7 @@ export const NewSaleDrawer = ({
                     <option value="">WALK-IN CUSTOMER (NO ACCOUNT)</option>
                     {customers.map((c) => (
                       <option key={c._id} value={c._id}>
-                        {c.firstName} {c.lastName} ({c.financialTier} - {c.loyaltyLevel})
+                        {c.firstName} {c.lastName} ({c.customerHealth || "New Client"})
                       </option>
                     ))}
                   </select>

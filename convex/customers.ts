@@ -36,11 +36,8 @@ export const upsert = mutation({
       customerId = await ctx.db.insert("customers", {
         ...data,
         customerType: "Registered",
-        financialTier: "Regular",
-        loyaltyLevel: "Bronze",
         creditStatus: "Good Standing",
-        customerScore: 0,
-        customerHealth: "At Risk",
+        customerHealth: "New Client",
         totalSpent: 0,
         orderCount: 0,
         createdAt: Date.now(),

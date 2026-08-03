@@ -1,13 +1,13 @@
 import React from "react";
 import {
-  Filter,
   ChevronDown,
-  Star,
+  HeartPulse,
   CreditCard,
   Smartphone,
   Mail,
   MoreVertical,
   ChevronRight,
+  Repeat,
 } from "lucide-react";
 
 interface Customer {
@@ -19,10 +19,7 @@ interface Customer {
   phone3?: string;
   email?: string;
   customerType?: string;
-  financialTier?: string;
-  loyaltyLevel?: string;
   creditStatus?: string;
-  customerScore?: number;
   customerHealth?: string;
   totalSpent: number;
   creditBalance?: number;
@@ -32,12 +29,17 @@ interface Customer {
   notes?: string;
 }
 
+function frequencyLabel(orderCount: number) {
+  if (orderCount >= 20) return "Frequent Buyer";
+  if (orderCount >= 5) return "Regular Buyer";
+  if (orderCount >= 1) return "Occasional Buyer";
+  return "No Purchases Yet";
+}
+
 interface CustomerTableProps {
   filteredCustomers: Customer[];
-  financialFilter: string;
-  setFinancialFilter: (v: string) => void;
-  loyaltyFilter: string;
-  setLoyaltyFilter: (v: string) => void;
+  healthFilter: string;
+  setHealthFilter: (v: string) => void;
   creditFilter: string;
   setCreditFilter: (v: string) => void;
   formatCurrency: (v: number) => string;
@@ -46,10 +48,8 @@ interface CustomerTableProps {
 
 export const CustomerTable = ({
   filteredCustomers,
-  financialFilter,
-  setFinancialFilter,
-  loyaltyFilter,
-  setLoyaltyFilter,
+  healthFilter,
+  setHealthFilter,
   creditFilter,
   setCreditFilter,
   formatCurrency,
@@ -66,38 +66,20 @@ export const CustomerTable = ({
         </div>
 
         <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-          {/* Financial Tier */}
+          {/* Customer Health */}
           <div className="relative">
-            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-outline" size={12} />
+            <HeartPulse className="absolute left-3 top-1/2 -translate-y-1/2 text-outline" size={12} />
             <select
-              value={financialFilter}
-              onChange={(e) => setFinancialFilter(e.target.value)}
+              value={healthFilter}
+              onChange={(e) => setHealthFilter(e.target.value)}
               className="pl-8 pr-8 py-2 bg-white/6 border border-outline-variant/30 rounded-xl text-[10px] font-label-caps focus:ring-2 focus:ring-primary/10 outline-none transition-all appearance-none cursor-pointer text-primary"
             >
-              <option>All Tiers</option>
-              <option>Regular</option>
-              <option>Premium</option>
-              <option>VIP</option>
-              <option>Platinum</option>
-            </select>
-            <ChevronDown
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none"
-              size={12}
-            />
-          </div>
-          {/* Loyalty Level */}
-          <div className="relative">
-            <Star className="absolute left-3 top-1/2 -translate-y-1/2 text-outline" size={12} />
-            <select
-              value={loyaltyFilter}
-              onChange={(e) => setLoyaltyFilter(e.target.value)}
-              className="pl-8 pr-8 py-2 bg-white/6 border border-outline-variant/30 rounded-xl text-[10px] font-label-caps focus:ring-2 focus:ring-primary/10 outline-none transition-all appearance-none cursor-pointer text-primary"
-            >
-              <option>All Levels</option>
-              <option>Bronze</option>
-              <option>Silver</option>
-              <option>Gold</option>
-              <option>Diamond</option>
+              <option>All Health</option>
+              <option>New Client</option>
+              <option>At Risk</option>
+              <option>Growing Client</option>
+              <option>Valuable Client</option>
+              <option>Elite Client</option>
             </select>
             <ChevronDown
               className="absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none"
@@ -133,16 +115,13 @@ export const CustomerTable = ({
               <th className="px-6 py-5">CONTACTS</th>
               <th className="px-6 py-5">LIFETIME VALUE</th>
               <th className="px-6 py-5">BALANCE</th>
-              <th className="px-6 py-5">CLASSIFICATION</th>
+              <th className="px-6 py-5">FREQUENCY</th>
               <th className="px-8 py-5 text-right">ACTION</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-primary/5">
             {filteredCustomers.map((customer) => {
-              const health = customer.customerHealth || "Growing Client";
-              const scoreVal = customer.customerScore || 0;
-              const tier = customer.financialTier || "Regular";
-              const lvl = customer.loyaltyLevel || "Bronze";
+              const health = customer.customerHealth || "New Client";
               return (
                 <tr
                   key={customer._id}
@@ -167,10 +146,12 @@ export const CustomerTable = ({
                                 ? "text-emerald-600"
                                 : health === "Growing Client"
                                   ? "text-blue-600"
-                                  : "text-rose-600"
+                                  : health === "At Risk"
+                                    ? "text-rose-600"
+                                    : "text-slate-500"
                           }`}
                         >
-                          {health} ({scoreVal} pts)
+                          {health}
                         </span>
                       </div>
                     </div>
@@ -225,35 +206,9 @@ export const CustomerTable = ({
                     </div>
                   </td>
                   <td className="px-6 py-5">
-                    <div className="flex flex-col gap-1">
-                      <span
-                        className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider w-fit ${
-                          tier.toLowerCase() === "platinum"
-                            ? "bg-purple-900/10 text-purple-700 border border-purple-800/20"
-                            : tier.toLowerCase() === "vip"
-                              ? "bg-amber-900/10 text-amber-700 border border-amber-800/20"
-                              : tier.toLowerCase() === "premium"
-                                ? "bg-rose-950/10 text-rose-700 border border-rose-900/20"
-                                : "bg-slate-800/10 text-slate-700 border border-slate-700/20"
-                        }`}
-                      >
-                        {tier}
-                      </span>
-                      <span className="flex items-center gap-1 text-[9px] font-bold text-outline uppercase tracking-wider">
-                        <Star
-                          size={10}
-                          className={
-                            lvl.toLowerCase() === "diamond"
-                              ? "text-cyan-500 fill-cyan-400"
-                              : lvl.toLowerCase() === "gold"
-                                ? "text-amber-500 fill-amber-400"
-                                : lvl.toLowerCase() === "silver"
-                                  ? "text-slate-400 fill-slate-400"
-                                  : "text-amber-700 fill-amber-700"
-                          }
-                        />
-                        {lvl}
-                      </span>
+                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">
+                      <Repeat size={12} className="text-outline" />
+                      {frequencyLabel(customer.orderCount)}
                     </div>
                   </td>
                   <td className="px-8 py-5 text-right" onClick={(e) => e.stopPropagation()}>

@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { X, ShoppingBag, Users } from "lucide-react";
+import { X, ShoppingBag, Users, Repeat } from "lucide-react";
 
 interface Customer {
   _id: string;
@@ -11,10 +11,7 @@ interface Customer {
   phone3?: string;
   email?: string;
   customerType?: string;
-  financialTier?: string;
-  loyaltyLevel?: string;
   creditStatus?: string;
-  customerScore?: number;
   customerHealth?: string;
   totalSpent: number;
   creditBalance?: number;
@@ -22,6 +19,41 @@ interface Customer {
   orderCount: number;
   lastPurchaseDate?: number;
   notes?: string;
+}
+
+const HEALTH_STYLES: Record<string, { text: string; ring: string; description: string }> = {
+  "Elite Client": {
+    text: "text-purple-600",
+    ring: "stroke-purple-500",
+    description: "Frequent, high-spending buyer in good credit standing.",
+  },
+  "Valuable Client": {
+    text: "text-emerald-600",
+    ring: "stroke-emerald-500",
+    description: "Strong purchase frequency or spend, in good credit standing.",
+  },
+  "Growing Client": {
+    text: "text-blue-600",
+    ring: "stroke-blue-500",
+    description: "Building purchase history — some frequency or spend, active recently.",
+  },
+  "At Risk": {
+    text: "text-rose-600",
+    ring: "stroke-rose-500",
+    description: "Overdue debt or no purchases in 90+ days.",
+  },
+  "New Client": {
+    text: "text-slate-500",
+    ring: "stroke-slate-400",
+    description: "No purchase history yet.",
+  },
+};
+
+function frequencyLabel(orderCount: number) {
+  if (orderCount >= 20) return "Frequent Buyer";
+  if (orderCount >= 5) return "Regular Buyer";
+  if (orderCount >= 1) return "Occasional Buyer";
+  return "No Purchases Yet";
 }
 
 interface CustomerProfileDrawerProps {
@@ -39,7 +71,8 @@ export const CustomerProfileDrawer = ({
   onDelete,
   formatCurrency,
 }: CustomerProfileDrawerProps) => {
-  const circumference = 2 * Math.PI * 50;
+  const health = selectedCustomer.customerHealth || "New Client";
+  const healthStyle = HEALTH_STYLES[health] || HEALTH_STYLES["New Client"];
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-end">
@@ -72,8 +105,8 @@ export const CustomerProfileDrawer = ({
             <h2 className="font-headline-md text-3xl text-primary">
               {selectedCustomer.firstName} {selectedCustomer.lastName}
             </h2>
-            <p className="font-label-caps text-xs text-outline mb-4">
-              {selectedCustomer._id} • {(selectedCustomer.financialTier || "Regular").toUpperCase()} MEMBER
+            <p className={`font-label-caps text-xs mb-4 ${healthStyle.text}`}>
+              {selectedCustomer._id} • {health.toUpperCase()}
             </p>
             <div className="flex gap-3">
               <button className="flex items-center gap-2 px-6 py-2 bg-primary text-on-primary rounded-xl font-label-caps text-[10px] shadow-lg shadow-primary/20 hover:opacity-90 transition-all">
@@ -84,43 +117,18 @@ export const CustomerProfileDrawer = ({
         </div>
 
         <div className="flex-1 p-8 space-y-10">
-          {/* Score ring */}
+          {/* Health status */}
           <section className="flex flex-col items-center justify-center p-6 bg-white/6 rounded-3xl border border-white/12 shadow-inner relative overflow-hidden">
-            <div className="relative flex items-center justify-center w-32 h-32">
-              <svg className="w-full h-full transform -rotate-90">
-                <circle
-                  cx="64"
-                  cy="64"
-                  r="50"
-                  className="stroke-surface-container-highest"
-                  strokeWidth="8"
-                  fill="transparent"
-                />
-                <circle
-                  cx="64"
-                  cy="64"
-                  r="50"
-                  className="stroke-primary transition-all duration-1000 ease-out"
-                  strokeWidth="8"
-                  fill="transparent"
-                  strokeDasharray={circumference}
-                  strokeDashoffset={circumference - ((selectedCustomer.customerScore || 0) / 100) * circumference}
-                  strokeLinecap="round"
-                />
-              </svg>
-              <div className="absolute flex flex-col items-center">
-                <span className="font-headline-md text-3xl text-primary font-extrabold">
-                  {selectedCustomer.customerScore || 0}
-                </span>
-                <span className="text-[8px] font-label-caps text-outline tracking-wider">SCORE</span>
-              </div>
+            <div className={`w-20 h-20 rounded-full flex items-center justify-center border-4 border-white/40 shadow-lg ${healthStyle.text} bg-current/10`}>
+              <Repeat size={28} className={healthStyle.text} />
             </div>
             <div className="text-center mt-4">
-              <h5 className="font-headline-sm text-lg text-primary font-bold">
-                {selectedCustomer.customerHealth || "Growing Client"}
-              </h5>
+              <h5 className={`font-headline-sm text-lg font-bold ${healthStyle.text}`}>{health}</h5>
               <p className="text-[10px] text-outline max-w-[270px] mt-1 leading-normal">
-                Automated index: LTV (50%) + purchase frequency (30%) + repayment reliability (20%).
+                {healthStyle.description}
+              </p>
+              <p className="text-[9px] font-label-caps text-outline/70 tracking-wider mt-2">
+                {frequencyLabel(selectedCustomer.orderCount)} · {selectedCustomer.orderCount} orders
               </p>
             </div>
           </section>
@@ -143,10 +151,9 @@ export const CustomerProfileDrawer = ({
                 </p>
               </div>
               <div className="col-span-2">
-                <p className="font-label-caps text-[9px] text-outline mb-1">CLASSIFICATION</p>
+                <p className="font-label-caps text-[9px] text-outline mb-1">PURCHASE FREQUENCY</p>
                 <p className="text-sm font-bold">
-                  {selectedCustomer.financialTier || "Regular"} Tier · {selectedCustomer.loyaltyLevel || "Bronze"}{" "}
-                  Level
+                  {frequencyLabel(selectedCustomer.orderCount)} · {selectedCustomer.orderCount} lifetime orders
                 </p>
               </div>
             </div>

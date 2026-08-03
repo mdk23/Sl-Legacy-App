@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Plus, X, Repeat, Power, Trash2, Loader2 } from 'lucide-react';
+import { Plus, X, Repeat, Power, Trash2, Pencil, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
@@ -37,14 +37,37 @@ export function ExpenseTemplateManager({ open, onClose, formatCurrency }: Expens
   const { user } = useAuth();
   const templates = useQuery(api.expenseTemplates.list, {}) || [];
   const createRecurringTemplate = useMutation(api.expenseTemplates.createRecurringTemplate);
+  const updateTemplate = useMutation(api.expenseTemplates.updateTemplate);
   const setTemplateActive = useMutation(api.expenseTemplates.setTemplateActive);
   const deleteTemplate = useMutation(api.expenseTemplates.deleteTemplate);
 
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleCreate = async (e: React.FormEvent) => {
+  const closeForm = () => {
+    setShowForm(false);
+    setEditingId(null);
+    setForm(EMPTY_FORM);
+  };
+
+  const handleEditClick = (template: any) => {
+    setEditingId(template._id);
+    setForm({
+      name: template.name,
+      category: template.category,
+      amount: String(template.amount),
+      frequency: template.frequency,
+      dueDay: String(template.dueDay ?? 1),
+      dayOfWeek: String(template.dayOfWeek ?? 1),
+      startDate: new Date(template.startDate).toISOString().split('T')[0],
+      notes: template.notes || '',
+    });
+    setShowForm(true);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const amount = Number(form.amount);
     if (!form.name.trim() || !form.category.trim() || !amount || amount <= 0) {
@@ -61,7 +84,7 @@ export function ExpenseTemplateManager({ open, onClose, formatCurrency }: Expens
 
     setIsSubmitting(true);
     try {
-      await createRecurringTemplate({
+      const payload = {
         name: form.name,
         category: form.category,
         amount,
@@ -70,12 +93,17 @@ export function ExpenseTemplateManager({ open, onClose, formatCurrency }: Expens
         dayOfWeek: form.frequency === 'Weekly' ? Number(form.dayOfWeek) : undefined,
         startDate: new Date(form.startDate + 'T00:00:00Z').getTime(),
         notes: form.notes || undefined,
-      });
-      toast.success('Recurring expense template created');
-      setForm(EMPTY_FORM);
-      setShowForm(false);
+      };
+      if (editingId) {
+        await updateTemplate({ id: editingId as any, ...payload });
+        toast.success('Recurring expense template updated');
+      } else {
+        await createRecurringTemplate(payload);
+        toast.success('Recurring expense template created');
+      }
+      closeForm();
     } catch (error: any) {
-      toast.error(error.message || 'Failed to create template');
+      toast.error(error.message || 'Failed to save template');
     } finally {
       setIsSubmitting(false);
     }
@@ -137,7 +165,7 @@ export function ExpenseTemplateManager({ open, onClose, formatCurrency }: Expens
 
             <div className="p-8 space-y-6">
               <button
-                onClick={() => setShowForm(!showForm)}
+                onClick={() => (showForm ? closeForm() : setShowForm(true))}
                 className="w-full py-3 bg-primary/10 border border-primary/20 text-primary rounded-2xl font-label-caps text-[10px] hover:bg-primary/15 transition-colors flex items-center justify-center gap-2"
               >
                 <Plus size={14} /> {showForm ? 'CLOSE FORM' : 'NEW RECURRING TEMPLATE'}
@@ -149,7 +177,7 @@ export function ExpenseTemplateManager({ open, onClose, formatCurrency }: Expens
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    onSubmit={handleCreate}
+                    onSubmit={handleSubmit}
                     className="overflow-hidden space-y-4 p-5 bg-white/6 border border-primary/10 rounded-2xl"
                   >
                     <input
@@ -233,7 +261,7 @@ export function ExpenseTemplateManager({ open, onClose, formatCurrency }: Expens
                       className="w-full py-3 bg-primary text-on-primary rounded-xl font-label-caps text-[10px] shadow-md hover:opacity-90 transition-opacity disabled:opacity-60 flex items-center justify-center gap-2"
                     >
                       {isSubmitting && <Loader2 size={14} className="animate-spin" />}
-                      CREATE TEMPLATE
+                      {editingId ? 'SAVE CHANGES' : 'CREATE TEMPLATE'}
                     </button>
                   </motion.form>
                 )}
@@ -264,6 +292,13 @@ export function ExpenseTemplateManager({ open, onClose, formatCurrency }: Expens
                       </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={() => handleEditClick(template)}
+                        title="Edit template"
+                        className="p-2.5 rounded-xl bg-white/8 border border-primary/20 text-primary hover:bg-white/12 transition-colors"
+                      >
+                        <Pencil size={16} />
+                      </button>
                       <button
                         onClick={() => handleToggle(template)}
                         title={template.active ? 'Disable template' : 'Enable template'}
