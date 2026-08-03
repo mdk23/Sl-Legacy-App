@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Download, FileSpreadsheet, Calendar } from 'lucide-react';
+import { FileSpreadsheet, Calendar } from 'lucide-react';
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import * as XLSX from 'xlsx';
@@ -85,19 +85,6 @@ export default function ExpenseReports() {
     XLSX.writeFile(sheets.wb, `Expense_Report_${month}.xlsx`);
   };
 
-  const handleExportCsv = () => {
-    const sheets = buildSheets();
-    if (!sheets || !report) return;
-    const csv = XLSX.utils.sheet_to_csv(sheets.wsRows);
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `Expense_Report_${month}.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
-  };
-
   return (
     <div>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
@@ -117,13 +104,6 @@ export default function ExpenseReports() {
               className="pl-9 pr-3 py-2.5 bg-white/8 border border-primary/10 rounded-xl text-xs outline-none focus:ring-2 focus:ring-primary/20 font-data-tabular"
             />
           </div>
-          <button
-            onClick={handleExportCsv}
-            disabled={!report}
-            className="px-4 py-2.5 bg-white/8 border border-primary/20 text-primary rounded-xl font-label-caps text-[10px] hover:bg-white/12 transition-colors flex items-center gap-1.5 disabled:opacity-50"
-          >
-            <Download size={14} /> CSV
-          </button>
           <button
             onClick={handleExportExcel}
             disabled={!report}
