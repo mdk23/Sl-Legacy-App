@@ -60,8 +60,8 @@ export default function POS() {
 
   const filteredProducts = useMemo(() => {
     if (!activeCategory) return products;
-    return products.filter((p) =>
-      p.category.toLowerCase().includes(activeCategory.toLowerCase()),
+    return products.filter(
+      (p) => p.category.toLowerCase() === activeCategory.toLowerCase(),
     );
   }, [products, activeCategory]);
 

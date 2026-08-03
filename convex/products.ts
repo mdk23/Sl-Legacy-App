@@ -202,6 +202,149 @@ export const upsert = mutation({
   },
 });
 
+// Bulk-create/update products from an uploaded spreadsheet (code, name, category,
+// costPrice, sellingPrice, stock, reorderLevel, archived). Rows are matched to
+// existing products by `code`; unmatched codes are created. Callers should chunk
+// large files client-side (e.g. 200 rows per call) to stay within mutation limits.
+export const bulkImport = mutation({
+  args: {
+    rows: v.array(
+      v.object({
+        code: v.string(),
+        name: v.string(),
+        category: v.string(),
+        costPrice: v.number(),
+        sellingPrice: v.number(),
+        stock: v.number(),
+        reorderLevel: v.number(),
+        archived: v.boolean(),
+      })
+    ),
+  },
+  handler: async (ctx, args) => {
+    const user = await requireUser(ctx.db, ctx);
+    if (user.role !== "admin" && user.role !== "manager") {
+      throw new Error("Unauthorized. Only admins and managers can import products.");
+    }
+    if (args.rows.length === 0) throw new Error("No rows to import.");
+    if (args.rows.length > 200) {
+      throw new Error("Import batch too large. Split the file into batches of 200 rows or fewer.");
+    }
+
+    const now = Date.now();
+    let diffProducts = 0;
+    let diffUnits = 0;
+    let diffValue = 0;
+    let diffLowStock = 0;
+    let diffOutOfStock = 0;
+    let createdCount = 0;
+    let updatedCount = 0;
+
+    for (const row of args.rows) {
+      const code = row.code.trim();
+      if (!code) throw new Error("Row is missing a product code.");
+      if (row.costPrice < 0 || row.sellingPrice < 0 || row.stock < 0 || row.reorderLevel < 0) {
+        throw new Error(`Negative value not allowed for product code "${code}".`);
+      }
+
+      const existing = await ctx.db.query("products").withIndex("by_code", (q) => q.eq("code", code)).first();
+
+      if (existing) {
+        const valueDiff = row.costPrice * row.stock - existing.costPrice * existing.stock;
+        const unitsDiff = row.stock - existing.stock;
+
+        const wasLow = existing.stock <= existing.reorderLevel && existing.stock > 0;
+        const isLow = row.stock <= row.reorderLevel && row.stock > 0;
+        if (!wasLow && isLow) diffLowStock += 1;
+        if (wasLow && !isLow) diffLowStock -= 1;
+
+        const wasOut = existing.stock <= 0;
+        const isOut = row.stock <= 0;
+        if (!wasOut && isOut) diffOutOfStock += 1;
+        if (wasOut && !isOut) diffOutOfStock -= 1;
+
+        await ctx.db.patch(existing._id, {
+          name: row.name,
+          category: row.category,
+          costPrice: row.costPrice,
+          sellingPrice: row.sellingPrice,
+          stock: row.stock,
+          reorderLevel: row.reorderLevel,
+          archived: row.archived,
+          updatedAt: now,
+        });
+
+        if (unitsDiff !== 0) {
+          await ctx.db.insert("inventoryMovements", {
+            productId: existing._id,
+            movementType: "Bulk Import Update",
+            quantity: unitsDiff,
+            previousStock: existing.stock,
+            newStock: row.stock,
+            reason: "Bulk catalog import",
+            userId: user.username,
+            createdAt: now,
+          });
+        }
+
+        diffValue += valueDiff;
+        diffUnits += unitsDiff;
+        updatedCount += 1;
+      } else {
+        const newId = await ctx.db.insert("products", {
+          code,
+          name: row.name,
+          category: row.category,
+          costPrice: row.costPrice,
+          sellingPrice: row.sellingPrice,
+          stock: row.stock,
+          reorderLevel: row.reorderLevel,
+          archived: row.archived,
+          createdAt: now,
+          updatedAt: now,
+        });
+
+        if (row.stock !== 0) {
+          await ctx.db.insert("inventoryMovements", {
+            productId: newId,
+            movementType: "Initial Stock",
+            quantity: row.stock,
+            previousStock: 0,
+            newStock: row.stock,
+            reason: "Bulk catalog import",
+            userId: user.username,
+            createdAt: now,
+          });
+        }
+
+        diffProducts += 1;
+        diffValue += row.costPrice * row.stock;
+        diffUnits += row.stock;
+        if (row.stock <= row.reorderLevel && row.stock > 0) diffLowStock += 1;
+        if (row.stock <= 0) diffOutOfStock += 1;
+        createdCount += 1;
+      }
+    }
+
+    await updateInventoryCountersHelper(ctx, {
+      diffProducts,
+      diffUnits,
+      diffValue,
+      diffLowStock,
+      diffOutOfStock,
+    });
+
+    await ctx.db.insert("auditLogs", {
+      userId: user.username,
+      timestamp: now,
+      action: "BULK_IMPORT_PRODUCTS",
+      afterValue: { createdCount, updatedCount, totalRows: args.rows.length },
+    });
+
+    return { createdCount, updatedCount };
+  },
+});
+
 export const remove = mutation({
   args: { id: v.id("products") },
   handler: async (ctx, args) => {
