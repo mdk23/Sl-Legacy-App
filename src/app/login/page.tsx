@@ -129,11 +129,11 @@ export default function LoginPage() {
       <div className="fixed inset-0 z-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          alt="Luxury silk background with jewelry"
+          alt="Gold jewelry and cufflinks on black marble"
           className="w-full h-full object-cover"
-          src="/login-bg.png"
+          src="/ultra-bg.png"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/10 to-background/40"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/20 to-background/60"></div>
       </div>
 
       {/* Main Content */}
@@ -145,11 +145,15 @@ export default function LoginPage() {
           transition={{ duration: 1, ease: "easeOut" }}
         >
           {/* Branding Header */}
-          <div className="text-center mb-5">
-            <span className="font-label-caps text-label-caps text-primary tracking-[0.3em] uppercase opacity-80 block mb-2">
-              Digital Atelier
-            </span>
-
+          <div className="text-center mb-6 flex flex-col items-center">
+            <motion.img
+              src="/sl-legacy-full.svg"
+              alt="SL Legacy — Acessorios Que Deixam Marca"
+              className="w-[228px] h-auto drop-shadow-[0_4px_24px_rgba(0,0,0,0.65)]"
+              initial={{ opacity: 0, y: -12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1.1, ease: "easeOut" }}
+            />
           </div>
 
           {/* Login Card */}

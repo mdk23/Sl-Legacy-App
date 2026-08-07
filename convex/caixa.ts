@@ -98,11 +98,36 @@ export const openSession = mutation({
   },
 });
 
+// Per-channel payment breakdown for a session, used by the close-session flow
+// so the closer can see (and reconcile) every payment method, not just cash.
+export const getSessionPaymentSummary = query({
+  args: { sessionId: v.id("caixaSessions") },
+  handler: async (ctx, args) => {
+    const payments = await ctx.db
+      .query("payments")
+      .withIndex("by_session", (q) => q.eq("sessionId", args.sessionId))
+      .collect();
+
+    const byMethod: Record<string, { amount: number; count: number }> = {};
+    let total = 0;
+
+    for (const p of payments) {
+      if (!byMethod[p.paymentMethod]) byMethod[p.paymentMethod] = { amount: 0, count: 0 };
+      byMethod[p.paymentMethod].amount += p.amount;
+      byMethod[p.paymentMethod].count += 1;
+      total += p.amount;
+    }
+
+    return { byMethod, total, paymentCount: payments.length };
+  },
+});
+
 export const closeSession = mutation({
   args: {
     sessionId: v.id("caixaSessions"),
     countedCash: v.number(),
     closingNote: v.optional(v.string()),
+    validatedChannels: v.array(v.string()),
   },
   handler: async (ctx, args) => {
     const user = await requireUser(ctx.db, ctx);
@@ -110,6 +135,19 @@ export const closeSession = mutation({
     const session = await ctx.db.get(args.sessionId);
     if (!session || session.status !== "OPEN") {
       throw new Error("Invalid or already closed session.");
+    }
+
+    // Every distinct non-cash payment channel used this session must be explicitly
+    // validated by the closer before the register can be closed.
+    const payments = await ctx.db
+      .query("payments")
+      .withIndex("by_session", (q) => q.eq("sessionId", args.sessionId))
+      .collect();
+    const channelsUsed = new Set(payments.map((p) => p.paymentMethod).filter((m) => m !== "Cash"));
+    const validatedSet = new Set(args.validatedChannels);
+    const missing = [...channelsUsed].filter((m) => !validatedSet.has(m));
+    if (missing.length > 0) {
+      throw new Error(`Please validate all payment channels before closing: ${missing.join(", ")}.`);
     }
 
     const variance = args.countedCash - session.expectedCash;
@@ -144,7 +182,7 @@ export const closeSession = mutation({
       timestamp: Date.now(),
       action: "CLOSE_CAIXA_SESSION",
       beforeValue: { expectedCash: session.expectedCash },
-      afterValue: { countedCash: args.countedCash, variance },
+      afterValue: { countedCash: args.countedCash, variance, validatedChannels: args.validatedChannels },
       referenceId: args.sessionId,
     });
 

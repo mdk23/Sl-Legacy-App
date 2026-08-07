@@ -7,17 +7,28 @@ import { Id } from '../../convex/_generated/dataModel';
 import { toast } from 'sonner';
 import { useAuth } from './AuthProvider';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Lock, Unlock, Wallet, ArrowDownLeft, ArrowUpRight, 
-  RotateCcw, History, AlertTriangle, CheckCircle2, 
+import {
+  Lock, Unlock, Wallet, ArrowDownLeft, ArrowUpRight,
+  RotateCcw, History, AlertTriangle, CheckCircle2,
   Search, Filter, ShieldCheck, ChevronRight, Calculator,
-  Clock
+  Clock, Smartphone, CreditCard, Landmark, Check
 } from 'lucide-react';
 
 const formatCurrency = (val: number) =>
   new Intl.NumberFormat('en-MZ', { style: 'currency', currency: 'MZN' })
     .format(val)
     .replace('MZN', 'Mt');
+
+const PAYMENT_METHOD_ICON: Record<string, any> = {
+  'Cash': Wallet,
+  'M-Pesa': Smartphone,
+  'e-Mola': Smartphone,
+  'BIM': Smartphone,
+  'Conta Movel': Smartphone,
+  'Card': CreditCard,
+  'BCI': Landmark,
+  'Bank Transfer': Landmark,
+};
 
 const formatTime = (ts: number) => {
   return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -33,9 +44,14 @@ export default function Caixa() {
   const recentSessions = useQuery(api.caixa.getRecentSessions) || [];
   
   const movements = useQuery(
-    api.caixa.getSessionMovements, 
+    api.caixa.getSessionMovements,
     activeSession ? { sessionId: activeSession._id as Id<"caixaSessions"> } : "skip"
   ) || [];
+
+  const paymentSummary = useQuery(
+    api.caixa.getSessionPaymentSummary,
+    activeSession ? { sessionId: activeSession._id as Id<"caixaSessions"> } : "skip"
+  );
 
   const openSessionMutation = useMutation(api.caixa.openSession);
   const closeSessionMutation = useMutation(api.caixa.closeSession);
@@ -47,6 +63,27 @@ export default function Caixa() {
   const [isClosing, setIsClosing] = useState(false);
   const [countedCash, setCountedCash] = useState('');
   const [closingNote, setClosingNote] = useState('');
+  const [validatedChannels, setValidatedChannels] = useState<Set<string>>(new Set());
+
+  const nonCashChannels = useMemo(
+    () => Object.keys(paymentSummary?.byMethod || {}).filter((m) => m !== 'Cash'),
+    [paymentSummary]
+  );
+  const allChannelsValidated = nonCashChannels.every((m) => validatedChannels.has(m));
+
+  const toggleChannelValidated = (method: string) => {
+    setValidatedChannels((prev) => {
+      const next = new Set(prev);
+      if (next.has(method)) next.delete(method);
+      else next.add(method);
+      return next;
+    });
+  };
+
+  const openCloseModal = () => {
+    setValidatedChannels(new Set());
+    setIsClosing(true);
+  };
 
   const [isAddingMovement, setIsAddingMovement] = useState(false);
   const [movementType, setMovementType] = useState('CASH_IN');
@@ -81,6 +118,9 @@ export default function Caixa() {
   const handleCloseSession = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!activeSession) return;
+    if (!allChannelsValidated) {
+      return toast.error("Validate every payment channel above before closing.");
+    }
     if (!countedCash || isNaN(Number(countedCash))) return toast.error("Invalid counted amount");
 
     const variance = Number(countedCash) - activeSession.expectedCash;
@@ -93,11 +133,13 @@ export default function Caixa() {
         sessionId: activeSession._id as Id<"caixaSessions">,
         countedCash: Number(countedCash),
         closingNote,
+        validatedChannels: Array.from(validatedChannels),
       });
       toast.success("Caixa session closed successfully.");
       setIsClosing(false);
       setCountedCash('');
       setClosingNote('');
+      setValidatedChannels(new Set());
     } catch (error: any) {
       toast.error(error.message || "Failed to close session.");
     }
@@ -165,8 +207,8 @@ export default function Caixa() {
             >
               <Wallet size={16} /> ADD MOVEMENT
             </button>
-            <button 
-              onClick={() => setIsClosing(true)}
+            <button
+              onClick={openCloseModal}
               className="px-6 py-3 bg-primary text-on-primary rounded-2xl font-label-caps text-[11px] shadow-xl hover:bg-primary/90 transition-all flex items-center gap-2"
             >
               <Lock size={16} /> CLOSE CAIXA
@@ -406,13 +448,79 @@ export default function Caixa() {
 
         {isClosing && activeSession && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-surface/80 backdrop-blur-sm">
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="w-full max-w-md bg-white rounded-3xl p-8 shadow-2xl border border-primary/10">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="w-full max-w-md max-h-[90vh] overflow-y-auto bg-white rounded-3xl p-8 shadow-2xl border border-primary/10">
               <h3 className="text-2xl font-headline-md text-primary mb-2 flex items-center gap-2"><Lock size={20}/> Close Caixa</h3>
-              <p className="text-sm text-outline mb-6">Enter the physical cash count to close the register and calculate variance.</p>
-              
+              <p className="text-sm text-outline mb-6">Review every payment channel below, then enter the physical cash count to close the register and calculate variance.</p>
+
+              {/* Per-channel payment breakdown — every non-cash channel must be checked off before closing */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-[10px] font-label-caps text-outline">PAYMENTS RECEIVED THIS SESSION</p>
+                  {nonCashChannels.length > 0 && (
+                    <span className={`text-[10px] font-label-caps font-bold ${allChannelsValidated ? 'text-emerald-600' : 'text-error'}`}>
+                      {validatedChannels.size}/{nonCashChannels.length} VALIDATED
+                    </span>
+                  )}
+                </div>
+                {!paymentSummary ? (
+                  <div className="h-16 flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
+                  </div>
+                ) : paymentSummary.paymentCount === 0 ? (
+                  <p className="text-xs text-outline text-center py-4 bg-surface rounded-xl border border-primary/5">No payments recorded yet this session.</p>
+                ) : (
+                  <>
+                    <div className="space-y-1.5 max-h-52 overflow-y-auto pr-1">
+                      {Object.entries(paymentSummary.byMethod)
+                        .sort((a, b) => b[1].amount - a[1].amount)
+                        .map(([method, data]) => {
+                          const Icon = PAYMENT_METHOD_ICON[method] || CreditCard;
+                          const isCash = method === 'Cash';
+                          const isValidated = isCash || validatedChannels.has(method);
+                          return (
+                            <button
+                              type="button"
+                              key={method}
+                              onClick={() => !isCash && toggleChannelValidated(method)}
+                              disabled={isCash}
+                              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg border transition-colors ${
+                                isCash
+                                  ? 'bg-surface border-primary/5 cursor-default'
+                                  : isValidated
+                                    ? 'bg-emerald-50 border-emerald-300'
+                                    : 'bg-error-container/20 border-error/30 hover:bg-error-container/30'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2">
+                                {!isCash && (
+                                  <div className={`w-4 h-4 rounded flex items-center justify-center border flex-shrink-0 ${isValidated ? 'bg-emerald-500 border-emerald-500' : 'border-outline-variant/50'}`}>
+                                    {isValidated && <Check size={12} className="text-white" />}
+                                  </div>
+                                )}
+                                <Icon size={14} className={isCash ? 'text-emerald-600' : 'text-primary'} />
+                                <span className="text-xs font-bold text-outline">{method}</span>
+                                <span className="text-[10px] text-outline/60">×{data.count}</span>
+                                {isCash && <span className="text-[9px] font-label-caps text-outline/50">(counted below)</span>}
+                              </div>
+                              <span className="text-sm font-data-tabular font-bold text-primary">{formatCurrency(data.amount)}</span>
+                            </button>
+                          );
+                        })}
+                    </div>
+                    <div className="flex items-center justify-between px-3 py-2 mt-1.5 rounded-lg bg-primary/10 border border-primary/20">
+                      <span className="text-[10px] font-label-caps text-primary font-bold">TOTAL RECEIVED</span>
+                      <span className="text-sm font-data-tabular font-bold text-primary">{formatCurrency(paymentSummary.total)}</span>
+                    </div>
+                    {!allChannelsValidated && (
+                      <p className="text-[10px] text-error mt-2">Tap each channel above to confirm you've reconciled it before closing.</p>
+                    )}
+                  </>
+                )}
+              </div>
+
               <div className="bg-primary/5 p-4 rounded-xl mb-6">
                 <div className="flex justify-between items-center">
-                  <span className="text-xs text-outline font-label-caps">Expected System Balance</span>
+                  <span className="text-xs text-outline font-label-caps">Expected Cash Balance</span>
                   <span className="text-lg font-data-tabular font-bold text-primary">{formatCurrency(activeSession.expectedCash)}</span>
                 </div>
               </div>
@@ -443,7 +551,14 @@ export default function Caixa() {
 
                 <div className="flex gap-3 mt-4">
                   <button type="button" onClick={() => setIsClosing(false)} className="flex-1 py-3 bg-surface border border-primary/10 rounded-xl text-primary font-label-caps text-xs">CANCEL</button>
-                  <button type="submit" className="flex-1 py-3 bg-primary text-on-primary rounded-xl font-label-caps text-xs shadow-xl flex items-center justify-center gap-2"><Lock size={14} /> FINALIZE CLOSE</button>
+                  <button
+                    type="submit"
+                    disabled={!allChannelsValidated}
+                    title={!allChannelsValidated ? "Validate every payment channel above first" : undefined}
+                    className="flex-1 py-3 bg-primary text-on-primary rounded-xl font-label-caps text-xs shadow-xl flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
+                  >
+                    <Lock size={14} /> FINALIZE CLOSE
+                  </button>
                 </div>
               </form>
             </motion.div>

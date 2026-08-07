@@ -388,13 +388,21 @@ export const create = mutation({
       });
 
       if (args.customerId) {
-        await applyCustomerLedger(ctx.db, args.customerId, {
+        // Audit-trail only — the sale's effect on credit/debt is already fully
+        // accounted for above (store credit used, overpayment/underpayment).
+        // Do NOT route this through applyCustomerLedger: its "PAYMENT" case treats
+        // the amount as a fresh credit deposit, which would double-count this money
+        // as store credit on top of the sale it's actually paying for.
+        await ctx.db.insert("ledger", {
+          customerId: args.customerId,
+          sessionId: session._id,
           type: "PAYMENT",
           amount: pay.amount,
-          description: `Payment via ${pay.method} for ${finalReceiptNumber}`,
+          balanceAfter: { credit: newCreditBalance, debit: newDebitBalance },
           referenceId: paymentId,
           referenceType: "payment",
-          sessionId: session._id,
+          description: `Payment via ${pay.method} for ${finalReceiptNumber}`,
+          createdAt: now,
         });
       }
     }

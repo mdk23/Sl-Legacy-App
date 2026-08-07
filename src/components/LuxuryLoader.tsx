@@ -5,23 +5,27 @@ import { motion } from "framer-motion";
 export default function LuxuryLoader({ text = "Entering Digital Atelier..." }: { text?: string }) {
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background">
-      {/* Background Silk Image with overlay */}
+      {/* Background Image with overlay */}
       <div className="absolute inset-0 z-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          alt="Luxury silk background"
+          alt="Gold jewelry on black marble"
           className="w-full h-full object-cover opacity-10"
-          src="/login-bg.png"
+          src="/ultra-bg.png"
         />
         <div className="absolute inset-0 bg-background/90"></div>
       </div>
 
       {/* Spinner and Text */}
       <div className="relative z-10 flex flex-col items-center gap-6">
-        <span className="font-label-caps text-[10px] text-primary tracking-[0.3em] uppercase opacity-75">
-          Sl Legacy
-        </span>
-        
+        <motion.img
+          src="/sl-legacy-emblem.svg"
+          alt="SL Legacy"
+          className="w-12 h-auto"
+          animate={{ opacity: [0.6, 1, 0.6] }}
+          transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+        />
+
         {/* Luxury Rotating Circle */}
         <div className="relative w-16 h-16">
           {/* Inner static border */}

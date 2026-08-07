@@ -32,6 +32,7 @@ export default function POS() {
   const createTransaction = useMutation(api.transactions.create);
 
   const [activeCategory, setActiveCategory] = useState("Earrings");
+  const [productSearch, setProductSearch] = useState("");
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(
     null,
   );
@@ -59,11 +60,19 @@ export default function POS() {
   }, [customers, customerSearch]);
 
   const filteredProducts = useMemo(() => {
+    const query = productSearch.trim().toLowerCase();
+    // An active search runs across the whole catalog, overriding the category tab —
+    // a cashier searching by SKU/barcode shouldn't be silently scoped to whichever tab is selected.
+    if (query) {
+      return products.filter(
+        (p) => p.name.toLowerCase().includes(query) || (p.code || "").toLowerCase().includes(query),
+      );
+    }
     if (!activeCategory) return products;
     return products.filter(
       (p) => p.category.toLowerCase() === activeCategory.toLowerCase(),
     );
-  }, [products, activeCategory]);
+  }, [products, activeCategory, productSearch]);
 
   const handleAddToCart = (product: any) => {
     const existing = cart.find((i) => i.id === product._id);
@@ -276,6 +285,8 @@ export default function POS() {
                 className="w-full pl-12 pr-4 py-3 bg-transparent border-b border-primary/20 focus:border-primary focus:ring-0 font-label-caps text-label-caps outline-none transition-all placeholder:text-on-surface-variant/50"
                 placeholder="SEARCH BY NAME, SKU, OR BARCODE"
                 type="text"
+                value={productSearch}
+                onChange={(e) => setProductSearch(e.target.value)}
               />
             </div>
             <button className="p-3 bg-surface-container rounded-lg border border-outline-variant/30 hover:bg-surface-variant transition-colors">

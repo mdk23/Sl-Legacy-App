@@ -40,9 +40,13 @@ export default function Sidebar({ collapsed, mobileOpen, onToggleCollapse }: Sid
         mobileOpen ? 'translate-x-0' : '-translate-x-full'
       } lg:translate-x-0 ${collapsed ? 'w-16' : 'w-64'} flex flex-col`}
     >
-      <div className={`px-6 mb-12 transition-opacity ${collapsed ? 'opacity-0' : 'opacity-100'}`}>
-        <h2 className="font-headline-lg text-headline-lg text-primary tracking-tight">Sl Legacy</h2>
-        <p className="font-label-caps text-[10px] text-on-surface-variant tracking-widest mt-1">LUXURY ERP SUITE</p>
+      <div className={`mb-12 flex items-center gap-3 ${collapsed ? 'justify-center px-0' : 'px-6'}`}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/sl-legacy-emblem.svg" alt="SL Legacy" className="w-8 h-auto flex-shrink-0" />
+        <div className={`overflow-hidden transition-all duration-300 ${collapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'}`}>
+          <h2 className="font-headline-lg text-headline-lg text-primary tracking-tight whitespace-nowrap">Sl Legacy</h2>
+          <p className="font-label-caps text-[10px] text-on-surface-variant tracking-widest mt-1 whitespace-nowrap">LUXURY ERP SUITE</p>
+        </div>
       </div>
 
       <nav className="flex-1 space-y-1">

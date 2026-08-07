@@ -29,8 +29,11 @@ export default function AppShell({ children }: AppShellProps) {
           >
             menu
           </button>
-          <span className="font-headline-md text-headline-md font-semibold text-primary tracking-tight">Sl Legacy</span>
-
+          <div className="flex items-center gap-2.5">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/sl-legacy-emblem.svg" alt="SL Legacy" className="w-6 h-auto hidden sm:block" />
+            <span className="font-headline-md text-headline-md font-semibold text-primary tracking-tight">Sl Legacy</span>
+          </div>
         </div>
 
         <div className="flex items-center gap-4">
