@@ -3,7 +3,7 @@ import { mutation, query } from "./_generated/server";
 import { paginationOptsValidator } from "convex/server";
 import { recomputeCustomerIntelligence } from "./intelligence";
 import { normalizePaymentMethod } from "./utils";
-import { reconcileBalances, applyCustomerLedger } from "./ledgerHelpers";
+import { applyLedgerEntry, recomputeCustomerBalanceForCustomer } from "./ledgerHelpers";
 import { processCashPayment, validateCaixaForCash, getActiveCaixaSession, resolveCaixaSession } from "./caixaHelpers";
 import { updateDailyMovementStats } from "./utils";
 import { requireUser } from "./authHelpers";
@@ -103,7 +103,12 @@ async function hydrateTransactions(ctx: any, transactions: any[]) {
       customerTier: customerTier || "Regular",
       paymentStatus: balance === 0 ? "Paid" : totalPaid > 0 ? "Partial" : "Pending",
       balance,
-      paymentMethod: tx.paymentBreakdown?.length === 1 ? tx.paymentBreakdown[0].method : "Split",
+      paymentMethod:
+        !tx.paymentBreakdown || tx.paymentBreakdown.length === 0
+          ? "Unpaid"
+          : tx.paymentBreakdown.length === 1
+            ? tx.paymentBreakdown[0].method
+            : "Split",
     };
   });
 }
@@ -248,30 +253,34 @@ export const create = mutation({
 
       customerName = `${customer.firstName} ${customer.lastName}`;
       customerTier = "Regular";
-      newCreditBalance = customer.creditBalance || 0;
-      newDebitBalance = customer.debitBalance || 0;
+
+      // Incremental application of the same canonical rules used everywhere else
+      // (applyLedgerEntry) — computed in memory, no extra reads, exactly one patch.
+      let balance = { creditBalance: customer.creditBalance || 0, debitBalance: customer.debitBalance || 0 };
 
       const storeCreditUsed = args.paymentBreakdown
         .filter(p => p.method === "Store Credit")
         .reduce((sum, p) => sum + p.amount, 0);
 
       if (storeCreditUsed > 0) {
-        if (newCreditBalance >= storeCreditUsed) {
-          newCreditBalance -= storeCreditUsed;
-        } else {
+        if (balance.creditBalance < storeCreditUsed) {
           throw new ConvexError("Insufficient store credit to cover payment amount.");
         }
+        balance = applyLedgerEntry(balance, { type: "USE_CREDIT", amount: storeCreditUsed });
       }
 
       if (isOverpayment && args.changeHandling === "Store Credit") {
-        const reconciled = reconcileBalances(newCreditBalance, newDebitBalance, change);
-        newCreditBalance = reconciled.creditBalance;
-        newDebitBalance = reconciled.debitBalance;
+        balance = applyLedgerEntry(balance, { type: "CREDIT", amount: change });
       } else if (isUnderpayment) {
-        const reconciled = reconcileBalances(newCreditBalance, newDebitBalance, change); // change is negative
-        newCreditBalance = reconciled.creditBalance;
-        newDebitBalance = reconciled.debitBalance;
+        // A shortfall on a NEW sale always becomes new debt — it must never reach into
+        // whatever unrelated store credit the customer happens to already be holding.
+        // Using existing credit to pay is only ever done explicitly, via a "Store Credit"
+        // paymentBreakdown entry (handled above), which is auditable through payments/ledger.
+        balance = applyLedgerEntry(balance, { type: "DEBIT", amount: Math.abs(change) });
       }
+
+      newCreditBalance = balance.creditBalance;
+      newDebitBalance = balance.debitBalance;
 
       await ctx.db.patch(args.customerId, {
         creditBalance: newCreditBalance,
@@ -350,26 +359,37 @@ export const create = mutation({
       .filter(p => p.method === "Store Credit")
       .reduce((sum, p) => sum + p.amount, 0);
 
+    // Audit-trail entries only, from here down — the customer's balance for this sale
+    // (store credit used, overpayment-as-credit, underpayment-as-debt) was already fully
+    // computed and patched once above (newCreditBalance/newDebitBalance). None of these
+    // ledger writes may go through applyCustomerLedger: it re-fetches the customer's
+    // (already-updated) balance and reconciles again, silently doubling the effect.
     if (args.customerId && storeCreditUsed > 0) {
-      await applyCustomerLedger(ctx.db, args.customerId, {
+      await ctx.db.insert("ledger", {
+        customerId: args.customerId,
+        sessionId: session._id,
         type: "USE_CREDIT",
         amount: storeCreditUsed,
-        description: `Used store credit for ${finalReceiptNumber}`,
+        balanceAfter: { credit: newCreditBalance, debit: newDebitBalance },
         referenceId: transactionId,
         referenceType: "transaction",
-        sessionId: session._id,
+        description: `Used store credit for ${finalReceiptNumber}`,
+        createdAt: now,
       });
     }
 
     // A. Ledger: SALE
     if (args.customerId) {
-      await applyCustomerLedger(ctx.db, args.customerId, {
+      await ctx.db.insert("ledger", {
+        customerId: args.customerId,
+        sessionId: session._id,
         type: "SALE",
         amount: args.total,
-        description: `Sale ${finalReceiptNumber}`,
+        balanceAfter: { credit: newCreditBalance, debit: newDebitBalance },
         referenceId: transactionId,
         referenceType: "transaction",
-        sessionId: session._id,
+        description: `Sale ${finalReceiptNumber}`,
+        createdAt: now,
       });
     }
 
@@ -390,13 +410,13 @@ export const create = mutation({
       if (args.customerId) {
         // Audit-trail only — the sale's effect on credit/debt is already fully
         // accounted for above (store credit used, overpayment/underpayment).
-        // Do NOT route this through applyCustomerLedger: its "PAYMENT" case treats
-        // the amount as a fresh credit deposit, which would double-count this money
-        // as store credit on top of the sale it's actually paying for.
+        // PAYMENT_LOG is always balance-neutral (see applyLedgerEntry) — distinct
+        // from "PAYMENT", which means a real manual debt-recovery deposit
+        // (payments.ts addPayment) and DOES affect balance.
         await ctx.db.insert("ledger", {
           customerId: args.customerId,
           sessionId: session._id,
-          type: "PAYMENT",
+          type: "PAYMENT_LOG",
           amount: pay.amount,
           balanceAfter: { credit: newCreditBalance, debit: newDebitBalance },
           referenceId: paymentId,
@@ -425,26 +445,33 @@ export const create = mutation({
       });
     }
 
-    // 6. Ledger: Change Handling (REFUND or CREDIT) / Underpayment (DEBIT)
+    // 6. Ledger: Change Handling (REFUND or CREDIT) / Underpayment (DEBIT) — audit only,
+    // see note above; the balance change itself was already applied earlier.
     if (args.customerId) {
       if (isOverpayment) {
         const changeType = args.changeHandling === "Store Credit" ? "CREDIT" : "REFUND";
-        await applyCustomerLedger(ctx.db, args.customerId, {
+        await ctx.db.insert("ledger", {
+          customerId: args.customerId,
+          sessionId: session._id,
           type: changeType,
           amount: change,
-          description: `${changeType === "CREDIT" ? "Store Credit" : "Change Refund"} for ${finalReceiptNumber}`,
+          balanceAfter: { credit: newCreditBalance, debit: newDebitBalance },
           referenceId: transactionId,
           referenceType: "transaction",
-          sessionId: session._id,
+          description: `${changeType === "CREDIT" ? "Store Credit" : "Change Refund"} for ${finalReceiptNumber}`,
+          createdAt: now,
         });
       } else if (isUnderpayment) {
-        await applyCustomerLedger(ctx.db, args.customerId, {
+        await ctx.db.insert("ledger", {
+          customerId: args.customerId,
+          sessionId: session._id,
           type: "DEBIT",
           amount: Math.abs(change),
-          description: `Outstanding balance for ${finalReceiptNumber}`,
+          balanceAfter: { credit: newCreditBalance, debit: newDebitBalance },
           referenceId: transactionId,
           referenceType: "transaction",
-          sessionId: session._id,
+          description: `Outstanding balance for ${finalReceiptNumber}`,
+          createdAt: now,
         });
       }
     }
@@ -730,41 +757,13 @@ export const remove = mutation({
       await ctx.db.delete(payment._id);
     }
 
-    // 4. Revert Customer Balances & Delete Ledger Entries
+    // 4. Delete Ledger Entries tied to this transaction/its payments, then recompute
+    // the customer's balance from whatever history remains. A full replay is the only
+    // mathematically correct reversal here — balance is order/state-dependent (a DEBIT
+    // is a pure add, but CREDIT/PAYMENT net through existing debt), so there's no valid
+    // "inverse delta" for a deleted entry. This is also guaranteed consistent with
+    // `create`'s forward logic, since both funnel through the same applyLedgerEntry.
     if (transaction.customerId) {
-      const customer = await ctx.db.get(transaction.customerId);
-      if (customer) {
-        let creditBalance = customer.creditBalance || 0;
-        let debitBalance = customer.debitBalance || 0;
-
-        const amountReceived = transaction.amountReceived || 0;
-        const change = amountReceived - transaction.total;
-
-        let applyAsDebt = 0;
-        let applyAsCredit = 0;
-
-        if (change > 0 && transaction.changeHandling === "Store Credit") {
-          applyAsDebt += change;
-        } else if (change < 0) {
-          applyAsCredit += Math.abs(change);
-        }
-
-        const storeCreditUsed = payments
-          .filter((p) => p.paymentMethod === "Store Credit")
-          .reduce((sum, p) => sum + p.amount, 0);
-
-        applyAsCredit += storeCreditUsed;
-
-        const reconciledDebt = reconcileBalances(creditBalance, debitBalance, -applyAsDebt);
-        const finalReconciled = reconcileBalances(reconciledDebt.creditBalance, reconciledDebt.debitBalance, applyAsCredit);
-
-        await ctx.db.patch(transaction.customerId, {
-          creditBalance: Math.max(0, finalReconciled.creditBalance),
-          debitBalance: Math.max(0, finalReconciled.debitBalance)
-        });
-      }
-
-      // Delete Ledger Entries tied to this transaction or its payments
       const customerLedgers = await ctx.db
         .query("ledger")
         .withIndex("by_customer", (q) => q.eq("customerId", transaction.customerId))
@@ -775,6 +774,8 @@ export const remove = mutation({
           await ctx.db.delete(entry._id);
         }
       }
+
+      await recomputeCustomerBalanceForCustomer(ctx.db, transaction.customerId);
     }
 
     // 6. Caixa SALE_REVERSAL

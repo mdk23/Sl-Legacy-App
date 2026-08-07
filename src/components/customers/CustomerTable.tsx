@@ -9,6 +9,7 @@ import {
   ChevronRight,
   Repeat,
 } from "lucide-react";
+import { CustomerBalanceBadge } from "./CustomerBalanceBadge";
 
 interface Customer {
   _id: string;
@@ -114,7 +115,7 @@ export const CustomerTable = ({
               <th className="px-8 py-5">CLIENT & HEALTH</th>
               <th className="px-6 py-5">CONTACTS</th>
               <th className="px-6 py-5">LIFETIME VALUE</th>
-              <th className="px-6 py-5">BALANCE</th>
+              <th className="px-6 py-5">DEBT / CREDIT</th>
               <th className="px-6 py-5">FREQUENCY</th>
               <th className="px-8 py-5 text-right">ACTION</th>
             </tr>
@@ -181,29 +182,11 @@ export const CustomerTable = ({
                     </div>
                   </td>
                   <td className="px-6 py-5">
-                    <div className="flex flex-col gap-0.5">
-                      {(customer.debitBalance || 0) > 0 ? (
-                        <>
-                          <span className="font-data-tabular text-sm text-error font-bold">
-                            Owes {formatCurrency(customer.debitBalance || 0)}
-                          </span>
-                          <span className="text-[9px] font-bold uppercase tracking-wider text-error">
-                            DEBIT
-                          </span>
-                        </>
-                      ) : (customer.creditBalance || 0) > 0 ? (
-                        <>
-                          <span className="font-data-tabular text-sm text-emerald-600 font-bold">
-                            {formatCurrency(customer.creditBalance || 0)}
-                          </span>
-                          <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-600">
-                            STORE CREDIT
-                          </span>
-                        </>
-                      ) : (
-                        <span className="font-data-tabular text-sm text-outline opacity-50">No balance</span>
-                      )}
-                    </div>
+                    <CustomerBalanceBadge
+                      creditBalance={customer.creditBalance}
+                      debitBalance={customer.debitBalance}
+                      formatCurrency={formatCurrency}
+                    />
                   </td>
                   <td className="px-6 py-5">
                     <div className="flex items-center gap-1.5 text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">

@@ -122,7 +122,7 @@ export default defineSchema({
   ledger: defineTable({
     customerId: v.optional(v.id("customers")),
     sessionId: v.optional(v.id("caixaSessions")),
-    type: v.string(), // "CREDIT", "DEBIT", "PAYMENT", "REFUND", "SALE"
+    type: v.string(), // "CREDIT", "DEBIT", "USE_CREDIT", "PAYMENT", "PAYMENT_LOG", "REFUND", "SALE" — see applyLedgerEntry in ledgerHelpers.ts for the balance-effect rules
     amount: v.number(),
     balanceAfter: v.object({
       credit: v.number(),

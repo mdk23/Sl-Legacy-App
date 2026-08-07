@@ -22,6 +22,7 @@ import { Id } from "../../convex/_generated/dataModel";
 import { toast } from "sonner";
 import { useAuth } from "./AuthProvider";
 import { motion, AnimatePresence } from "framer-motion";
+import { CustomerBalanceBadge } from "./customers/CustomerBalanceBadge";
 
 export default function POS() {
   const { user } = useAuth();
@@ -399,9 +400,16 @@ export default function POS() {
                   ? `${selectedCustomer.firstName} ${selectedCustomer.lastName}`
                   : "Walk-in Client"}
               </p>
-              <p className="text-[11px] text-on-surface-variant">
+              <p className="text-[11px] text-on-surface-variant mb-1.5">
                 Status: {selectedCustomer ? (selectedCustomer.customerHealth || "New Client") : "N/A"}
               </p>
+              {selectedCustomer && (
+                <CustomerBalanceBadge
+                  creditBalance={selectedCustomer.creditBalance}
+                  debitBalance={selectedCustomer.debitBalance}
+                  formatCurrency={formatCurrency}
+                />
+              )}
             </div>
             {selectedCustomer && (
               <button
@@ -630,7 +638,19 @@ export default function POS() {
                           if (p.id === entry.id) {
                             const newMethod = e.target.value;
                             let newAmount = p.amount;
-                            if (newMethod === "Store Credit" && selectedCustomer?.creditBalance) {
+                            const isBlank = !newAmount || Number(newAmount) === 0;
+                            if (isBlank) {
+                              // Auto-fill so picking a method never silently submits with no amount.
+                              const othersTotal = prev
+                                .filter((other) => other.id !== p.id)
+                                .reduce((sum, other) => sum + (parseFloat(other.amount) || 0), 0);
+                              const remaining = Math.max(0, saleTotals.total - othersTotal);
+                              newAmount = (
+                                newMethod === "Store Credit" && selectedCustomer?.creditBalance
+                                  ? Math.min(remaining, selectedCustomer.creditBalance)
+                                  : remaining
+                              ).toString();
+                            } else if (newMethod === "Store Credit" && selectedCustomer?.creditBalance) {
                               if (Number(newAmount) > selectedCustomer.creditBalance) {
                                 newAmount = selectedCustomer.creditBalance.toString();
                               }
@@ -645,6 +665,11 @@ export default function POS() {
                   >
                     {["Cash", "BCI", "BIM", "M-Pesa", "e-Mola", "Conta Movel", "Bank Transfer"]
                       .concat(selectedCustomer?.creditBalance && selectedCustomer.creditBalance > 0 ? ["Store Credit"] : [])
+                      .filter(
+                        (m) =>
+                          m === entry.method ||
+                          !paymentEntries.some((other) => other.id !== entry.id && other.method === m),
+                      )
                       .map((m) => (
                       <option key={m} value={m}>{m === "Store Credit" ? `Store Credit (Mt ${selectedCustomer!.creditBalance})` : m}</option>
                     ))}

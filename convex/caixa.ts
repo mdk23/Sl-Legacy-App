@@ -367,7 +367,7 @@ export const getSessionReportDetails = query({
       }
     }
 
-    const debtRecoveries = ledgerEntries.filter((l) => l.type === "PAYMENT" && l.description.startsWith("Manual payment"));
+    const debtRecoveries = ledgerEntries.filter((l) => l.type === "PAYMENT");
     const totalDebtRecoveries = debtRecoveries.reduce((sum, l) => sum + l.amount, 0);
 
     const creditRedemptions = ledgerEntries.filter((l) => l.type === "USE_CREDIT");
@@ -404,7 +404,7 @@ export const getSessionReportDetails = query({
       .filter((l) => l.type === "DEBIT")
       .reduce((sum, l) => sum + l.amount, 0);
     const totalCustomerDebtRecovered = ledgerEntries
-      .filter((l) => l.type === "PAYMENT" && l.description.startsWith("Manual payment"))
+      .filter((l) => l.type === "PAYMENT")
       .reduce((sum, l) => sum + l.amount, 0);
 
     return {

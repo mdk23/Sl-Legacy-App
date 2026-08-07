@@ -39,6 +39,7 @@ export default function Sales() {
     paymentBreakdown: [{ method: "BCI", amount: 0 }],
     discount: 0,
     notes: "",
+    changeHandling: "Cash",
   });
 
   const saleTotals = useMemo(() => {
@@ -121,9 +122,15 @@ export default function Sales() {
       const totalPaid = saleForm.paymentBreakdown.reduce((acc, p) => acc + p.amount, 0);
       const remainingBalance = saleTotals.total - totalPaid;
       const isCompleted = remainingBalance <= 0;
+      const changeGiven = totalPaid > saleTotals.total ? totalPaid - saleTotals.total : 0;
 
       if (!saleForm.customerId && !isCompleted) {
         toast.error("Walk-in transactions must be fully paid at checkout.");
+        return;
+      }
+
+      if (!saleForm.customerId && changeGiven > 0 && saleForm.changeHandling === "Store Credit") {
+        toast.error("Walk-in customers cannot receive Store Credit. Please select a different change handling method.");
         return;
       }
 
@@ -136,8 +143,8 @@ export default function Sales() {
         profit: 0, // Server will resolve costPrice and profit calculation
         cashierName: "System Admin",
         amountReceived: totalPaid,
-        changeGiven: totalPaid > saleTotals.total ? totalPaid - saleTotals.total : 0,
-        changeHandling: totalPaid > saleTotals.total ? "Cash" : undefined,
+        changeGiven,
+        changeHandling: changeGiven > 0 ? saleForm.changeHandling : undefined,
         deliveryStatus: "Pending",
         paymentBreakdown: saleForm.paymentBreakdown,
         items: saleForm.items.map((it) => ({
@@ -158,6 +165,7 @@ export default function Sales() {
         paymentBreakdown: [{ method: "BCI", amount: 0 }],
         discount: 0,
         notes: "",
+        changeHandling: "Cash",
       });
       toast.success(`Transaction Complete: ${receiptNumber}`);
     } catch (error: any) {

@@ -45,7 +45,7 @@ export const SaleDetailDrawer = ({
             <div className="mt-3 flex gap-2">
               <span
                 className={`px-2 py-0.5 rounded-lg text-[9px] font-bold ${
-                  selectedSale.status === "Paid" ? "bg-secondary-container/20 text-secondary" : "bg-primary/10 text-primary"
+                  selectedSale.status === "Completed" ? "bg-secondary-container/20 text-secondary" : "bg-primary/10 text-primary"
                 }`}
               >
                 {selectedSale.status.toUpperCase()}

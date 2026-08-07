@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, CheckCircle2, Trash2, Plus } from "lucide-react";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
+import { CustomerBalanceBadge } from "../customers/CustomerBalanceBadge";
 
 interface Product {
   _id: string;
@@ -19,6 +20,8 @@ interface Customer {
   firstName: string;
   lastName: string;
   customerHealth?: string;
+  creditBalance?: number;
+  debitBalance?: number;
 }
 
 interface NewSaleDrawerProps {
@@ -33,6 +36,7 @@ interface NewSaleDrawerProps {
     paymentBreakdown: { method: string; amount: number }[];
     discount: number;
     notes: string;
+    changeHandling: string;
   };
   setSaleForm: React.Dispatch<React.SetStateAction<any>>;
   saleTotals: { subtotal: number; total: number };
@@ -54,6 +58,10 @@ export const NewSaleDrawer = ({
 }: NewSaleDrawerProps) => {
   const customers = (useQuery(api.customers.list) || []) as Customer[];
   const products = (useQuery(api.products.list, { archived: false }) || []) as Product[];
+  const selectedCustomer = customers.find((c) => c._id === saleForm.customerId);
+  const totalPaid = saleForm.paymentBreakdown.reduce((acc, p) => acc + p.amount, 0);
+  const remaining = saleTotals.total - totalPaid;
+  const changeGiven = remaining < 0 ? Math.abs(remaining) : 0;
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-end">
       <motion.div
@@ -135,6 +143,15 @@ export const NewSaleDrawer = ({
                       </option>
                     ))}
                   </select>
+                  {selectedCustomer && (
+                    <div className="mt-3">
+                      <CustomerBalanceBadge
+                        creditBalance={selectedCustomer.creditBalance}
+                        debitBalance={selectedCustomer.debitBalance}
+                        formatCurrency={formatCurrency}
+                      />
+                    </div>
+                  )}
                 </section>
 
                 {/* Items Selection */}
@@ -255,35 +272,60 @@ export const NewSaleDrawer = ({
                         <select
                           className="flex-1 p-4 bg-white/6 border border-white/12 rounded-2xl text-xs font-bold"
                           value={pay.method}
-                          onChange={(e) =>
+                          onChange={(e) => {
+                            const newMethod = e.target.value;
+                            const isBlank = !pay.amount || pay.amount === 0;
+                            let newAmount = pay.amount;
+                            if (isBlank) {
+                              // Auto-fill so picking a method never silently submits with no amount.
+                              const othersTotal = saleForm.paymentBreakdown
+                                .filter((_: any, i: number) => i !== idx)
+                                .reduce((sum: number, p: any) => sum + (p.amount || 0), 0);
+                              const remainingForRow = Math.max(0, saleTotals.total - othersTotal);
+                              newAmount =
+                                newMethod === "Store Credit" && selectedCustomer?.creditBalance
+                                  ? Math.min(remainingForRow, selectedCustomer.creditBalance)
+                                  : remainingForRow;
+                            } else if (newMethod === "Store Credit" && selectedCustomer?.creditBalance) {
+                              newAmount = Math.min(pay.amount, selectedCustomer.creditBalance);
+                            }
                             setSaleForm({
                               ...saleForm,
                               paymentBreakdown: saleForm.paymentBreakdown.map((p, i) =>
-                                i === idx ? { ...p, method: e.target.value } : p
+                                i === idx ? { ...p, method: newMethod, amount: newAmount } : p
                               ),
-                            })
-                          }
+                            });
+                          }}
                         >
-                          <option>Cash</option>
-                          <option>M-Pesa</option>
-                          <option>e-Mola</option>
-                          <option>BCI</option>
-                          <option>BIM</option>
-                          <option>Bank Transfer</option>
-                          <option>Card</option>
+                          {["Cash", "M-Pesa", "e-Mola", "BCI", "BIM", "Bank Transfer", "Card"]
+                            .concat(selectedCustomer?.creditBalance && selectedCustomer.creditBalance > 0 ? ["Store Credit"] : [])
+                            .filter(
+                              (m) =>
+                                m === pay.method ||
+                                !saleForm.paymentBreakdown.some((other, i) => i !== idx && other.method === m),
+                            )
+                            .map((m) => (
+                              <option key={m}>
+                                {m === "Store Credit" ? `Store Credit (Mt ${selectedCustomer!.creditBalance})` : m}
+                              </option>
+                            ))}
                         </select>
                         <input
                           type="number"
                           placeholder="Amount"
                           value={pay.amount}
-                          onChange={(e) =>
+                          onChange={(e) => {
+                            let newAmount = parseFloat(e.target.value) || 0;
+                            if (pay.method === "Store Credit" && selectedCustomer?.creditBalance) {
+                              newAmount = Math.min(newAmount, selectedCustomer.creditBalance);
+                            }
                             setSaleForm({
                               ...saleForm,
                               paymentBreakdown: saleForm.paymentBreakdown.map((p, i) =>
-                                i === idx ? { ...p, amount: parseFloat(e.target.value) || 0 } : p
+                                i === idx ? { ...p, amount: newAmount } : p
                               ),
-                            })
-                          }
+                            });
+                          }}
                           className="flex-1 p-4 bg-white/6 border border-white/12 rounded-2xl font-data-tabular text-sm"
                         />
                         {saleForm.paymentBreakdown.length > 1 && (
@@ -330,6 +372,23 @@ export const NewSaleDrawer = ({
                         </p>
                       </div>
                     </div>
+
+                    {changeGiven > 0 && (
+                      <div className="flex justify-between items-center px-2 pt-2">
+                        <span className="text-xs text-outline">Change Handling</span>
+                        <select
+                          value={saleForm.changeHandling}
+                          onChange={(e) => setSaleForm({ ...saleForm, changeHandling: e.target.value })}
+                          className="bg-transparent border border-outline-variant/30 rounded px-2 py-1 text-[11px] font-bold text-primary outline-none cursor-pointer"
+                        >
+                          {["Cash", "BCI", "BIM", "M-Pesa", "e-Mola", "Conta Movel", "Bank Transfer"]
+                            .concat(saleForm.customerId ? ["Store Credit"] : [])
+                            .map((m) => (
+                              <option key={m} value={m}>{m}</option>
+                            ))}
+                        </select>
+                      </div>
+                    )}
                   </div>
                 </section>
               </motion.div>

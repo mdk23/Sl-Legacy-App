@@ -37,11 +37,42 @@ export function reconcileBalances(currentCredit: number, currentDebit: number, n
   return { creditBalance, debitBalance };
 }
 
+export type LedgerEntryType = "CREDIT" | "DEBIT" | "USE_CREDIT" | "PAYMENT" | "PAYMENT_LOG" | "REFUND" | "SALE";
+
+export type CustomerBalance = { creditBalance: number; debitBalance: number };
+
+// The single source of truth for "how does one ledger event affect a customer's
+// balance." Pure and DB-free — used both incrementally (append one new entry onto
+// the current cached balance: create/addPayment) and via full replay (fold a
+// customer's entire ledger history from zero: remove/the repair tool). Both modes
+// must produce identical results for the same history, which is only possible if
+// they share this exact function.
+export function applyLedgerEntry(
+  balance: CustomerBalance,
+  entry: { type: LedgerEntryType; amount: number }
+): CustomerBalance {
+  if (entry.type === "USE_CREDIT") {
+    return { creditBalance: Math.max(0, balance.creditBalance - entry.amount), debitBalance: balance.debitBalance };
+  }
+  if (entry.type === "SALE" || entry.type === "REFUND" || entry.type === "PAYMENT_LOG") {
+    // SALE/PAYMENT_LOG are pure audit entries. REFUND is cash/change handed back to
+    // the customer (not store credit) — none of these may affect balance.
+    return balance;
+  }
+  if (entry.type === "DEBIT") {
+    // A shortfall always becomes new debt — it must never net against unrelated
+    // existing credit (that only happens explicitly, via a "Store Credit" payment).
+    return { creditBalance: balance.creditBalance, debitBalance: balance.debitBalance + entry.amount };
+  }
+  // PAYMENT (real manual debt-recovery payment) or CREDIT (store credit granted).
+  return reconcileBalances(balance.creditBalance, balance.debitBalance, entry.amount);
+}
+
 export async function applyCustomerLedger(
   db: DatabaseWriter,
   customerId: Id<"customers">,
   params: {
-    type: "CREDIT" | "DEBIT" | "USE_CREDIT" | "PAYMENT" | "REFUND" | "SALE";
+    type: LedgerEntryType;
     amount: number;
     description: string;
     referenceId?: string;
@@ -52,62 +83,39 @@ export async function applyCustomerLedger(
   const customer = await db.get(customerId);
   if (!customer) throw new Error("Customer not found for ledger update.");
 
-  let creditBalance = customer.creditBalance || 0;
-  let debitBalance = customer.debitBalance || 0;
-  const now = Date.now();
-
-  if (params.type === "USE_CREDIT") {
-    if (creditBalance >= params.amount) {
-      creditBalance -= params.amount;
-    } else {
-      throw new Error("Insufficient store credit to cover payment amount.");
-    }
-  } else if (params.type === "SALE" || params.type === "REFUND") {
-    // SALE just logs the current balance. REFUND is cash/change handed back to the
-    // customer (not store credit) — it must not increase their credit balance.
-  } else {
-    let netAmount = 0;
-    if (params.type === "PAYMENT" || params.type === "CREDIT") {
-      netAmount = params.amount;
-    } else if (params.type === "DEBIT") {
-      netAmount = -params.amount;
-    }
-    const reconciled = reconcileBalances(creditBalance, debitBalance, netAmount);
-    creditBalance = reconciled.creditBalance;
-    debitBalance = reconciled.debitBalance;
+  const current = { creditBalance: customer.creditBalance || 0, debitBalance: customer.debitBalance || 0 };
+  if (params.type === "USE_CREDIT" && current.creditBalance < params.amount) {
+    throw new Error("Insufficient store credit to cover payment amount.");
   }
 
-  // Update customer balances
-  await db.patch(customerId, {
-    creditBalance,
-    debitBalance,
-  });
+  const next = applyLedgerEntry(current, params);
+  const now = Date.now();
 
-  // Insert Ledger Record
+  await db.patch(customerId, next);
+
   const ledgerId = await db.insert("ledger", {
     customerId,
     sessionId: params.sessionId,
     type: params.type,
     amount: params.amount,
-    balanceAfter: { credit: creditBalance, debit: debitBalance },
+    balanceAfter: { credit: next.creditBalance, debit: next.debitBalance },
     referenceId: params.referenceId,
     referenceType: params.referenceType,
     description: params.description,
     createdAt: now,
   });
 
-  return { ledgerId, creditBalance, debitBalance };
+  return { ledgerId, creditBalance: next.creditBalance, debitBalance: next.debitBalance };
 }
 
 // Rebuilds a customer's creditBalance/debitBalance from scratch by replaying their
-// full ledger history with the CORRECT rules — i.e. treating historical "REFUND"
-// entries and checkout-audit "PAYMENT" entries (description "Payment via ...", as
-// opposed to "Manual payment via ..." from actual debt-recovery) as balance-neutral,
-// the way applyCustomerLedger handles them today. This corrects balances left over
-// from before that fix, for both still-existing and since-deleted transactions —
-// deleting a transaction removes its ledger entries, so a fresh replay of whatever
-// ledger entries remain naturally arrives at the true balance either way.
-async function recomputeCustomerBalanceHandler(db: DatabaseWriter, customerId: Id<"customers">) {
+// full ledger history through the same canonical rules (applyLedgerEntry) used for
+// live writes. This is the only mathematically correct way to reverse a deleted
+// transaction (see transactions.ts's `remove`): balance is order/state-dependent
+// (a DEBIT is a pure add, but CREDIT/PAYMENT net through existing debt), so there is
+// no valid "inverse delta" for a removed entry — only a full replay of what remains
+// is guaranteed correct. Also used as an admin drift-repair/audit tool.
+export async function recomputeCustomerBalanceForCustomer(db: DatabaseWriter, customerId: Id<"customers">) {
   const customer = await db.get(customerId);
   if (!customer) throw new Error("Customer not found.");
 
@@ -117,29 +125,12 @@ async function recomputeCustomerBalanceHandler(db: DatabaseWriter, customerId: I
     .collect();
   entries.sort((a, b) => a.createdAt - b.createdAt);
 
-  let creditBalance = 0;
-  let debitBalance = 0;
-
-  for (const entry of entries) {
-    if (entry.type === "USE_CREDIT") {
-      creditBalance = Math.max(0, creditBalance - entry.amount);
-    } else if (entry.type === "SALE" || entry.type === "REFUND") {
-      // Balance-neutral, always.
-    } else if (entry.type === "PAYMENT" && !entry.description.startsWith("Manual payment")) {
-      // Historical bug: checkout audit-log entries were mistakenly typed "PAYMENT" — no balance effect.
-    } else if (entry.type === "PAYMENT" || entry.type === "CREDIT") {
-      const reconciled = reconcileBalances(creditBalance, debitBalance, entry.amount);
-      creditBalance = reconciled.creditBalance;
-      debitBalance = reconciled.debitBalance;
-    } else if (entry.type === "DEBIT") {
-      const reconciled = reconcileBalances(creditBalance, debitBalance, -entry.amount);
-      creditBalance = reconciled.creditBalance;
-      debitBalance = reconciled.debitBalance;
-    }
-  }
+  const after = entries.reduce(
+    (balance, entry) => applyLedgerEntry(balance, entry as { type: LedgerEntryType; amount: number }),
+    { creditBalance: 0, debitBalance: 0 }
+  );
 
   const before = { creditBalance: customer.creditBalance || 0, debitBalance: customer.debitBalance || 0 };
-  const after = { creditBalance, debitBalance };
   const changed = before.creditBalance !== after.creditBalance || before.debitBalance !== after.debitBalance;
 
   if (changed) {
@@ -156,7 +147,7 @@ export const recomputeCustomerBalance = mutation({
     if (user.role !== "admin" && user.role !== "manager") {
       throw new Error("Unauthorized. Only admins and managers can recompute customer balances.");
     }
-    return await recomputeCustomerBalanceHandler(ctx.db, args.customerId);
+    return await recomputeCustomerBalanceForCustomer(ctx.db, args.customerId);
   },
 });
 
@@ -170,7 +161,7 @@ export const recomputeAllCustomerBalances = mutation({
     const customers = await ctx.db.query("customers").collect();
     const corrections = [];
     for (const customer of customers) {
-      const result = await recomputeCustomerBalanceHandler(ctx.db, customer._id);
+      const result = await recomputeCustomerBalanceForCustomer(ctx.db, customer._id);
       if (result.changed) corrections.push(result);
     }
     return { checked: customers.length, corrected: corrections.length, corrections };
@@ -184,9 +175,29 @@ export const recomputeAllCustomerBalancesInternal = internalMutation({
     const customers = await ctx.db.query("customers").collect();
     const corrections = [];
     for (const customer of customers) {
-      const result = await recomputeCustomerBalanceHandler(ctx.db, customer._id);
+      const result = await recomputeCustomerBalanceForCustomer(ctx.db, customer._id);
       if (result.changed) corrections.push(result);
     }
     return { checked: customers.length, corrected: corrections.length, corrections };
+  },
+});
+
+// One-time backfill: historical checkout-audit ledger rows were mistakenly typed
+// "PAYMENT" (same as real manual debt-recovery payments), disambiguated only by
+// sniffing the description text. Now that PAYMENT_LOG exists as a distinct, structural
+// type, rename those historical rows so replay no longer needs to sniff description.
+// Idempotent — safe to run more than once (re-running finds nothing left to rename).
+export const backfillPaymentLogType = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const paymentEntries = await ctx.db
+      .query("ledger")
+      .withIndex("by_type", (q) => q.eq("type", "PAYMENT"))
+      .collect();
+    const toRename = paymentEntries.filter((e) => e.description.startsWith("Payment via"));
+    for (const entry of toRename) {
+      await ctx.db.patch(entry._id, { type: "PAYMENT_LOG" });
+    }
+    return { renamed: toRename.length };
   },
 });
