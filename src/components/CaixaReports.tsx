@@ -283,12 +283,12 @@ export default function CaixaReports() {
           <select
             value={dateRange}
             onChange={e => setDateRange(e.target.value)}
-            className="px-4 py-3 rounded-2xl text-xs bg-white/8 border border-primary/10 focus:ring-2 focus:ring-primary/20 outline-none font-label-caps cursor-pointer shadow-sm"
+            className="px-4 py-3 rounded-2xl text-xs bg-white/8 border border-primary/10 focus:ring-2 focus:ring-primary/20 outline-none font-label-caps cursor-pointer shadow-sm text-primary"
           >
-            <option value="ALL">All Time</option>
-            <option value="TODAY">Today</option>
-            <option value="YESTERDAY">Yesterday</option>
-            <option value="CUSTOM">Custom Range</option>
+            <option className="bg-surface-container text-primary" value="ALL">All Time</option>
+            <option className="bg-surface-container text-primary" value="TODAY">Today</option>
+            <option className="bg-surface-container text-primary" value="YESTERDAY">Yesterday</option>
+            <option className="bg-surface-container text-primary" value="CUSTOM">Custom Range</option>
           </select>
           {dateRange === 'CUSTOM' && (
             <>

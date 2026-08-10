@@ -766,6 +766,26 @@ export const remove = mutation({
       .collect();
 
     const paymentIds = payments.map(p => p._id);
+
+    // Reverse cash for any MANUAL payments recorded after checkout (each one has its
+    // own caixaMovements entry, in whatever session was active when it was recorded —
+    // possibly a different, already-closed session than the one below). The checkout's
+    // own cash contribution is reversed separately below via paymentBreakdown, which
+    // nets out any cash change given back; manual payments have no such complexity.
+    for (const payment of payments) {
+      if (payment.source === "manual" && payment.paymentMethod.toLowerCase() === "cash") {
+        await processCashPayment(ctx.db, {
+          amount: payment.amount,
+          type: "CASH_OUT",
+          description: `Reversal of manual payment for transaction ${transaction.receiptNumber} (deleted)`,
+          userId: user.username,
+          timestamp: Date.now(),
+          referenceId: payment._id,
+          referenceType: "payment",
+        });
+      }
+    }
+
     for (const payment of payments) {
       await ctx.db.delete(payment._id);
     }

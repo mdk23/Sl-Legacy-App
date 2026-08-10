@@ -280,17 +280,17 @@ export default function Caixa() {
                       className="pl-9 pr-4 py-2 rounded-xl text-xs bg-white/8 border border-primary/10 focus:ring-2 focus:ring-primary/20 outline-none w-48"
                     />
                   </div>
-                  <select 
+                  <select
                     value={typeFilter}
                     onChange={e => setTypeFilter(e.target.value)}
-                    className="px-4 py-2 rounded-xl text-xs bg-white/8 border border-primary/10 focus:ring-2 focus:ring-primary/20 outline-none font-label-caps cursor-pointer"
+                    className="px-4 py-2 rounded-xl text-xs bg-white/8 border border-primary/10 focus:ring-2 focus:ring-primary/20 outline-none font-label-caps cursor-pointer text-primary"
                   >
-                    <option value="ALL">All Types</option>
-                    <option value="OPENING">Opening</option>
-                    <option value="SALE">Sale</option>
-                    <option value="CASH_IN">Cash In</option>
-                    <option value="CASH_OUT">Cash Out</option>
-                    <option value="SALE_REVERSAL">Reversal</option>
+                    <option className="bg-surface-container text-primary" value="ALL">All Types</option>
+                    <option className="bg-surface-container text-primary" value="OPENING">Opening</option>
+                    <option className="bg-surface-container text-primary" value="SALE">Sale</option>
+                    <option className="bg-surface-container text-primary" value="CASH_IN">Cash In</option>
+                    <option className="bg-surface-container text-primary" value="CASH_OUT">Cash Out</option>
+                    <option className="bg-surface-container text-primary" value="SALE_REVERSAL">Reversal</option>
                   </select>
                 </div>
               </div>
