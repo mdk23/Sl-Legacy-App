@@ -92,9 +92,31 @@ test("underpayment never nets against unrelated existing store credit", async ()
     total: 150,
     amountReceived: 0,
     paymentBreakdown: [],
+    addRemainingToAccount: true,
   });
 
   expect(await getCustomerBalance(t, customerId)).toEqual({ creditBalance: 150, debitBalance: 150 });
+});
+
+test("underpayment without opt-in leaves the sale unpaid with no account debt", async () => {
+  const t = convexTest(schema, modules);
+  const asAdmin = await seedAdminUser(t);
+  await seedOpenCaixaSession(t);
+  const productId = await seedProduct(t);
+  const customerId = await seedCustomer(t);
+
+  const result = await makeSale(asAdmin, productId, {
+    customerId,
+    total: 150,
+    amountReceived: 50,
+    paymentBreakdown: [{ method: "Cash", amount: 50 }],
+    // addRemainingToAccount intentionally omitted
+  });
+
+  expect(await getCustomerBalance(t, customerId)).toEqual({ creditBalance: 0, debitBalance: 0 });
+  const tx: any = await t.run((ctx: any) => ctx.db.get(result.transactionId));
+  expect(tx.debtAddedToAccount).toBeFalsy();
+  expect(tx.status).toBe("Partially Paid");
 });
 
 test("registered customer can pay entirely with existing store credit", async () => {
@@ -123,12 +145,13 @@ test("deleting a non-final transaction correctly replays the remaining balance",
   const productId = await seedProduct(t);
   const customerId = await seedCustomer(t);
 
-  // TX1: underpayment of 100 -> debt 100
+  // TX1: underpayment of 100 -> debt 100 (opted in)
   const tx1 = await makeSale(asAdmin, productId, {
     customerId,
     total: 100,
     amountReceived: 0,
     paymentBreakdown: [],
+    addRemainingToAccount: true,
   });
 
   // TX2: overpayment of 100 banked as Store Credit -> nets TX1's debt to 0/0
@@ -141,12 +164,13 @@ test("deleting a non-final transaction correctly replays the remaining balance",
     paymentBreakdown: [{ method: "Cash", amount: 150 }],
   });
 
-  // TX3: a THIRD, unrelated underpayment of 80 -> fresh debt 80
+  // TX3: a THIRD, unrelated underpayment of 80 -> fresh debt 80 (opted in)
   await makeSale(asAdmin, productId, {
     customerId,
     total: 80,
     amountReceived: 0,
     paymentBreakdown: [],
+    addRemainingToAccount: true,
   });
 
   expect(await getCustomerBalance(t, customerId)).toEqual({ creditBalance: 0, debitBalance: 80 });

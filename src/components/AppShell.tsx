@@ -24,15 +24,21 @@ export default function AppShell({ children }: AppShellProps) {
       <header className="fixed top-0 w-full z-50 flex justify-between items-center px-container-padding h-16 bg-white/6 backdrop-blur-xl shadow-sm border-b border-white/12">
         <div className="flex items-center gap-4 md:gap-8">
           <button
-            onClick={() => setMobileSidebarOpen(true)}
-            className="lg:hidden material-symbols-outlined text-primary p-2 hover:bg-white/4 rounded-full transition-colors"
+            onClick={() => {
+              if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+                setSidebarCollapsed((value) => !value);
+              } else {
+                setMobileSidebarOpen((value) => !value);
+              }
+            }}
+            className="material-symbols-outlined text-primary p-2 hover:bg-white/4 rounded-full transition-colors"
+            aria-label="Toggle sidebar"
           >
             menu
           </button>
           <div className="flex items-center gap-2.5">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/sl-legacy-emblem.svg" alt="SL Legacy" className="w-6 h-auto hidden sm:block" />
-            <span className="font-headline-md text-headline-md font-semibold text-primary tracking-tight">Sl Legacy</span>
           </div>
         </div>
 

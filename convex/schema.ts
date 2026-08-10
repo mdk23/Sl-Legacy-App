@@ -79,6 +79,7 @@ export default defineSchema({
     customerName: v.optional(v.string()), // Denormalized customer name
     customerTier: v.optional(v.string()), // Denormalized customer tier
     sessionId: v.optional(v.id("caixaSessions")),
+    debtAddedToAccount: v.optional(v.boolean()), // true once outstanding balance has been converted to account-level debt (switches payments.addPayment "account" mode on for this sale)
     createdAt: v.optional(v.number()),
     updatedAt: v.optional(v.number()),
   }).index("by_receipt", ["receiptNumber"])
@@ -97,6 +98,7 @@ export default defineSchema({
     paymentDate: v.number(), // Timestamp
     status: v.string(), // "Completed", "Pending", "Failed"
     notes: v.optional(v.string()),
+    source: v.optional(v.string()), // "checkout" | "manual" — gates deletePayment eligibility
     createdAt: v.optional(v.number()),
     updatedAt: v.optional(v.number()),
   }).index("by_transaction", ["transactionId"])

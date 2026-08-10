@@ -40,6 +40,7 @@ export default function Sales() {
     discount: 0,
     notes: "",
     changeHandling: "Cash",
+    addRemainingToAccount: false,
   });
 
   const saleTotals = useMemo(() => {
@@ -153,6 +154,7 @@ export default function Sales() {
           price: it.price,
         })),
         notes: saleForm.notes,
+        addRemainingToAccount: saleForm.customerId ? saleForm.addRemainingToAccount : undefined,
       });
 
       const receiptNumber = result.receiptNumber;
@@ -166,6 +168,7 @@ export default function Sales() {
         discount: 0,
         notes: "",
         changeHandling: "Cash",
+        addRemainingToAccount: false,
       });
       toast.success(`Transaction Complete: ${receiptNumber}`);
     } catch (error: any) {

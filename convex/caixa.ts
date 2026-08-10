@@ -1,6 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { requireUser } from "./authHelpers";
+import { getPaymentHistory, getTransactionBalance } from "./salesService";
 
 // Helper: Check if a timestamp is from a previous day
 const isPreviousDay = (timestamp: number) => {
@@ -390,8 +391,15 @@ export const getSessionReportDetails = query({
       0
     );
     const totalDiscounts = transactions.reduce((sum, t) => sum + (t.discount ?? 0), 0);
+    // Outstanding must reflect ALL payments ever made against each transaction, not just
+    // ones stamped with this session — a debt from today could be recovered in a later
+    // session. So this queries full payment history per transaction (same formula as
+    // hydrateTransactions), not the session-scoped `payments` array above.
+    const paymentsPerTransaction = await Promise.all(
+      transactions.map((t) => getPaymentHistory(ctx.db, t._id))
+    );
     const totalPendingBalance = transactions.reduce(
-      (sum, t) => sum + Math.max(0, t.total - (t.amountReceived ?? t.total)),
+      (sum, t, i) => sum + getTransactionBalance(t, paymentsPerTransaction[i]).outstanding,
       0
     );
     const totalCustomerCreditIssued = ledgerEntries

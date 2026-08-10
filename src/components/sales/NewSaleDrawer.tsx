@@ -37,6 +37,7 @@ interface NewSaleDrawerProps {
     discount: number;
     notes: string;
     changeHandling: string;
+    addRemainingToAccount?: boolean;
   };
   setSaleForm: React.Dispatch<React.SetStateAction<any>>;
   saleTotals: { subtotal: number; total: number };
@@ -372,6 +373,23 @@ export const NewSaleDrawer = ({
                         </p>
                       </div>
                     </div>
+
+                    {remaining > 0 && saleForm.customerId && (
+                      <label className="flex items-start gap-2.5 px-2 pt-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={!!saleForm.addRemainingToAccount}
+                          onChange={(e) => setSaleForm({ ...saleForm, addRemainingToAccount: e.target.checked })}
+                          className="mt-0.5 accent-primary"
+                        />
+                        <span className="leading-snug">
+                          <span className="block text-xs font-bold text-on-surface">Add Remaining Balance to Customer Account</span>
+                          <span className="block text-[11px] text-on-surface-variant mt-0.5">
+                            Otherwise this sale stays pending — the customer&rsquo;s account balance won&rsquo;t change.
+                          </span>
+                        </span>
+                      </label>
+                    )}
 
                     {changeGiven > 0 && (
                       <div className="flex justify-between items-center px-2 pt-2">

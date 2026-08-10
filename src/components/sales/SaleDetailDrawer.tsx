@@ -1,6 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { X, Printer, Trash2, AlertCircle } from "lucide-react";
+import { X, Printer, Trash2, AlertCircle, CreditCard, UserPlus, Receipt } from "lucide-react";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../../convex/_generated/api";
+import { Id } from "../../../convex/_generated/dataModel";
+import { toast } from "sonner";
+import { useAuth } from "../AuthProvider";
+import { RecordPaymentModal } from "./RecordPaymentModal";
 
 interface SaleDetailDrawerProps {
   selectedSale: any;
@@ -15,6 +21,43 @@ export const SaleDetailDrawer = ({
   onRemoveSale,
   formatCurrency,
 }: SaleDetailDrawerProps) => {
+  const { user } = useAuth();
+  const canManagePayment = user?.role === "admin" || user?.role === "manager";
+
+  const [isRecordingPayment, setIsRecordingPayment] = useState(false);
+
+  const customer = useQuery(
+    api.customers.get,
+    selectedSale.customerId ? { id: selectedSale.customerId as Id<"customers"> } : "skip"
+  );
+  const payments = useQuery(api.payments.getForTransaction, {
+    transactionId: selectedSale._id as Id<"transactions">,
+  });
+  const sortedPayments = (payments || []).slice().sort((a, b) => a.paymentDate - b.paymentDate);
+
+  const addRemainingToCustomerAccount = useMutation(api.transactions.addRemainingToCustomerAccount);
+  const deletePayment = useMutation(api.payments.deletePayment);
+
+  const handleAddToAccount = async () => {
+    try {
+      await addRemainingToCustomerAccount({ transactionId: selectedSale._id as Id<"transactions"> });
+      toast.success("Outstanding balance added to the customer's account.");
+    } catch (error: any) {
+      const message = error?.data || error?.message || "Failed to add balance to account.";
+      toast.error(typeof message === "string" ? message.replace(/Uncaught Error: |\[ConvexError\] /g, "") : "Failed to add balance to account.");
+    }
+  };
+
+  const handleDeletePayment = async (paymentId: string) => {
+    try {
+      await deletePayment({ paymentId: paymentId as Id<"payments"> });
+      toast.success("Payment removed.");
+    } catch (error: any) {
+      const message = error?.data || error?.message || "Failed to remove payment.";
+      toast.error(typeof message === "string" ? message.replace(/Uncaught Error: |\[ConvexError\] /g, "") : "Failed to remove payment.");
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-end">
       <motion.div
@@ -157,16 +200,91 @@ export const SaleDetailDrawer = ({
               )}
 
               {selectedSale.balance > 0 && (
-                <div className="flex justify-between text-sm bg-error/5 p-3 rounded-xl mt-4 border border-error/10">
-                  <span className="text-error font-bold flex items-center gap-1">
-                    <AlertCircle size={14} /> Outstanding Balance
-                  </span>
-                  <span className="font-data-tabular font-bold text-error">
-                    {formatCurrency(selectedSale.balance)}
-                  </span>
+                <div className="mt-4 p-3 bg-error/5 rounded-xl border border-error/10">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-error font-bold flex items-center gap-1">
+                      <AlertCircle size={14} /> Outstanding Balance
+                    </span>
+                    <span className="font-data-tabular font-bold text-error">
+                      {formatCurrency(selectedSale.balance)}
+                    </span>
+                  </div>
+
+                  {canManagePayment && selectedSale.customerId && (
+                    <div className="flex gap-2 mt-3">
+                      <button
+                        onClick={() => setIsRecordingPayment(true)}
+                        className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-white border border-error/20 rounded-lg text-error text-[10px] font-label-caps hover:bg-error/5 transition-all"
+                      >
+                        <CreditCard size={13} /> RECORD PAYMENT
+                      </button>
+                      {!selectedSale.debtAddedToAccount && (
+                        <button
+                          onClick={handleAddToAccount}
+                          className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-white border border-outline-variant/30 rounded-lg text-on-surface-variant text-[10px] font-label-caps hover:bg-primary/5 transition-all"
+                        >
+                          <UserPlus size={13} /> ADD TO ACCOUNT
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
+          </section>
+
+          {/* Payment History */}
+          <section>
+            <div className="flex justify-between items-center mb-4">
+              <h4 className="font-label-caps text-[11px] text-on-surface-variant">PAYMENT HISTORY</h4>
+              {sortedPayments.length > 0 && (
+                <span className="font-label-caps text-[11px] text-primary">{sortedPayments.length} ENTRIES</span>
+              )}
+            </div>
+            {sortedPayments.length === 0 ? (
+              <div className="flex items-center gap-3 p-4 bg-white/6 rounded-2xl border border-white/12 text-on-surface-variant text-sm">
+                <Receipt size={16} /> No payments recorded yet.
+              </div>
+            ) : (
+              <div className="overflow-x-auto rounded-2xl border border-white/12">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-surface-container-highest text-[9px] font-label-caps text-on-surface-variant">
+                      <th className="text-left px-4 py-2">Date</th>
+                      <th className="text-left px-4 py-2">Method</th>
+                      <th className="text-right px-4 py-2">Amount</th>
+                      <th className="text-left px-4 py-2">Status</th>
+                      <th className="text-left px-4 py-2">Reference</th>
+                      {canManagePayment && <th className="px-4 py-2" />}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sortedPayments.map((p: any) => (
+                      <tr key={p._id} className="border-t border-outline-variant/20">
+                        <td className="px-4 py-2 font-data-tabular text-xs">{new Date(p.paymentDate).toLocaleDateString()}</td>
+                        <td className="px-4 py-2 text-xs">{p.paymentMethod}</td>
+                        <td className="px-4 py-2 font-data-tabular font-bold text-right">{formatCurrency(p.amount)}</td>
+                        <td className="px-4 py-2 text-xs">{p.status}</td>
+                        <td className="px-4 py-2 text-xs text-on-surface-variant">{p.reference || "—"}</td>
+                        {canManagePayment && (
+                          <td className="px-4 py-2 text-right">
+                            {p.source === "manual" && (
+                              <button
+                                onClick={() => handleDeletePayment(p._id)}
+                                className="text-outline hover:text-error transition-colors"
+                                title="Remove this manual payment"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            )}
+                          </td>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </section>
         </div>
 
@@ -187,6 +305,15 @@ export const SaleDetailDrawer = ({
           </div>
         </div>
       </motion.div>
+
+      {isRecordingPayment && customer && (
+        <RecordPaymentModal
+          transaction={selectedSale}
+          customer={customer}
+          onClose={() => setIsRecordingPayment(false)}
+          formatCurrency={formatCurrency}
+        />
+      )}
     </div>
   );
 };

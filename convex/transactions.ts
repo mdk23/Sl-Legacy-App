@@ -9,8 +9,10 @@ import { updateDailyMovementStats } from "./utils";
 import { requireUser } from "./authHelpers";
 import { updateInventoryCountersHelper } from "./products";
 import { updateFinancialStats } from "./analyticsHelpers";
+import { deriveSettlementStatus, getTransactionBalance } from "./salesService";
+import { createDebt } from "./customerService";
 
-async function updateFinancialCountersHelper(ctx: any, args: { diffCredit?: number, diffDebt?: number, diffOverdue?: number, diffOverdueAccounts?: number, recoveredDebt?: number, creditUsed?: number }) {
+export async function updateFinancialCountersHelper(ctx: any, args: { diffCredit?: number, diffDebt?: number, diffOverdue?: number, diffOverdueAccounts?: number, recoveredDebt?: number, creditUsed?: number }) {
   const now = new Date();
   const monthStr = now.toISOString().slice(0, 7);
 
@@ -65,13 +67,21 @@ async function hydrateTransactions(ctx: any, transactions: any[]) {
     )
   );
 
-  const [customers, products] = await Promise.all([
+  const transactionIds = transactions.map((tx) => tx._id);
+
+  const [customers, products, paymentsPerTx] = await Promise.all([
     Promise.all(customerIds.map((id) => ctx.db.get(id))),
     Promise.all(productIds.map((id) => ctx.db.get(id))),
+    Promise.all(
+      transactionIds.map((id) =>
+        ctx.db.query("payments").withIndex("by_transaction", (q: any) => q.eq("transactionId", id)).collect()
+      )
+    ),
   ]);
 
   const customerMap = new Map(customers.filter(Boolean).map((c: any) => [c._id, c]));
   const productMap = new Map(products.filter(Boolean).map((p: any) => [p._id, p]));
+  const paymentsMap = new Map(transactionIds.map((id, i) => [id, paymentsPerTx[i]]));
 
   return transactions.map((tx) => {
     let customerName = tx.customerName;
@@ -93,8 +103,11 @@ async function hydrateTransactions(ctx: any, transactions: any[]) {
       };
     });
 
-    const totalPaid = (tx.paymentBreakdown || []).reduce((acc: number, p: any) => acc + p.amount, 0);
-    const balance = Math.max(0, tx.total - totalPaid);
+    // payments is the single source of truth for "how much has this sale paid" — never
+    // derived from a cached transaction field or from customer.debitBalance. This
+    // reflects manual payments recorded after checkout too, unlike paymentBreakdown,
+    // which is a frozen checkout-time snapshot only.
+    const { totalPaid, outstanding: balance } = getTransactionBalance(tx, paymentsMap.get(tx._id) || []);
 
     return {
       ...tx,
@@ -180,6 +193,7 @@ export const create = mutation({
       })
     ),
     notes: v.optional(v.string()),
+    addRemainingToAccount: v.optional(v.boolean()), // opt-in: convert an underpaid customer-linked sale's shortfall into account debt
   },
   handler: async (ctx, args) => {
     const user = await requireUser(ctx.db, ctx);
@@ -213,12 +227,7 @@ export const create = mutation({
       throw new Error(`Split payments total (${totalPayments}) does not match amount received (${args.amountReceived}).`);
     }
 
-    let status = "Pending";
-    if (args.amountReceived >= args.total) {
-      status = "Completed";
-    } else if (args.amountReceived > 0) {
-      status = "Partially Paid";
-    }
+    const { status, settlementType } = deriveSettlementStatus(args.total, args.amountReceived);
 
     const change = args.amountReceived - args.total;
     const isOverpayment = change > 0;
@@ -271,11 +280,14 @@ export const create = mutation({
 
       if (isOverpayment && args.changeHandling === "Store Credit") {
         balance = applyLedgerEntry(balance, { type: "CREDIT", amount: change });
-      } else if (isUnderpayment) {
-        // A shortfall on a NEW sale always becomes new debt — it must never reach into
-        // whatever unrelated store credit the customer happens to already be holding.
-        // Using existing credit to pay is only ever done explicitly, via a "Store Credit"
-        // paymentBreakdown entry (handled above), which is auditable through payments/ledger.
+      } else if (isUnderpayment && args.addRemainingToAccount === true) {
+        // A shortfall never becomes debt automatically — the cashier must opt in via
+        // addRemainingToAccount, otherwise the sale is simply left Partially Paid/Pending
+        // with no account effect (see transactions.addRemainingToCustomerAccount for the
+        // post-hoc path). When it IS opted in, the shortfall must never reach into whatever
+        // unrelated store credit the customer happens to already be holding — using existing
+        // credit to pay is only ever done explicitly, via a "Store Credit" paymentBreakdown
+        // entry (handled above), which is auditable through payments/ledger.
         balance = applyLedgerEntry(balance, { type: "DEBIT", amount: Math.abs(change) });
       }
 
@@ -303,7 +315,7 @@ export const create = mutation({
       if (isOverpayment && args.changeHandling === "Store Credit") {
         creditIssuedToday = change;
       }
-      if (isUnderpayment) {
+      if (isUnderpayment && args.addRemainingToAccount === true) {
         debtCreatedToday = Math.abs(change);
       }
       debtRecoveredToday = recoveredDebt;
@@ -338,7 +350,7 @@ export const create = mutation({
       profit: args.profit,
       cashierName: user.username,
       status,
-      settlementType: status === "Completed" ? "Fully Paid" : status,
+      settlementType,
       deliveryStatus: args.deliveryStatus,
       paymentBreakdown: args.paymentBreakdown,
       items: denormalizedItems,
@@ -350,6 +362,7 @@ export const create = mutation({
       customerName,
       customerTier,
       sessionId: session._id,
+      debtAddedToAccount: isUnderpayment && args.addRemainingToAccount === true,
       createdAt: now,
       updatedAt: now,
     });
@@ -403,6 +416,7 @@ export const create = mutation({
         paymentMethod: pay.method,
         paymentDate: now,
         status: "Completed",
+        source: "checkout",
         createdAt: now,
         updatedAt: now,
       });
@@ -461,7 +475,7 @@ export const create = mutation({
           description: `${changeType === "CREDIT" ? "Store Credit" : "Change Refund"} for ${finalReceiptNumber}`,
           createdAt: now,
         });
-      } else if (isUnderpayment) {
+      } else if (isUnderpayment && args.addRemainingToAccount === true) {
         await ctx.db.insert("ledger", {
           customerId: args.customerId,
           sessionId: session._id,
@@ -540,10 +554,9 @@ export const create = mutation({
     // 8. Increment Analytics Counters
     const totalItems = args.items.reduce((sum, item) => sum + item.quantity, 0);
 
-    let totalPendingAmount = 0;
-    if (args.amountReceived < args.total) {
-      totalPendingAmount = args.total - args.amountReceived;
-    }
+    // paymentBreakdown is the full, only payment set at creation time (no other
+    // payments row can exist yet), so it's equivalent to a live query here.
+    const totalPendingAmount = getTransactionBalance({ total: args.total }, args.paymentBreakdown).outstanding;
 
     const paymentsByMethod: Record<string, number> = {};
     for (const pay of args.paymentBreakdown) {
@@ -824,10 +837,10 @@ export const remove = mutation({
       .withIndex("by_date", (q) => q.eq("date", txDateStr))
       .first();
 
-    let totalPendingAmount = 0;
-    if ((transaction.amountReceived || 0) < transaction.total) {
-      totalPendingAmount = transaction.total - (transaction.amountReceived || 0);
-    }
+    // Derived from the live payments this transaction actually had (fetched above,
+    // before they were deleted) — not transaction.amountReceived, which is only a
+    // checkout-time snapshot and would miss any manual payments recorded afterward.
+    const totalPendingAmount = getTransactionBalance(transaction, payments).outstanding;
 
     const paymentsByMethod: Record<string, number> = {};
     for (const pay of (transaction.paymentBreakdown || [])) {
@@ -917,6 +930,51 @@ export const remove = mutation({
         });
       }
     }
+  },
+});
+
+// Post-hoc opt-in: converts an already-outstanding sale's live remaining balance into
+// account-level debt. This is the alternative to opting in at checkout time
+// (create's addRemainingToAccount). Once this runs, the sale switches from "sale mode"
+// (payments.recordSalePayment) to "account mode" (payments.addPayment) for further
+// recovery — see transaction.debtAddedToAccount.
+export const addRemainingToCustomerAccount = mutation({
+  args: { transactionId: v.id("transactions") },
+  handler: async (ctx, args) => {
+    const user = await requireUser(ctx.db, ctx);
+    if (user.role !== "admin" && user.role !== "manager") {
+      throw new Error("Unauthorized. Only admins and managers can add a balance to a customer's account.");
+    }
+
+    const transaction = await ctx.db.get(args.transactionId);
+    if (!transaction) throw new Error("Transaction not found");
+    if (!transaction.customerId) throw new Error("This sale has no linked customer — walk-in sales cannot carry account debt.");
+    if (transaction.debtAddedToAccount) throw new Error("This sale's balance has already been added to the customer's account.");
+
+    const payments = await ctx.db
+      .query("payments")
+      .withIndex("by_transaction", (q) => q.eq("transactionId", args.transactionId))
+      .collect();
+    const { outstanding } = getTransactionBalance(transaction, payments);
+    if (outstanding <= 0) throw new Error("This sale has no outstanding balance to add.");
+
+    const now = Date.now();
+    const session = await resolveCaixaSession(ctx.db, now);
+
+    await createDebt(ctx.db, transaction.customerId, outstanding, {
+      description: `Outstanding balance added to account for ${transaction.receiptNumber}`,
+      referenceId: args.transactionId,
+      referenceType: "transaction",
+      sessionId: session._id,
+    });
+
+    await ctx.db.patch(args.transactionId, { debtAddedToAccount: true, updatedAt: now });
+
+    await updateFinancialCountersHelper(ctx, { diffDebt: outstanding });
+
+    await recomputeCustomerIntelligence(ctx.db, transaction.customerId);
+
+    return { outstanding };
   },
 });
 
@@ -1091,6 +1149,20 @@ export const getSalesMetrics = query({
 
     const filteredSales = applyFilters(allTx);
 
+    // Same formula as hydrateTransactions/getTransactionBalance — outstanding is always
+    // SUM(payments), never re-derived from a cached field, so this report can't drift
+    // from what the Sales table itself shows.
+    const sumOutstanding = async (txs: any[]) => {
+      const ids = txs.map((s) => s._id);
+      const paymentsPerTx = await Promise.all(
+        ids.map((id) =>
+          ctx.db.query("payments").withIndex("by_transaction", (q) => q.eq("transactionId", id)).collect()
+        )
+      );
+      const paymentsMap = new Map(ids.map((id, i) => [id, paymentsPerTx[i]]));
+      return txs.reduce((acc, s) => acc + getTransactionBalance(s, paymentsMap.get(s._id) || []).outstanding, 0);
+    };
+
     const totalRevenue = filteredSales.reduce((acc, s) => acc + s.total, 0);
     const totalProfit = filteredSales.reduce((acc, s) => acc + s.profit, 0);
 
@@ -1106,11 +1178,7 @@ export const getSalesMetrics = query({
     const brief = await ctx.db.query("financialCounters").withIndex("by_counter_id", (q) => q.eq("id", "main")).first();
     const estimatedValuation = brief?.totalCustomerCredit || 0;
 
-    const totalPending = filteredSales.reduce((acc, s) => {
-      const amountReceived = s.amountReceived || 0;
-      const pending = s.total - amountReceived;
-      return acc + (pending > 0 ? pending : 0);
-    }, 0);
+    const totalPending = await sumOutstanding(filteredSales);
 
     const dynamicKPIs = {
       totalRevenue,
@@ -1144,11 +1212,7 @@ export const getSalesMetrics = query({
       });
       const prevClientsCount = prevClientIds.size + (prevWalkIn > 0 ? 1 : 0);
 
-      const prevPending = prevSales.reduce((acc, s) => {
-        const amountReceived = s.amountReceived || 0;
-        const pending = s.total - amountReceived;
-        return acc + (pending > 0 ? pending : 0);
-      }, 0);
+      const prevPending = await sumOutstanding(prevSales);
 
       const calculatePercentChange = (curr: number, prev: number) => {
         if (prev === 0) return curr > 0 ? 100 : 0;

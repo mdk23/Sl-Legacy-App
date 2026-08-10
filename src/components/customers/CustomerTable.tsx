@@ -7,9 +7,7 @@ import {
   Mail,
   MoreVertical,
   ChevronRight,
-  Repeat,
 } from "lucide-react";
-import { CustomerBalanceBadge } from "./CustomerBalanceBadge";
 
 interface Customer {
   _id: string;
@@ -28,13 +26,6 @@ interface Customer {
   orderCount: number;
   lastPurchaseDate?: number;
   notes?: string;
-}
-
-function frequencyLabel(orderCount: number) {
-  if (orderCount >= 20) return "Frequent Buyer";
-  if (orderCount >= 5) return "Regular Buyer";
-  if (orderCount >= 1) return "Occasional Buyer";
-  return "No Purchases Yet";
 }
 
 interface CustomerTableProps {
@@ -112,11 +103,12 @@ export const CustomerTable = ({
         <table className="w-full text-left border-collapse">
           <thead className="sticky top-0 z-10 bg-white/10 backdrop-blur-md">
             <tr className="border-b border-primary/5 font-label-caps text-[11px] text-primary">
-              <th className="px-8 py-5">CLIENT & HEALTH</th>
+              <th className="px-8 py-5">CLIENT</th>
               <th className="px-6 py-5">CONTACTS</th>
               <th className="px-6 py-5">LIFETIME VALUE</th>
-              <th className="px-6 py-5">DEBT / CREDIT</th>
-              <th className="px-6 py-5">FREQUENCY</th>
+              <th className="px-6 py-5">CREDIT</th>
+              <th className="px-6 py-5">DEBT</th>
+              <th className="px-6 py-5">HEALTH</th>
               <th className="px-8 py-5 text-right">ACTION</th>
             </tr>
           </thead>
@@ -135,26 +127,9 @@ export const CustomerTable = ({
                         {customer.firstName.charAt(0)}
                         {customer.lastName.charAt(0)}
                       </div>
-                      <div>
-                        <p className="font-body-md text-sm font-bold text-on-surface">
-                          {customer.firstName} {customer.lastName}
-                        </p>
-                        <span
-                          className={`text-[9px] font-bold uppercase tracking-wider ${
-                            health === "Elite Client"
-                              ? "text-purple-600"
-                              : health === "Valuable Client"
-                                ? "text-emerald-600"
-                                : health === "Growing Client"
-                                  ? "text-blue-600"
-                                  : health === "At Risk"
-                                    ? "text-rose-600"
-                                    : "text-slate-500"
-                          }`}
-                        >
-                          {health}
-                        </span>
-                      </div>
+                      <p className="font-body-md text-sm font-bold text-on-surface">
+                        {customer.firstName} {customer.lastName}
+                      </p>
                     </div>
                   </td>
                   <td className="px-6 py-5">
@@ -182,16 +157,39 @@ export const CustomerTable = ({
                     </div>
                   </td>
                   <td className="px-6 py-5">
-                    <CustomerBalanceBadge
-                      creditBalance={customer.creditBalance}
-                      debitBalance={customer.debitBalance}
-                      formatCurrency={formatCurrency}
-                    />
+                    {(customer.creditBalance || 0) > 0 ? (
+                      <span className="font-data-tabular text-sm font-bold text-emerald-400">
+                        {formatCurrency(customer.creditBalance || 0)}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-outline">—</span>
+                    )}
                   </td>
                   <td className="px-6 py-5">
-                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">
-                      <Repeat size={12} className="text-outline" />
-                      {frequencyLabel(customer.orderCount)}
+                    {(customer.debitBalance || 0) > 0 ? (
+                      <span className="font-data-tabular text-sm font-bold text-rose-400">
+                        {formatCurrency(customer.debitBalance || 0)}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-outline">—</span>
+                    )}
+                  </td>
+                  <td className="px-6 py-5">
+                    <div
+                      className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider ${
+                        health === "Elite Client"
+                          ? "text-purple-600"
+                          : health === "Valuable Client"
+                            ? "text-emerald-600"
+                            : health === "Growing Client"
+                              ? "text-blue-600"
+                              : health === "At Risk"
+                                ? "text-rose-600"
+                                : "text-slate-500"
+                      }`}
+                    >
+                      <HeartPulse size={12} />
+                      {health}
                     </div>
                   </td>
                   <td className="px-8 py-5 text-right" onClick={(e) => e.stopPropagation()}>
