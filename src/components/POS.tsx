@@ -26,6 +26,7 @@ import { CustomerBalanceBadge } from "./customers/CustomerBalanceBadge";
 
 export default function POS() {
   const { user } = useAuth();
+  const canApplyDiscount = user?.role === "admin" || user?.role === "manager";
   const products = useQuery(api.products.list, { archived: false }) || [];
   const customers = useQuery(api.customers.list) || [];
   const activeSession = useQuery(api.caixa.getActiveSession);
@@ -562,13 +563,19 @@ export default function POS() {
                       </button>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="flex items-center gap-1 text-[10px] text-primary font-bold">
+                      <div
+                        className={`flex items-center gap-1 text-[10px] font-bold ${
+                          canApplyDiscount ? "text-primary" : "text-outline/50"
+                        }`}
+                        title={canApplyDiscount ? undefined : "Only managers and admins can apply a discount"}
+                      >
                         <span>Disc: Mt</span>
                         <input
                           type="number"
                           min="0"
                           max={item.price * item.quantity}
                           value={item.discount || ""}
+                          disabled={!canApplyDiscount}
                           onChange={(e) => {
                             const val = parseFloat(e.target.value) || 0;
                             const maxDisc = item.price * item.quantity;
@@ -579,7 +586,7 @@ export default function POS() {
                               )
                             );
                           }}
-                          className="w-14 px-1 py-0.5 bg-surface-container/60 border border-outline-variant/30 rounded text-[10px] font-bold text-primary outline-none focus:border-primary transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          className="w-14 px-1 py-0.5 bg-surface-container/60 border border-outline-variant/30 rounded text-[10px] font-bold text-primary outline-none focus:border-primary transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
                         />
                       </div>
                       <button

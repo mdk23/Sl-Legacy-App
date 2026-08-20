@@ -197,6 +197,10 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     const user = await requireUser(ctx.db, ctx);
+    if (args.discount > 0 && user.role !== "admin" && user.role !== "manager") {
+      throw new Error("Only admins and managers can apply a discount.");
+    }
+
     const now = Date.now();
     const todayStr = new Date(now).toISOString().split("T")[0];
 
